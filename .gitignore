@@ -1,0 +1,11 @@
+build/**
+cmake-build-debug/
+!.gitkeep
+.idea/
+CMakeCache.txt
+*.a
+*.dylib
+*.dll
+*.obj
+*.cpp.o
+*.c.o
