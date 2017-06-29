@@ -50,10 +50,14 @@ class _CPPHELPERS_EXPORT Strings {
   public:
 	static bool hasSubstring(const std::string &source, const std::string &substring);
 	static bool hasSubstring(const std::string &source, char substring);
-	static bool hasRegex(const std::regex &reg, const std::string &source);
-	static bool hasRegex(const std::string &reg, const std::string &source);
-	static std::vector<std::vector<std::string>> matchAllRegexp(const std::string &s, const std::regex &rx);
-	static std::vector<std::vector<std::string>> matchAllRegexp(const std::string &s, const std::string &rxPattern);
+	static bool hasRegex(const std::regex &pattern, const std::string &source);
+	static bool hasRegex(const std::string &pattern, const std::string &source);
+	static std::vector<std::vector<std::string>> matchAllRegexp(const std::regex &rx, const std::string &s);
+	static std::vector<std::vector<std::string>> matchAllRegexp(const std::string &rxPattern, const std::string &s);
+	static std::string matchRegexpFirst(const std::string &rxPattern, const std::string &source);
+	static std::string matchRegexpFirst(const std::regex &rxPattern, const std::string &source);
+	static std::smatch matchRegexp(const std::string &rxPattern, const std::string &source);
+	static std::smatch matchRegexp(const std::regex &rxPattern, const std::string &source);
 
 	static std::pair<std::string, std::string> splitPair(const std::string &source, const std::string &delimiter);
 	static std::pair<std::string, std::string> splitPair(const std::string &source, const char &delimiter);

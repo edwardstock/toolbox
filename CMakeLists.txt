@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 project(cpphelpers)
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_COMPILER_FLAGS "-Werror -Wfatal-error -pedantic")
 set(CMAKE_CXX_LINKER_FLAGS "-static-libstdc++")
 
@@ -23,7 +23,11 @@ set(SOURCE_FILES
     src/Strings.cpp
     )
 
-add_library(cpphelpers ${SOURCE_FILES})
+if (ENABLE_STATIC)
+	add_library(cpphelpers STATIC ${SOURCE_FILES})
+else ()
+	add_library(cpphelpers SHARED ${SOURCE_FILES})
+endif ()
 
 install(
 	TARGETS cpphelpers
@@ -34,3 +38,7 @@ install(
 	FILES ${PUBLIC_HEADERS}
 	DESTINATION include/${PROJECT}
 )
+
+
+add_executable(dev main.cpp)
+target_link_libraries(dev cpphelpers)

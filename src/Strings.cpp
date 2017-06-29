@@ -83,7 +83,7 @@ std::string Strings::toString(std::ifstream &inputStream) {
 	return std::string((std::istreambuf_iterator<char>(inputStream)), std::istreambuf_iterator<char>());
 }
 
-std::vector<std::vector<std::string>> Strings::matchAllRegexp(const std::string &s, const std::regex &rx) {
+std::vector<std::vector<std::string>> Strings::matchAllRegexp(const std::regex &rx, const std::string &s) {
 	std::vector<std::vector<std::string>> capturedGroups;
 	std::vector<std::string> capturedSubgroups;
 	const std::sregex_token_iterator endIterator;
@@ -100,14 +100,38 @@ std::vector<std::vector<std::string>> Strings::matchAllRegexp(const std::string 
 				capturedGroups.push_back(capturedSubgroups);
 			}
 		}
-
 	}
 	capturedGroups.push_back(capturedSubgroups);
 	return capturedGroups;
 }
 
-std::vector<std::vector<std::string>> Strings::matchAllRegexp(const std::string &s, const std::string &rxPattern) {
-	return matchAllRegexp(s, std::regex(rxPattern, std::regex_constants::icase));
+std::vector<std::vector<std::string>> Strings::matchAllRegexp(const std::string &rxPattern, const std::string &s) {
+	return matchAllRegexp(std::regex(rxPattern, std::regex_constants::icase), s);
+}
+
+std::string Strings::matchRegexpFirst(const std::string &rxPattern, const std::string &source) {
+	return matchRegexpFirst(std::regex(rxPattern, std::regex_constants::icase), source);
+}
+
+std::string Strings::matchRegexpFirst(const std::regex &rxPattern, const std::string &source) {
+	std::smatch results;
+	std::string result;
+	bool found = std::regex_search(source, results, rxPattern);
+	if (!found || results.size() < 2) {
+		return std::string();
+	}
+
+	return results[1];
+}
+
+std::smatch Strings::matchRegexp(const std::string &rxPattern, const std::string &source) {
+	return matchRegexp(std::regex(rxPattern, std::regex_constants::icase), source);
+}
+
+std::smatch Strings::matchRegexp(const std::regex &rxPattern, const std::string &source) {
+	std::smatch result;
+	std::regex_search(source, result, rxPattern);
+	return result;
 }
 
 bool Strings::equals(const std::string &s1, const std::string &s2) {
@@ -127,13 +151,13 @@ bool Strings::equalsIgnoreCase(const std::string &s1, const std::string &s2) {
 	);
 }
 
-bool Strings::hasRegex(const std::regex &reg, const std::string &source) {
+bool Strings::hasRegex(const std::regex &pattern, const std::string &source) {
 	std::smatch match;
-	return std::regex_search(source, match, reg);
+	return std::regex_search(source, match, pattern);
 }
 
-bool Strings::hasRegex(const std::string &reg, const std::string &source) {
-	return hasRegex(std::regex(reg), source);
+bool Strings::hasRegex(const std::string &pattern, const std::string &source) {
+	return hasRegex(std::regex(pattern), source);
 }
 
 bool Strings::replace(const std::string &search, const std::string &replace, std::string &source) {
