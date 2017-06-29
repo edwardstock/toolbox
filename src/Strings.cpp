@@ -16,7 +16,7 @@ bool Strings::hasSubstring(const std::string &source, const char substring) {
 }
 
 std::pair<std::string, std::string> Strings::splitPair(const std::string &source, const std::string &delimiter) {
-	if (delimiter.size() < 1) {
+	if (delimiter.empty()) {
 		return std::pair<std::string, std::string>(std::string(), std::string());
 	}
 	return splitPair(source, delimiter.c_str()[0]);
@@ -25,9 +25,11 @@ std::pair<std::string, std::string> Strings::splitPair(const std::string &source
 std::pair<std::string, std::string> Strings::splitPair(const std::string &source, const char &delimiter) {
 	std::vector<std::string> elements = split(source, delimiter);
 
-	if (elements.size() == 0) {
+	if (elements.empty()) {
 		return std::pair<std::string, std::string>(std::string(), std::string());
-	} else if (elements.size() == 1) {
+	}
+
+	if (elements.size() == 1) {
 		return std::pair<std::string, std::string>(elements.at(0), std::string());
 	}
 
@@ -35,7 +37,7 @@ std::pair<std::string, std::string> Strings::splitPair(const std::string &source
 }
 
 std::vector<std::string> Strings::split(const std::string &source, const std::string &delimiter) {
-	if (delimiter.size() < 1) {
+	if (delimiter.empty()) {
 		return std::vector<std::string>(0);
 	}
 
@@ -53,30 +55,18 @@ std::vector<std::string> Strings::split(const std::string &source, const char &d
 	return elements;
 }
 
-void Strings::removeSubstrings(std::string &s, const std::string &p) {
-	std::string::size_type n = p.length();
+void Strings::removeSubstrings(std::string &source, const std::string &removable) {
+	size_t n = removable.length();
 
-	for (std::string::size_type i = s.find(p); i != std::string::npos; i = s.find(p)) {
-		s.erase(i, n);
+	for (size_t i = source.find(removable); i != std::string::npos; i = source.find(removable)) {
+		source.erase(i, n);
 	}
 }
 
-void Strings::removeSubstrings(std::string &s, std::vector<std::string> replaces) {
-	for (auto it = replaces.begin(); it != replaces.end(); ++it) {
-		removeSubstrings(s, *it);
+void Strings::removeSubstrings(std::string &source, std::vector<std::string> removables) {
+	for (auto &replace : removables) {
+		removeSubstrings(source, replace);
 	}
-}
-
-std::string Strings::toString(int32_t in) {
-	std::stringstream ss;
-	ss << in;
-	return ss.str();
-}
-
-std::string Strings::toString(int64_t in) {
-	std::stringstream ss;
-	ss << in;
-	return ss.str();
 }
 
 std::string Strings::toString(std::ifstream &inputStream) {
@@ -134,11 +124,6 @@ std::smatch Strings::matchRegexp(const std::regex &rxPattern, const std::string 
 	return result;
 }
 
-bool Strings::equals(const std::string &s1, const std::string &s2) {
-	if (s2.length() != s1.length()) return false;
-	return std::strncmp(s1.c_str(), s2.c_str(), s2.size()) == 0;
-}
-
 bool Strings::equalsIgnoreCase(const std::string &s1, const std::string &s2) {
 	if (s1.length() != s2.length()) return false;
 
@@ -160,19 +145,6 @@ bool Strings::hasRegex(const std::string &pattern, const std::string &source) {
 	return hasRegex(std::regex(pattern), source);
 }
 
-bool Strings::replace(const std::string &search, const std::string &replace, std::string &source) {
-	if (search.empty())
-		return false;
-
-	size_t startPos = 0;
-	while ((startPos = source.find(search, startPos)) != std::string::npos) {
-		source.replace(startPos, search.length(), replace);
-		startPos += replace.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
-	}
-
-	return true;
-}
-
 std::string Strings::glue(const std::string &glue, const std::vector<std::string> &strings) {
 	std::string out;
 
@@ -189,4 +161,65 @@ std::string Strings::glue(const std::string &glue, const std::vector<std::string
 	}
 
 	return out;
+}
+
+std::string Strings::substringReplace(const std::string &search,
+                                      const std::string &replace,
+                                      const std::string &source) {
+	if (source.empty() || source.length() < search.length()) {
+		return source;
+	}
+
+	size_t found = source.find(search);
+	if (found == std::string::npos) {
+		return source;
+	}
+
+	std::string begin, end;
+	begin = source.substr(0, found);
+	end = source.substr(found + search.length(), std::string::npos);
+	std::stringstream ss;
+	ss << begin << replace << end;
+
+	return ss.str();
+}
+
+std::string Strings::substringReplaceAll(const std::vector<std::string> &search,
+                                         const std::vector<std::string> &replace,
+                                         const std::string &source) {
+	if (search.size() != replace.size() || search.empty() || replace.empty()) {
+		throw std::invalid_argument("search & replace vectors must be equal size and not empty!");
+	}
+
+	std::string result;
+
+	for (size_t i = 0; i < search.size(); i++) {
+		result = substringReplaceAll(search[i], replace[i], i == 0 ? source : result);
+	}
+
+	return result;
+}
+
+std::string Strings::substringReplaceAll(const std::string &search,
+                                         const std::string &replace,
+                                         const std::string &source) {
+
+	std::string result = substringReplace(search, replace, source);
+	while (result.find(search) != std::string::npos) {
+		result = substringReplace(search, replace, result);
+	}
+
+	return result;
+}
+
+void Strings::replace(const std::string &search, const std::string &replace, std::string &source) {
+	source = substringReplace(search, replace, source);
+}
+void Strings::replaceAll(const std::string &search, const std::string &replace, std::string &source) {
+	source = substringReplaceAll(search, replace, source);
+}
+void Strings::replaceAll(const std::vector<std::string> &search,
+                         const std::vector<std::string> &replace,
+                         std::string &source) {
+	source = substringReplaceAll(search, replace, source);
 }
