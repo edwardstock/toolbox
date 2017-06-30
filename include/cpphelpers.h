@@ -13,6 +13,7 @@
 #define _CPPHELPERS_EXPORT __attribute__ ((visibility ("default")))
 #endif
 
+#include <chrono>
 #include <string>
 #include <iosfwd>
 #include <vector>
