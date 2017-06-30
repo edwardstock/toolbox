@@ -1,0 +1,16 @@
+dist: trusty
+sudo: required
+language: c++
+compiler:
+  - g++
+  - clang
+
+install:
+  - sudo apt-get update
+  - sudo apt-get install cmake
+
+script:
+  - cd build
+  - cmake -DCMAKE_BUILD_TYPE=Release ../
+  - cmake --build . --target cpphelpers
+  - cmake install

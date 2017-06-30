@@ -10,7 +10,11 @@ Private cpp helpers lib
 ## Building
 ```bash
 git clone https://github.com/edwardstock/libcpphelpers.git cpphelpers && cd cpphelpers/build
-cmake .. --target cpphelpers -DCMAKE_BUILD_TYPE=Release
-make -j4
-make install
+cmake -DCMAKE_BUILD_TYPE=Release ../
+cmake --build . --target cpphelpers
+cmake install
 ```
+
+By default, script installs:
+* header to: /usr/local/include/cpphelpers.h 
+* library to: /usr/local/lib{suffix}/libcpphelpers.a
