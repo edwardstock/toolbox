@@ -14,8 +14,11 @@
 #endif
 
 #include <string>
+#include <iosfwd>
 #include <vector>
 #include <map>
+#include <deque>
+#include <unordered_map>
 #include <istream>
 #include <ostream>
 #include <vector>
@@ -24,6 +27,38 @@
 #include <iostream>
 #include <fstream>
 #include <exception>
+
+class _CPPHELPERS_EXPORT SimpleProfiler {
+  public:
+	/**
+	 * Begin profile record
+	 * @param tag
+	 */
+	static void begin(const std::string &tag);
+	/**
+	 * End profile recording for last "begin" tag
+	 */
+	static void end();
+	/**
+	 * Finish profile recording for certain tag
+	 * @param tag
+	 */
+	static void end(const std::string &tag);
+
+	static void printProfile(std::ostream &ostream, bool clear = true);
+
+	/**
+	 * Clear profile data and last tag
+	 */
+	static void clear();
+
+  private:
+	typedef std::chrono::milliseconds __millis;
+	typedef std::chrono::system_clock __sys_clock;
+
+	static std::unordered_map<std::string, __millis> profile;
+	static std::string &lastTag;
+};
 
 class _CPPHELPERS_EXPORT Collections {
   public:

@@ -21,7 +21,7 @@ set(SOURCE_FILES
     src/Console.cpp
     src/Numbers.cpp
     src/Strings.cpp
-    )
+    src/SimpleProfiler.cpp)
 
 if (ENABLE_STATIC)
 	add_library(cpphelpers STATIC ${SOURCE_FILES})
