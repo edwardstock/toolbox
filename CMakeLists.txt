@@ -7,6 +7,7 @@ set(CMAKE_CXX_COMPILER_FLAGS "-Werror -Wfatal-error -pedantic")
 set(CMAKE_CXX_LINKER_FLAGS "-static-libstdc++")
 
 include(options.cmake)
+include(check_system.cmake)
 
 set(PUBLIC_HEADERS
     include/cpphelpers.h
