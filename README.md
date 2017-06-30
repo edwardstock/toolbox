@@ -1,4 +1,4 @@
-# libcpphelpers
+# libcpphelpers [![Build Status](https://travis-ci.org/edwardstock/libcpphelpers.svg?branch=master)](https://travis-ci.org/edwardstock/libcpphelpers)
 Private cpp helpers lib
 
 
@@ -12,7 +12,7 @@ Private cpp helpers lib
 git clone https://github.com/edwardstock/libcpphelpers.git cpphelpers && cd cpphelpers/build
 cmake -DCMAKE_BUILD_TYPE=Release ../
 cmake --build . --target cpphelpers
-cmake install
+cmake install .
 ```
 
 By default, script installs:
