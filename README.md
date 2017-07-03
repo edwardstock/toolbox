@@ -7,7 +7,7 @@ Private cpp helpers lib
 * gcc/clang/msvc (not tested)
 * make
 
-## Building
+## Build
 ```bash
 git clone https://github.com/edwardstock/libcpphelpers.git cpphelpers && cd cpphelpers/build
 cmake -DCMAKE_BUILD_TYPE=Release ../

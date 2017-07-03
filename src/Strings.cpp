@@ -147,7 +147,7 @@ bool Strings::equalsIgnoreCase(const_string s1, const_string s2)
 			s2.begin(), s2.end(),
 			s1.begin(),
 			[](unsigned char a, unsigned char b) {
-			  return std::tolower(a)==std::tolower(b);
+			  return __CHAR_TO_LOWER(a)==__CHAR_TO_LOWER(b);
 			}
 	);
 }
@@ -292,5 +292,10 @@ std::string Strings::substrInverse(const_string source, const_string begin, cons
 	std::string out = source.substr(0, from);
 	out.append(source.substr(to, std::string::npos));
 	return out;
+}
+bool Strings::hasSubstringIgnoreCase(const_string source, const_string substring)
+{
+	int cmp = stringCompare(source, substring);
+	return cmp>=0;
 }
 

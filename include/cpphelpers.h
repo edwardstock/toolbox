@@ -9,8 +9,17 @@
 #ifndef CPPHELPERS_H
 #define CPPHELPERS_H
 
-#ifndef _CPPHELPERS_EXPORT
+#if !_WIN32 && !_CPPHELPERS_EXPORT
 #define _CPPHELPERS_EXPORT __attribute__ ((visibility ("default")))
+#else
+#define _CPPHELPERS_EXPORT
+#endif
+
+#ifdef _WIN32
+#include <tchar.h>
+#define __CHAR_TO_LOWER(c) _tolower(c)
+#else
+#define __CHAR_TO_LOWER(c) std::tolower(c)
 #endif
 
 #include <chrono>
@@ -87,6 +96,31 @@ class _CPPHELPERS_EXPORT Strings {
 public:
 	typedef size_t strlen_t;
 	typedef const std::string& const_string;
+
+	template<typename _CharT>
+	struct StringEqualing {
+		explicit StringEqualing(const std::locale& locale)
+				:_locale(locale) { }
+		bool operator()(_CharT ch1, _CharT ch2)
+		{
+			return std::toupper(ch1, _locale)==std::toupper(ch2, _locale);
+		}
+	private:
+		const std::locale& _locale;
+	};
+
+	template<typename T>
+	static int stringCompare(const T& str1, const T& str2, const std::locale& loc = std::locale())
+	{
+		typename T::const_iterator it = std::search(str1.begin(), str1.end(),
+				str2.begin(), str2.end(),
+				StringEqualing<typename T::value_type>(loc)
+		);
+		if (it!=str1.end()) return it-str1.begin();
+		else return -1; // not found
+	}
+
+	static bool hasSubstringIgnoreCase(const_string source, const_string substring);
 
 	/**
 	 * Search substring in string
