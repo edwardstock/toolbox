@@ -40,6 +40,7 @@ install(
 	DESTINATION include/${PROJECT}
 )
 
-
-add_executable(dev main.cpp)
-target_link_libraries(dev cpphelpers)
+if (NOT ${CMAKE_BUILD_TYPE} STREQUAL Release)
+	add_executable(dev main.cpp)
+	target_link_libraries(dev cpphelpers)
+endif ()

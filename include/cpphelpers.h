@@ -110,14 +110,15 @@ public:
 	};
 
 	template<typename T>
-	static int stringCompare(const T& str1, const T& str2, const std::locale& loc = std::locale())
+	static size_t stringCompare(const T& str1, const T& str2, const std::locale& loc = std::locale())
 	{
 		typename T::const_iterator it = std::search(str1.begin(), str1.end(),
 				str2.begin(), str2.end(),
 				StringEqualing<typename T::value_type>(loc)
 		);
 		if (it!=str1.end()) return it-str1.begin();
-		else return -1; // not found
+
+		return std::string::npos; // not found
 	}
 
 	static bool hasSubstringIgnoreCase(const_string source, const_string substring);
@@ -324,6 +325,26 @@ public:
 	static std::string substrInverse(const_string source, char begin, char end, long offset = 0);
 	static std::string substrInverse(const_string source, const_string begin);
 	static std::string substrInverse(const_string source, const_string begin, const_string end, long offset = 0);
+
+	/**
+	 * How works:
+	 * source: "aaa bbb ccc"
+	 * search: "bbb"
+	 * width: 7
+	 * 1. find position of "search" in "source" = 5
+	 * 2. find center of "search": centerOfSearch = 5 + (search.length() / 2) = 5 + 1 = 6
+	 * 3. find center of "width": centerOfWidth = 7 / 2 = 3
+	 * 4. now we can calculate start index of "source" to get "width" chars of "source":
+	 *  begin: centerOfSearch - centerOfWidth = 6 - 3 = 3
+	 * 5. Result:
+	 *  "aa[begin+width]a bbb c[end]cc"
+	 * @param source
+	 * @param search
+	 * @param width
+	 * @param icase case sensetivity
+	 * @return
+	 */
+	static std::string clipSubstring(const_string source, const_string search, size_t width, bool icase = false);
 
 	/**
 	 * Concatenates strings by glue

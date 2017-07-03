@@ -295,7 +295,42 @@ std::string Strings::substrInverse(const_string source, const_string begin, cons
 }
 bool Strings::hasSubstringIgnoreCase(const_string source, const_string substring)
 {
-	int cmp = stringCompare(source, substring);
-	return cmp>=0;
+	size_t cmp = stringCompare(source, substring);
+	return cmp!=std::string::npos;
+}
+
+std::string Strings::clipSubstring(const std::string& source, const std::string& search, const size_t width, bool icase)
+{
+	size_t pos = icase ? stringCompare(source, search) : source.find(search);
+	if (pos==std::string::npos) {
+		return source;
+	}
+
+	size_t searchLength = search.length();
+	size_t sourceLength = source.length();
+
+	// if width equals search length, return search string
+	if (searchLength==width || sourceLength==searchLength || sourceLength==width) {
+		return search;
+	}
+
+	// if width size less than search size, return part of search string
+	if (width<searchLength || sourceLength<width) {
+		return search.substr(0, width);
+	}
+
+	size_t centerOfSearch, centerOfWidth, begin;
+
+	centerOfSearch = pos+(searchLength/2);
+	centerOfWidth = width/2;
+
+	if (centerOfSearch-centerOfWidth<0) {
+		begin = 0;
+	}
+	else {
+		begin = (size_t) centerOfSearch-centerOfWidth;
+	}
+
+	return source.substr(begin, width);
 }
 
