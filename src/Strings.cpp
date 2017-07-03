@@ -319,7 +319,7 @@ std::string Strings::clipSubstring(const std::string& source, const std::string&
 		return search.substr(0, width);
 	}
 
-	size_t centerOfSearch, centerOfWidth, begin;
+	long centerOfSearch, centerOfWidth, begin;
 
 	centerOfSearch = pos+(searchLength/2);
 	centerOfWidth = width/2;
@@ -328,9 +328,9 @@ std::string Strings::clipSubstring(const std::string& source, const std::string&
 		begin = 0;
 	}
 	else {
-		begin = (size_t) centerOfSearch-centerOfWidth;
+		begin = centerOfSearch-centerOfWidth;
 	}
 
-	return source.substr(begin, width);
+	return source.substr((size_t) begin, width);
 }
 
