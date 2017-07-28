@@ -13,4 +13,4 @@ script:
   - cd build
   - cmake .. -DCMAKE_BUILD_TYPE=Release
   - cmake --build . --target cpphelpers
-  - cmake --build . --target install
+  - sudo cmake --build . --target install
