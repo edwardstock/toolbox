@@ -1,4 +1,4 @@
-dist: trusty
+dist: precise
 sudo: required
 language: c++
 compiler:
@@ -11,6 +11,6 @@ install:
 
 script:
   - cd build
-  - cmake -DCMAKE_BUILD_TYPE=Release ../
+  - cmake .. -DCMAKE_BUILD_TYPE=Release
   - cmake --build . --target cpphelpers
-  - cmake install .
+  - cmake --build . --target install
