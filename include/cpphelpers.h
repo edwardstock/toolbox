@@ -44,7 +44,7 @@ public:
 	 * Begin profile record
 	 * @param tag
 	 */
-	static void begin(const std::string& tag);
+	static void begin(const std::string &tag);
 	/**
 	 * End profile recording for last "begin" tag
 	 */
@@ -53,9 +53,9 @@ public:
 	 * Finish profile recording for certain tag
 	 * @param tag
 	 */
-	static void end(const std::string& tag);
+	static void end(const std::string &tag);
 
-	static void printProfile(std::ostream& ostream, bool clear = true);
+	static void printProfile(std::ostream &ostream, bool clear = true);
 
 	/**
 	 * Clear profile data and last tag
@@ -67,56 +67,56 @@ private:
 	typedef std::chrono::system_clock __sys_clock;
 
 	static std::unordered_map<std::string, __millis> profile;
-	static std::string& lastTag;
+	static std::string &lastTag;
 };
 
 class _CPPHELPERS_EXPORT Collections {
 public:
 	template<typename K, typename V>
-	static std::vector<K> mapKeysToVector(const std::map<K, V>& map);
+	static std::vector<K> mapKeysToVector(const std::map<K, V> &map);
 
 	template<typename K, typename V>
-	static std::vector<V> mapValuesToVector(const std::map<K, V>& map);
+	static std::vector<V> mapValuesToVector(const std::map<K, V> &map);
 };
 
 class _CPPHELPERS_EXPORT Console {
 public:
-	static bool confirm(std::istream& in, std::ostream& out, const std::string& message, bool defValue = false);
-	static std::string prompt(std::istream& in, std::ostream& out, const std::string& message,
-			bool required = false, const std::string& defValue = "");
+	static bool confirm(std::istream &in, std::ostream &out, const std::string &message, bool defValue = false);
+	static std::string prompt(std::istream &in, std::ostream &out, const std::string &message,
+	                          bool required = false, const std::string &defValue = "");
 };
 
 class _CPPHELPERS_EXPORT Numbers {
 public:
-	static bool isInteger(const std::string& input);
-	static bool isReal(const std::string& input);
+	static bool isInteger(const std::string &input);
+	static bool isReal(const std::string &input);
 };
 
 class _CPPHELPERS_EXPORT Strings {
 public:
 	typedef size_t strlen_t;
-	typedef const std::string& const_string;
+	typedef const std::string &const_string;
 
 	template<typename _CharT>
 	struct StringEqualing {
-		explicit StringEqualing(const std::locale& locale)
+		explicit StringEqualing(const std::locale &locale)
 				:_locale(locale) { }
 		bool operator()(_CharT ch1, _CharT ch2)
 		{
-			return std::toupper(ch1, _locale)==std::toupper(ch2, _locale);
+			return std::toupper(ch1, _locale) == std::toupper(ch2, _locale);
 		}
 	private:
-		const std::locale& _locale;
+		const std::locale &_locale;
 	};
 
 	template<typename T>
-	static size_t stringCompare(const T& str1, const T& str2, const std::locale& loc = std::locale())
+	static size_t stringCompare(const T &str1, const T &str2, const std::locale &loc = std::locale())
 	{
 		typename T::const_iterator it = std::search(str1.begin(), str1.end(),
 				str2.begin(), str2.end(),
 				StringEqualing<typename T::value_type>(loc)
 		);
-		if (it!=str1.end()) return it-str1.begin();
+		if (it != str1.end()) return it - str1.begin();
 
 		return std::string::npos; // not found
 	}
@@ -143,7 +143,7 @@ public:
 	 * @param source
 	 * @return
 	 */
-	static bool hasRegex(const std::regex& pattern, const_string source);
+	static bool hasRegex(const std::regex &pattern, const_string source);
 	/**
 	 * Match regex pattern.
 	 * @param pattern Just string. By default: search with flag std::regex_constants::icase
@@ -157,7 +157,7 @@ public:
 	 * @param s
 	 * @return
 	 */
-	static std::vector<std::vector<std::string>> matchAllRegexp(const std::regex& pattern, const_string source);
+	static std::vector<std::vector<std::string>> matchAllRegexp(const std::regex &pattern, const_string source);
 	/**
 	 * Returns all found groups in source with pattern
 	 * @param pattern
@@ -178,7 +178,7 @@ public:
 	 * @param source
 	 * @return
 	 */
-	static std::string matchRegexpFirst(const std::regex& pattern, const_string source);
+	static std::string matchRegexpFirst(const std::regex &pattern, const_string source);
 	/**
 	 * boilerplate to std::regex
 	 * @param pattern
@@ -192,7 +192,7 @@ public:
 	 * @param source
 	 * @return
 	 */
-	static std::smatch matchRegexp(const std::regex& rxPattern, const_string source);
+	static std::smatch matchRegexp(const std::regex &rxPattern, const_string source);
 
 	/**
 	 * Splits string by delimiter to pair
@@ -207,7 +207,7 @@ public:
 	 * @param delimiter
 	 * @return
 	 */
-	static std::pair<std::string, std::string> splitPair(const_string source, const char& delimiter);
+	static std::pair<std::string, std::string> splitPair(const_string source, const char &delimiter);
 	/**
 	 * Splits string by char delimiter to vector list
 	 * @param source
@@ -221,7 +221,7 @@ public:
 	 * @param delimiter
 	 * @return
 	 */
-	static std::vector<std::string> split(const_string source, const char& delimiter);
+	static std::vector<std::string> split(const_string source, const char &delimiter);
 
 	/**
 	 * @see substringReplace(const_string search,
@@ -232,7 +232,7 @@ public:
 	 * @param source Mutable
 	 * @return
 	 */
-	static void replace(const_string search, const_string replace, std::string& source);
+	static void replace(const_string search, const_string replace, std::string &source);
 
 	/**
 	 * @see substringReplaceAll(const_string search,
@@ -242,7 +242,7 @@ public:
 	 * @param replace
 	 * @param source Mutable
 	 */
-	static void replaceAll(const_string search, const_string replace, std::string& source);
+	static void replaceAll(const_string search, const_string replace, std::string &source);
 
 	/**
 	 * @see substringReplaceAll(const std::vector<std::string> &search,
@@ -252,9 +252,9 @@ public:
 	 * @param replace
 	 * @param source Mutable
 	 */
-	static void replaceAll(const std::vector<std::string>& search,
-			const std::vector<std::string>& replace,
-			std::string& source);
+	static void replaceAll(const std::vector<std::string> &search,
+	                       const std::vector<std::string> &replace,
+	                       std::string &source);
 
 	/**
 	 * Replaces first occurrence "search" and replaces with "replace" parameter in "source" string.
@@ -278,9 +278,9 @@ public:
 	 * @param source
 	 * @return
 	 */
-	static std::string substringReplaceAll(const std::vector<std::string>& search,
-			const std::vector<std::string>& replace,
-			const_string source);
+	static std::string substringReplaceAll(const std::vector<std::string> &search,
+	                                       const std::vector<std::string> &replace,
+	                                       const_string source);
 	/**
 	 * Works like std::string substringReplace(const_string search, const_string replace, const_string source);
 	 * but replaces all "search" occurrences with "replace" string
@@ -297,13 +297,13 @@ public:
 	 * @param source Mutable value!
 	 * @param removable
 	 */
-	static void removeSubstrings(std::string& source, const_string removable);
+	static void removeSubstrings(std::string &source, const_string removable);
 	/**
 	 * Find all "removables" strings in "source" and remove it
 	 * @param source
 	 * @param removables
 	 */
-	static void removeSubstrings(std::string& source, std::vector<std::string> removables);
+	static void removeSubstrings(std::string &source, std::vector<std::string> removables);
 
 	/**
 	 *
@@ -352,14 +352,14 @@ public:
 	 * @param strings
 	 * @return
 	 */
-	static std::string glue(const_string glue, const std::vector<std::string>& strings);
+	static std::string glue(const_string glue, const std::vector<std::string> &strings);
 
 	/**
 	 * Input file stream to string
 	 * @param inputStream
 	 * @return
 	 */
-	static std::string toString(std::ifstream& inputStream);
+	static std::string toString(std::ifstream &inputStream);
 
 	/**
 	 *
