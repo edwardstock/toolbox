@@ -7,7 +7,7 @@
  */
 #include "cpphelpers.h"
 
-bool Console::confirm(std::istream &in, std::ostream &out, const std::string &message, bool defValue) {
+bool cpphelpers::console::confirm(std::istream &in, std::ostream &out, const std::string &message, bool defValue) {
 	std::string res;
 	do {
 		out << message;
@@ -16,20 +16,20 @@ bool Console::confirm(std::istream &in, std::ostream &out, const std::string &me
 
 	} while (
 		!res.empty() &&
-			!Strings::equalsIgnoreCase(res, "yes") &&
-			!Strings::equalsIgnoreCase(res, "no") &&
-			!Strings::equalsIgnoreCase(res, "y") &&
-			!Strings::equalsIgnoreCase(res, "n")
+			!cpphelpers::strings::equalsIgnoreCase(res, "yes") &&
+			!cpphelpers::strings::equalsIgnoreCase(res, "no") &&
+			!cpphelpers::strings::equalsIgnoreCase(res, "y") &&
+			!cpphelpers::strings::equalsIgnoreCase(res, "n")
 		);
 
 	if (res.empty()) {
 		return defValue;
 	}
 
-	return Strings::equalsIgnoreCase(res, "yes") || Strings::equalsIgnoreCase(res, "y");
+	return cpphelpers::strings::equalsIgnoreCase(res, "yes") || cpphelpers::strings::equalsIgnoreCase(res, "y");
 }
 
-std::string Console::prompt(std::istream &in,
+std::string cpphelpers::console::prompt(std::istream &in,
                             std::ostream &out,
                             const std::string &message,
                             bool required,

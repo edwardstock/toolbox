@@ -18,3 +18,8 @@ cmake install .
 By default, script installs:
 * header to: /usr/local/include/cpphelpers.h 
 * library to: /usr/local/lib{suffix}/libcpphelpers.a
+
+
+~~~{.cpp}
+void main(int argc, char** argv);
+~~~

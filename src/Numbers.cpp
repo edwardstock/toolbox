@@ -7,11 +7,11 @@
  */
 #include "cpphelpers.h"
 
-bool Numbers::isInteger(const std::string &input) {
+bool cpphelpers::numbers::isInteger(const std::string &input) {
 	return std::regex_match(input, std::regex(R"(^[-]?[0-9eE+]+?$)"));
 }
 
-bool Numbers::isReal(const std::string &input) {
+bool cpphelpers::numbers::isReal(const std::string &input) {
 	return std::regex_match(input, std::regex(R"(^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$)"));
 }
 
