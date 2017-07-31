@@ -310,6 +310,23 @@ std::string cpphelpers::strings::clipSubstring(const_string source,
 
 	return source.substr((size_t) begin, width);
 }
+std::string cpphelpers::strings::toUpper(const std::string &s) {
+	std::string tmp;
+	for (std::string::size_type i = 0; i < s.length(); ++i) {
+		tmp += __CHAR_TO_UPPER(s[i]);
+	}
+
+	return tmp;
+}
+
+std::string cpphelpers::strings::toLower(const std::string &s) {
+	std::string tmp;
+	for (std::string::size_type i = 0; i < s.length(); ++i) {
+		tmp += __CHAR_TO_LOWER(s[i]);
+	}
+
+	return tmp;
+}
 
 
 

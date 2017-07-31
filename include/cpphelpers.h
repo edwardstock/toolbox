@@ -18,8 +18,10 @@
 #ifdef _WIN32
 #include <tchar.h>
 #define __CHAR_TO_LOWER(c) _tolower(c)
+#define __CHAR_TO_UPPER(C) _toupper(c)
 #else
 #define __CHAR_TO_LOWER(c) std::tolower(c)
+#define __CHAR_TO_UPPER(c) std::toupper(c)
 #endif
 
 #include <chrono>
@@ -343,6 +345,20 @@ std::string glue(const_string glue, const std::vector<std::string> &strings);
  * @return
  */
 std::string toString(std::ifstream &inputStream);
+
+/**
+ * String to lower case
+ * @param s
+ * @return
+ */
+std::string toLower(const_string s);
+
+/**
+ * String to upper case
+ * @param s
+ * @return
+ */
+std::string toUpper(const_string s);
 
 /**
  *
