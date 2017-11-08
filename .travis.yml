@@ -10,7 +10,7 @@ install:
   - sudo apt-get install cmake
 
 script:
-  - cd build
+  - mkdir build && cd build
   - cmake .. -DCMAKE_BUILD_TYPE=Release
   - cmake --build . --target cpphelpers
   - sudo cmake --build . --target install
