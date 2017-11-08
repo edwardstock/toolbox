@@ -79,6 +79,7 @@ bool isReal(const std::string &input);
 namespace fs {
 const std::string readFile(const std::string &path);
 void writeFile(const std::string &path, const std::string &data);
+bool exists(const std::string &path);
 }
 
 namespace strings {

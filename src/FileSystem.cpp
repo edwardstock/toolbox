@@ -6,7 +6,8 @@
  * @link https://github.com/edwardstock
  */
 
-#include "cpphelpers.h"
+#include <sys/stat.h>
+#include "../include/cpphelpers.h"
 
 const std::string cpphelpers::fs::readFile(const std::string &path) {
 	std::ifstream input(path);
@@ -31,5 +32,10 @@ void cpphelpers::fs::writeFile(const std::string &path, const std::string &data)
 	out << data;
 	out.flush();
 	out.close();
+}
+
+bool cpphelpers::fs::exists(const std::string &path) {
+	struct stat s;
+	return stat(path.c_str(), &s) == 0;
 }
 
