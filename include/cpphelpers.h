@@ -76,6 +76,11 @@ bool isInteger(const std::string &input);
 bool isReal(const std::string &input);
 }
 
+namespace fs {
+const std::string readFile(const std::string &path);
+void writeFile(const std::string &path, const std::string &data);
+}
+
 namespace strings {
 typedef size_t strlen_t;
 typedef const std::string &const_string;
