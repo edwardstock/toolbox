@@ -8,6 +8,9 @@
 
 #include <sys/stat.h>
 #include "../include/cpphelpers.h"
+#include <cerrno>
+#include <cstring>
+#include <cstdio>
 
 const std::string cpphelpers::fs::readFile(const std::string &path) {
 	std::ifstream input(path);
