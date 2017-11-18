@@ -470,7 +470,7 @@ class _TOOLBOXPP_EXPORT Logger {
     Logger &operator=(const Logger &copy) = delete;
     Logger &operator=(Logger &&copy) = delete;
  private:
-    typedef std::mutex mutex_t;
+    typedef std::recursive_mutex mutex_t;
 
     int level = Logger::LEVEL_ALL;
     int bufferLimit = -1;

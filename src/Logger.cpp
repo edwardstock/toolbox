@@ -49,7 +49,7 @@ void toolboxpp::Logger::clear() {
     logs.clear();
 }
 void toolboxpp::Logger::flush() {
-    std::lock_guard<mutex_t> locker(logLock);
+    logLock.lock();
     for (auto &levels: logs) {
         while (!levels.second.empty()) {
             if (levels.first > LEVEL_INFO) {
@@ -61,6 +61,7 @@ void toolboxpp::Logger::flush() {
             levels.second.pop();
         }
     }
+    logLock.unlock();
 }
 void toolboxpp::Logger::log(int level, const char *tag, const char *message) {
     log(level, std::string(tag), std::string(message));
