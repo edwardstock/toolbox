@@ -40,6 +40,7 @@
 #include <iostream>
 #include <fstream>
 #include <exception>
+#include <mutex>
 
 #define L_LEVEL(level) toolboxpp::Logger::get().setLevel(level)
 
