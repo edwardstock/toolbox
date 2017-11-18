@@ -1,5 +1,4 @@
-# libcpphelpers [![Build Status](https://travis-ci.org/edwardstock/libcpphelpers.svg?branch=master)](https://travis-ci.org/edwardstock/libcpphelpers)
-Private cpp helpers lib
+# ToolBox++ [![Build Status](https://travis-ci.org/edwardstock/libcpphelpers.svg?branch=master)](https://travis-ci.org/edwardstock/libcpphelpers)
 
 
 ## Reqs
@@ -9,11 +8,11 @@ Private cpp helpers lib
 
 ## Build
 ```bash
-git clone https://github.com/edwardstock/libcpphelpers.git cpphelpers && cd cpphelpers/build
-cmake --build . --target cpphelpers
+git clone https://github.com/edwardstock/toolboxpp.git toolboxpp && cd toolboxpp/build
+cmake --build . --target toolboxpp
 cmake --build . --target install 
 ```
 
 By default, script installs:
-* header to: /usr/local/include/cpphelpers.h 
+* header to: /usr/local/include/toolboxpp.h 
 * library to: /usr/local/lib{suffix}/libcpphelpers.a

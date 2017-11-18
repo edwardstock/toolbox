@@ -1,18 +1,18 @@
 /**
  * uedit
- * cpphelpers.h
+ * toolboxpp.h
  *
  * @author Eduard Maximovich <edward.vstock@gmail.com>
  * @link https://github.com/edwardstock
  */
 
-#ifndef CPPHELPERS_H
-#define CPPHELPERS_H
+#ifndef TOOLBOXPP_H
+#define TOOLBOXPP_H
 
-#if !_WIN32 && !_CPPHELPERS_EXPORT
-#define _CPPHELPERS_EXPORT __attribute__ ((visibility ("default")))
+#if !_WIN32 && !_TOOLBOXPP_EXPORT
+#define _TOOLBOXPP_EXPORT __attribute__ ((visibility ("default")))
 #else
-#define _CPPHELPERS_EXPORT
+#define _TOOLBOXPP_EXPORT
 #endif
 
 #ifdef _WIN32
@@ -30,6 +30,7 @@
 #include <vector>
 #include <map>
 #include <deque>
+#include <queue>
 #include <unordered_map>
 #include <istream>
 #include <ostream>
@@ -40,35 +41,90 @@
 #include <fstream>
 #include <exception>
 
-namespace cpphelpers {
+#define L_LEVEL(level) toolboxpp::Logger::get().setLevel(level)
+
+#define L_DEBUG(tag, message) toolboxpp::Logger::get().debug(__FILE__, __LINE__, tag, message);
+#define L_DEBUG_F(tag, message, ...) \
+    { \
+        char __tmp_buff[512]; \
+        sprintf(__tmp_buff, message, __VA_ARGS__); \
+        toolboxpp::Logger::get().debug(__FILE__, __LINE__, tag, __tmp_buff); \
+    }
+
+#define L_INFO(tag, message) toolboxpp::Logger::get().info(__FILE__, __LINE__, tag, message);
+#define L_INFO_F(tag, message, ...) \
+    { \
+        char __tmp_buff[512]; \
+        sprintf(__tmp_buff, message, __VA_ARGS__); \
+        toolboxpp::Logger::get().info(__FILE__, __LINE__, tag, __tmp_buff); \
+    }
+
+#define L_WARN(tag, message) toolboxpp::Logger::get().warning(__FILE__, __LINE__, tag, message);
+#define L_WARN_F(tag, message, ...) \
+    { \
+        char __tmp_buff[512]; \
+        sprintf(__tmp_buff, message, __VA_ARGS__); \
+        toolboxpp::Logger::get().warning(__FILE__, __LINE__, tag, __tmp_buff); \
+    }
+#define L_ERR(tag, message) toolboxpp::Logger::get().error(__FILE__, __LINE__, tag, message);
+#define L_ERR_F(tag, message, ...) \
+    { \
+        char __tmp_buff[512]; \
+        sprintf(__tmp_buff, message, __VA_ARGS__); \
+        toolboxpp::Logger::get().error(__FILE__, __LINE__, tag, __tmp_buff); \
+    }
+#define L_CRIT(tag, message) toolboxpp::Logger::get().critical(__FILE__, __LINE__, tag, message);
+#define L_CRIT_F(tag, message, ...) \
+    { \
+        char __tmp_buff[512]; \
+        sprintf(__tmp_buff, message, __VA_ARGS__); \
+        toolboxpp::Logger::get().critical(__FILE__, __LINE__, tag, __tmp_buff); \
+    }
+
+#ifdef _MSC_VER
+#define L_TRAP(tag, message) \
+    L_CRIT(tag, message) \
+    __debugbreak()
+#else
+#include <csignal>
+#define L_TRAP(tag, message) \
+    L_CRIT(tag, message); \
+    raise(SIGABRT)
+#endif
+
+#define L_FLUSH() toolboxpp::Logger::get().flush()
+
+namespace toolboxpp {
 
 namespace collection {
 template<typename K, typename V>
 std::vector<K> mapKeysToVector(const std::map<K, V> &map) {
-	std::vector<K> v(map.size());
-	for (auto &it = map.begin(); it != map.end(); ++it) {
-		v.push_back(it->first);
-	}
+    std::vector<K> v(map.size());
+    for (auto &it = map.begin(); it != map.end(); ++it) {
+        v.push_back(it->first);
+    }
 
-	return v;
+    return v;
 }
 
 template<typename K, typename V>
 std::vector<V> mapValuesToVector(const std::map<K, V> &map) {
-	std::vector<V> v(map.size());
+    std::vector<V> v(map.size());
 
-	for (auto &it = map.begin(); it != map.end(); ++it) {
-		v.push_back(it->first);
-	}
+    for (auto &it = map.begin(); it != map.end(); ++it) {
+        v.push_back(it->first);
+    }
 
-	return v;
+    return v;
 }
 }
 
 namespace console {
 bool confirm(std::istream &in, std::ostream &out, const std::string &message, bool defValue = false);
+bool confirm(const std::string &message, bool defValue = false);
 std::string prompt(std::istream &in, std::ostream &out, const std::string &message,
                    bool required = false, const std::string &defValue = "");
+std::string prompt(const std::string &message, bool required = false, const std::string &defValue = "");
 }
 
 namespace numbers {
@@ -88,24 +144,24 @@ typedef const std::string &const_string;
 
 template<typename _CharT>
 struct StringEqualing {
-	explicit StringEqualing(const std::locale &locale)
-		: _locale(locale) { }
-	bool operator()(_CharT ch1, _CharT ch2) {
-		return std::toupper(ch1, _locale) == std::toupper(ch2, _locale);
-	}
+    explicit StringEqualing(const std::locale &locale) :
+        _locale(locale) { }
+    bool operator()(_CharT ch1, _CharT ch2) {
+        return std::toupper(ch1, _locale) == std::toupper(ch2, _locale);
+    }
  private:
-	const std::locale &_locale;
+    const std::locale &_locale;
 };
 
 template<typename T>
 size_t stringCompare(const T &str1, const T &str2, const std::locale &loc = std::locale()) {
-	typename T::const_iterator it = std::search(str1.begin(), str1.end(),
-	                                            str2.begin(), str2.end(),
-	                                            StringEqualing<typename T::value_type>(loc)
-	);
-	if (it != str1.end()) return it - str1.begin();
+    typename T::const_iterator it = std::search(str1.begin(), str1.end(),
+                                                str2.begin(), str2.end(),
+                                                StringEqualing<typename T::value_type>(loc)
+    );
+    if (it != str1.end()) return it - str1.begin();
 
-	return std::string::npos; // not found
+    return std::string::npos; // not found
 }
 
 /**
@@ -382,50 +438,169 @@ bool equalsIgnoreCase(const_string s1, const_string s2);
  * @return
  */
 template<typename... Args>
-std::string format(std::string format, Args ...args) {
-	auto *tmp = new char[format.length()];
+std::string format(const_string format, Args ...args) {
+    auto *tmp = new char[format.length()];
 
-	sprintf(tmp, format.c_str(), args...);
+    sprintf(tmp, format.c_str(), args...);
 
-	std::string out = std::string(tmp);
-	delete[] tmp;
+    std::string out = std::string(tmp);
+    delete[] tmp;
 
-	return out;
+    return out;
 }
 }
 
-}
-
-class _CPPHELPERS_EXPORT SimpleProfiler {
+class _TOOLBOXPP_EXPORT Logger {
  public:
-	/**
-	 * Begin profile record
-	 * @param tag
-	 */
-	static void begin(const std::string &tag);
-	/**
-	 * End profile recording for last "begin" tag
-	 */
-	static void end();
-	/**
-	 * Finish profile recording for certain tag
-	 * @param tag
-	 */
-	static void end(const std::string &tag);
+    const static unsigned short LEVEL_DEBUG = (1 << 0);
+    const static unsigned short LEVEL_INFO = (1 << 1);
+    const static unsigned short LEVEL_WARNING = (1 << 2);
+    const static unsigned short LEVEL_ERROR = (1 << 3);
+    const static unsigned short LEVEL_CRITICAL = (1 << 4);
+    constexpr const static unsigned short LEVEL_ALL =
+        LEVEL_DEBUG
+            | LEVEL_INFO
+            | LEVEL_WARNING
+            | LEVEL_ERROR
+            | LEVEL_CRITICAL;
 
-	static void printProfile(std::ostream &ostream, bool clear = true);
-
-	/**
-	 * Clear profile data and last tag
-	 */
-	static void clear();
-
+    Logger(const Logger &copy) = delete;
+    Logger(Logger &&copy) = delete;
+    Logger &operator=(const Logger &copy) = delete;
+    Logger &operator=(Logger &&copy) = delete;
  private:
-	typedef std::chrono::milliseconds __millis;
-	typedef std::chrono::system_clock __sys_clock;
+    typedef std::mutex mutex_t;
 
-	static std::unordered_map<std::string, __millis> profile;
-	static std::string &lastTag;
+    int level = LEVEL_ALL;
+    int bufferLimit = -1;
+
+    std::ostream *outStream;
+    std::ostream *errStream;
+
+    mutex_t logLock;
+
+    std::unordered_map<int, std::queue<std::string>> logs;
+    std::unordered_map<int, std::string> levelMap = {
+        {LEVEL_DEBUG,    "debug"},
+        {LEVEL_INFO,     "info"},
+        {LEVEL_WARNING,  "warning"},
+        {LEVEL_ERROR,    "error"},
+        {LEVEL_CRITICAL, "critical"},
+    };
+
+    Logger();
+    ~Logger() = default;
+
+    std::string levelToString(int level);
+    bool canLog(int level);
+
+ public:
+    static Logger &get();
+
+    void setOutStream(std::ostream *out);
+    void setErrStream(std::ostream *out);
+    void setLevel(int level);
+
+    /**
+     * @param limit -1 means infinite
+     */
+    void setBufferLimit(int limit);
+    void clear();
+    void flush();
+
+    void log(int level, const char *tag, const char *message);
+    void log(int level, const std::string &tag, const std::string &message);
+    void log(int level, const char *file, int line, const char *tag, const char *message);
+    void log(int level,
+             const std::string &file,
+             int line,
+             const std::string &tag,
+             const std::string &message);
+
+    // ERROR
+    void error(const char *file, int line, const char *tag, const char *message);
+    void error(const std::string &file, int line, const std::string &tag, const std::string &message);
+    void error(const std::string &tag, const std::string &message);
+    void error(const char *tag, const char *message);
+
+    // CRITICAL
+    void critical(const char *file, int line, const char *tag, const char *message);
+    void critical(const std::string &file, int line, const std::string &tag, const std::string &message);
+    void critical(const std::string &tag, const std::string &message);
+    void critical(const char *tag, const char *message);
+
+    // WARNING
+    void warning(const char *file, int line, const char *tag, const char *message);
+    void warning(const std::string &file, int line, const std::string &tag, const std::string &message);
+    void warning(const std::string &tag, const std::string &message);
+    void warning(const char *tag, const char *message);
+
+    // INFO
+    void info(const char *file, int line, const char *tag, const char *message);
+    void info(const std::string &file, int line, const std::string &tag, const std::string &message);
+    void info(const std::string &tag, const std::string &message);
+    void info(const char *tag, const char *message);
+
+    // DEBUG
+    void debug(const char *file, int line, const char *tag, const char *message);
+    void debug(const std::string &file, int line, const std::string &tag, const std::string &message);
+    void debug(const std::string &tag, const std::string &message);
+    void debug(const char *tag, const char *message);
 };
 
-#endif // CPPHELPERS_H
+class _TOOLBOXPP_EXPORT Profiler {
+ private:
+    using hires_clock = std::chrono::high_resolution_clock;
+
+    typedef std::chrono::high_resolution_clock::time_point hires_time_t;
+    typedef std::mutex mutex_t;
+    std::unordered_map<std::string, hires_time_t> timings;
+    mutex_t lock;
+
+ public:
+    static Profiler &get() {
+        static Profiler p;
+        return p;
+    }
+
+    void clear() {
+        timings.clear();
+    }
+
+    std::size_t size() const {
+        return timings.size();
+    }
+
+    void begin(const std::string &tag) {
+        if (timings.count(tag)) {
+            return;
+        }
+
+        lock.lock();
+        timings[tag] = hires_clock::now();
+        lock.unlock();
+    }
+
+    void end(const std::string &tag, double *result = nullptr) {
+        if (!timings.count(tag)) {
+            return;
+        }
+
+        lock.lock();
+        hires_time_t past = timings[tag];
+        hires_time_t now = hires_clock::now();
+        std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(now - past);
+        timings.erase(tag);
+        lock.unlock();
+        if (result != nullptr) {
+            *result = time_span.count();
+        } else {
+            L_DEBUG_F(tag, "Profiling time: %lf ms", time_span.count());
+        }
+
+    }
+};
+
+}
+
+#endif // TOOLBOXPP_H

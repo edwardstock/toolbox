@@ -1,5 +1,5 @@
 /**
- * cpphelpers
+ * toolboxpp
  * FileSystem.cpp
  *
  * @author Eduard Maximovich <edward.vstock@gmail.com>
@@ -7,12 +7,12 @@
  */
 
 #include <sys/stat.h>
-#include "../include/cpphelpers.h"
+#include "toolboxpp.h"
 #include <cerrno>
 #include <cstring>
 #include <cstdio>
 
-const std::string cpphelpers::fs::readFile(const std::string &path) {
+const std::string toolboxpp::fs::readFile(const std::string &path) {
 	std::ifstream input(path);
 
 	if (!input.is_open()) {
@@ -20,12 +20,12 @@ const std::string cpphelpers::fs::readFile(const std::string &path) {
 		return "";
 	}
 
-	const std::string out = cpphelpers::strings::toString(input);
+    const std::string out = toolboxpp::strings::toString(input);
 	input.close();
 	return out;
 }
 
-void cpphelpers::fs::writeFile(const std::string &path, const std::string &data) {
+void toolboxpp::fs::writeFile(const std::string &path, const std::string &data) {
 	std::ofstream out(path);
 	if (!out.is_open()) {
 		perror(strerror(errno));
@@ -37,7 +37,7 @@ void cpphelpers::fs::writeFile(const std::string &path, const std::string &data)
 	out.close();
 }
 
-bool cpphelpers::fs::exists(const std::string &path) {
+bool toolboxpp::fs::exists(const std::string &path) {
 	struct stat s;
 	return stat(path.c_str(), &s) == 0;
 }

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(cpphelpers)
+project(toolboxpp)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_BUILD_TYPE Debug)
@@ -16,7 +16,7 @@ include(options.cmake)
 include(check_system.cmake)
 
 set(PUBLIC_HEADERS
-    include/cpphelpers.h
+    include/toolboxpp.h
     )
 
 include_directories(include)
@@ -27,17 +27,16 @@ set(SOURCE_FILES
     src/Console.cpp
     src/Numbers.cpp
     src/Strings.cpp
-    src/SimpleProfiler.cpp
-    src/FileSystem.cpp)
+    src/FileSystem.cpp src/Logger.cpp)
 
 if (ENABLE_STATIC)
-	add_library(cpphelpers STATIC ${SOURCE_FILES})
+	add_library(toolboxpp STATIC ${SOURCE_FILES})
 else ()
-	add_library(cpphelpers SHARED ${SOURCE_FILES})
+	add_library(toolboxpp SHARED ${SOURCE_FILES})
 endif ()
 
 install(
-	TARGETS cpphelpers
+	TARGETS toolboxpp
 	DESTINATION lib${LIB_SUFFIX}
 )
 
@@ -48,7 +47,7 @@ install(
 
 if (${PROJECT_DEV})
 	add_executable(dev main.cpp)
-	target_link_libraries(dev cpphelpers)
+	target_link_libraries(dev toolboxpp)
 else ()
 	set(CMAKE_BUILD_TYPE "Release")
 endif ()

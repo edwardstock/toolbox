@@ -1,13 +1,13 @@
 /**
- * cpphelpers
+ * toolboxpp
  * Console.cpp
  *
  * @author Eduard Maximovich <edward.vstock@gmail.com>
  * @link https://github.com/edwardstock
  */
-#include "cpphelpers.h"
+#include "toolboxpp.h"
 
-bool cpphelpers::console::confirm(std::istream &in, std::ostream &out, const std::string &message, bool defValue) {
+bool toolboxpp::console::confirm(std::istream &in, std::ostream &out, const std::string &message, bool defValue) {
 	std::string res;
 	do {
 		out << message;
@@ -16,20 +16,24 @@ bool cpphelpers::console::confirm(std::istream &in, std::ostream &out, const std
 
 	} while (
 		!res.empty() &&
-			!cpphelpers::strings::equalsIgnoreCase(res, "yes") &&
-			!cpphelpers::strings::equalsIgnoreCase(res, "no") &&
-			!cpphelpers::strings::equalsIgnoreCase(res, "y") &&
-			!cpphelpers::strings::equalsIgnoreCase(res, "n")
+			!toolboxpp::strings::equalsIgnoreCase(res, "yes") &&
+			!toolboxpp::strings::equalsIgnoreCase(res, "no") &&
+			!toolboxpp::strings::equalsIgnoreCase(res, "y") &&
+			!toolboxpp::strings::equalsIgnoreCase(res, "n")
 		);
 
 	if (res.empty()) {
 		return defValue;
 	}
 
-	return cpphelpers::strings::equalsIgnoreCase(res, "yes") || cpphelpers::strings::equalsIgnoreCase(res, "y");
+	return toolboxpp::strings::equalsIgnoreCase(res, "yes") || toolboxpp::strings::equalsIgnoreCase(res, "y");
 }
 
-std::string cpphelpers::console::prompt(std::istream &in,
+bool toolboxpp::console::confirm(const std::string &message, bool defValue) {
+	return confirm(std::cin, std::cout, message, defValue);
+}
+
+std::string toolboxpp::console::prompt(std::istream &in,
                             std::ostream &out,
                             const std::string &message,
                             bool required,
@@ -52,3 +56,7 @@ std::string cpphelpers::console::prompt(std::istream &in,
 	}
 	return res;
 }
+std::string toolboxpp::console::prompt(const std::string &message, bool required, const std::string &defValue) {
+	return prompt(std::cin, std::cout, message, required, defValue);
+}
+

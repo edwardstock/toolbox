@@ -1,28 +1,28 @@
 /**
- * cpphelpers
+ * toolboxpp
  * StringHelper.cpp
  *
  * @author Eduard Maximovich <edward.vstock@gmail.com>
  * @link https://github.com/edwardstock
  */
-#include "cpphelpers.h"
+#include "toolboxpp.h"
 
-bool cpphelpers::strings::hasSubstring(const_string source, const_string substring) {
+bool toolboxpp::strings::hasSubstring(const_string source, const_string substring) {
 	return source.find(substring) != std::string::npos;
 }
 
-bool cpphelpers::strings::hasSubstring(const_string source, const char substring) {
+bool toolboxpp::strings::hasSubstring(const_string source, const char substring) {
 	return source.find(substring) != std::string::npos;
 }
 
-std::pair<std::string, std::string> cpphelpers::strings::splitPair(const_string source, const_string delimiter) {
+std::pair<std::string, std::string> toolboxpp::strings::splitPair(const_string source, const_string delimiter) {
 	if (delimiter.empty()) {
 		return std::pair<std::string, std::string>(std::string(), std::string());
 	}
 	return splitPair(source, delimiter.c_str()[0]);
 }
 
-std::pair<std::string, std::string> cpphelpers::strings::splitPair(const_string source, const char &delimiter) {
+std::pair<std::string, std::string> toolboxpp::strings::splitPair(const_string source, const char &delimiter) {
 	std::vector<std::string> elements = split(source, delimiter);
 
 	if (elements.empty()) {
@@ -36,14 +36,14 @@ std::pair<std::string, std::string> cpphelpers::strings::splitPair(const_string 
 	return std::pair<std::string, std::string>(elements.at(0), elements.at(1));
 }
 
-std::vector<std::string> cpphelpers::strings::split(const_string source, const_string delimiter) {
+std::vector<std::string> toolboxpp::strings::split(const_string source, const_string delimiter) {
 	if (delimiter.empty()) {
 		return std::vector<std::string>(0);
 	}
 
 	return split(source, delimiter.c_str()[0]);
 }
-std::vector<std::string> cpphelpers::strings::split(const_string source, const char &delimiter) {
+std::vector<std::string> toolboxpp::strings::split(const_string source, const char &delimiter) {
 	std::stringstream ss;
 	ss.str(source);
 	std::string item;
@@ -55,7 +55,7 @@ std::vector<std::string> cpphelpers::strings::split(const_string source, const c
 	return elements;
 }
 
-void cpphelpers::strings::removeSubstrings(std::string &source, const_string removable) {
+void toolboxpp::strings::removeSubstrings(std::string &source, const_string removable) {
 	size_t n = removable.length();
 
 	for (size_t i = source.find(removable); i != std::string::npos; i = source.find(removable)) {
@@ -63,17 +63,17 @@ void cpphelpers::strings::removeSubstrings(std::string &source, const_string rem
 	}
 }
 
-void cpphelpers::strings::removeSubstrings(std::string &source, std::vector<std::string> removables) {
+void toolboxpp::strings::removeSubstrings(std::string &source, std::vector<std::string> removables) {
 	for (auto &replace : removables) {
 		removeSubstrings(source, replace);
 	}
 }
 
-std::string cpphelpers::strings::toString(std::ifstream &inputStream) {
+std::string toolboxpp::strings::toString(std::ifstream &inputStream) {
 	return std::string((std::istreambuf_iterator<char>(inputStream)), std::istreambuf_iterator<char>());
 }
 
-std::vector<std::vector<std::string>> cpphelpers::strings::matchAllRegexp(const std::regex &rx, const_string s) {
+std::vector<std::vector<std::string>> toolboxpp::strings::matchAllRegexp(const std::regex &rx, const_string s) {
 	std::vector<std::vector<std::string>> capturedGroups;
 	std::vector<std::string> capturedSubgroups;
 	const std::sregex_token_iterator endIterator;
@@ -95,15 +95,15 @@ std::vector<std::vector<std::string>> cpphelpers::strings::matchAllRegexp(const 
 	return capturedGroups;
 }
 
-std::vector<std::vector<std::string>> cpphelpers::strings::matchAllRegexp(const_string rxPattern, const_string s) {
+std::vector<std::vector<std::string>> toolboxpp::strings::matchAllRegexp(const_string rxPattern, const_string s) {
 	return matchAllRegexp(std::regex(rxPattern, std::regex_constants::icase), s);
 }
 
-std::string cpphelpers::strings::matchRegexpFirst(const_string rxPattern, const_string source) {
+std::string toolboxpp::strings::matchRegexpFirst(const_string rxPattern, const_string source) {
 	return matchRegexpFirst(std::regex(rxPattern, std::regex_constants::icase), source);
 }
 
-std::string cpphelpers::strings::matchRegexpFirst(const std::regex &rxPattern, const_string source) {
+std::string toolboxpp::strings::matchRegexpFirst(const std::regex &rxPattern, const_string source) {
 	std::smatch results;
 	std::string result;
 	bool found = std::regex_search(source, results, rxPattern);
@@ -114,17 +114,17 @@ std::string cpphelpers::strings::matchRegexpFirst(const std::regex &rxPattern, c
 	return results[1];
 }
 
-std::smatch cpphelpers::strings::matchRegexp(const_string rxPattern, const_string source) {
+std::smatch toolboxpp::strings::matchRegexp(const_string rxPattern, const_string source) {
 	return matchRegexp(std::regex(rxPattern, std::regex_constants::icase), source);
 }
 
-std::smatch cpphelpers::strings::matchRegexp(const std::regex &rxPattern, const_string source) {
+std::smatch toolboxpp::strings::matchRegexp(const std::regex &rxPattern, const_string source) {
 	std::smatch result;
 	std::regex_search(source, result, rxPattern);
 	return result;
 }
 
-bool cpphelpers::strings::equalsIgnoreCase(const_string s1, const_string s2) {
+bool toolboxpp::strings::equalsIgnoreCase(const_string s1, const_string s2) {
 	if (s1.length() != s2.length()) return false;
 
 	return std::equal(
@@ -136,16 +136,16 @@ bool cpphelpers::strings::equalsIgnoreCase(const_string s1, const_string s2) {
 	);
 }
 
-bool cpphelpers::strings::hasRegex(const std::regex &pattern, const_string source) {
+bool toolboxpp::strings::hasRegex(const std::regex &pattern, const_string source) {
 	std::smatch match;
 	return std::regex_search(source, match, pattern);
 }
 
-bool cpphelpers::strings::hasRegex(const_string pattern, const_string source) {
+bool toolboxpp::strings::hasRegex(const_string pattern, const_string source) {
 	return hasRegex(std::regex(pattern), source);
 }
 
-std::string cpphelpers::strings::glue(const_string glue, const std::vector<std::string> &strings) {
+std::string toolboxpp::strings::glue(const_string glue, const std::vector<std::string> &strings) {
 	std::string out;
 
 	size_t size = strings.size();
@@ -163,7 +163,7 @@ std::string cpphelpers::strings::glue(const_string glue, const std::vector<std::
 	return out;
 }
 
-std::string cpphelpers::strings::substringReplace(const_string search, const_string replace, const_string source) {
+std::string toolboxpp::strings::substringReplace(const_string search, const_string replace, const_string source) {
 	if (source.empty() || source.length() < search.length()) {
 		return source;
 	}
@@ -183,9 +183,9 @@ std::string cpphelpers::strings::substringReplace(const_string search, const_str
 }
 
 std::string
-cpphelpers::strings::substringReplaceAll(const std::vector<std::string> &search,
-                                         const std::vector<std::string> &replace,
-                                         const_string source) {
+toolboxpp::strings::substringReplaceAll(const std::vector<std::string> &search,
+                                        const std::vector<std::string> &replace,
+                                        const_string source) {
 	std::vector<std::string> toReplace;
 	if (replace.size() != search.size() && replace.size() == 1) {
 		for (int i = 0; i < search.size(); i++) {
@@ -206,9 +206,9 @@ cpphelpers::strings::substringReplaceAll(const std::vector<std::string> &search,
 	return result;
 }
 
-std::string cpphelpers::strings::substringReplaceAll(const_string search,
-                                                     const_string replace,
-                                                     const_string source) {
+std::string toolboxpp::strings::substringReplaceAll(const_string search,
+                                                    const_string replace,
+                                                    const_string source) {
 
 	std::string result = substringReplace(search, replace, source);
 	while (result.find(search) != std::string::npos) {
@@ -218,20 +218,20 @@ std::string cpphelpers::strings::substringReplaceAll(const_string search,
 	return result;
 }
 
-void cpphelpers::strings::replace(const_string search, const_string replace, std::string &source) {
+void toolboxpp::strings::replace(const_string search, const_string replace, std::string &source) {
 	source = substringReplace(search, replace, source);
 }
-void cpphelpers::strings::replaceAll(const_string search, const_string replace, std::string &source) {
+void toolboxpp::strings::replaceAll(const_string search, const_string replace, std::string &source) {
 	source = substringReplaceAll(search, replace, source);
 }
 void
-cpphelpers::strings::replaceAll(const std::vector<std::string> &search,
-                                const std::vector<std::string> &replace,
-                                std::string &source) {
+toolboxpp::strings::replaceAll(const std::vector<std::string> &search,
+                               const std::vector<std::string> &replace,
+                               std::string &source) {
 	source = substringReplaceAll(search, replace, source);
 }
 
-std::string cpphelpers::strings::substrInverse(const_string source, char whence) {
+std::string toolboxpp::strings::substrInverse(const_string source, char whence) {
 	strlen_t from;
 	std::string out;
 	if (~whence >= 0) {
@@ -245,11 +245,11 @@ std::string cpphelpers::strings::substrInverse(const_string source, char whence)
 	return out;
 }
 
-std::string cpphelpers::strings::substrInverse(const_string source, char begin, char end, long offset) {
+std::string toolboxpp::strings::substrInverse(const_string source, char begin, char end, long offset) {
 	return substrInverse(source, std::string(1, begin), std::string(1, end), offset);
 }
 
-std::string cpphelpers::strings::substrInverse(const_string source, const_string begin) {
+std::string toolboxpp::strings::substrInverse(const_string source, const_string begin) {
 	strlen_t from = source.find(begin);
 	if (from == std::string::npos) {
 		from = 0;
@@ -257,7 +257,7 @@ std::string cpphelpers::strings::substrInverse(const_string source, const_string
 	return source.substr(0, from);
 }
 
-std::string cpphelpers::strings::substrInverse(const_string source, const_string begin, const_string end, long offset) {
+std::string toolboxpp::strings::substrInverse(const_string source, const_string begin, const_string end, long offset) {
 	strlen_t to, from = source.find(begin);
 	if (from == std::string::npos) {
 		from = 0;
@@ -270,15 +270,15 @@ std::string cpphelpers::strings::substrInverse(const_string source, const_string
 	out.append(source.substr(to, std::string::npos));
 	return out;
 }
-bool cpphelpers::strings::hasSubstringIgnoreCase(const_string source, const_string substring) {
+bool toolboxpp::strings::hasSubstringIgnoreCase(const_string source, const_string substring) {
 	size_t cmp = stringCompare(source, substring);
 	return cmp != std::string::npos;
 }
 
-std::string cpphelpers::strings::clipSubstring(const_string source,
-                                               const_string search,
-                                               const size_t width,
-                                               bool icase) {
+std::string toolboxpp::strings::clipSubstring(const_string source,
+                                              const_string search,
+                                              const size_t width,
+                                              bool icase) {
 	size_t pos = icase ? stringCompare(source, search) : source.find(search);
 	if (pos == std::string::npos) {
 		return source;
@@ -310,22 +310,22 @@ std::string cpphelpers::strings::clipSubstring(const_string source,
 
 	return source.substr((size_t) begin, width);
 }
-std::string cpphelpers::strings::toUpper(const std::string &s) {
-	std::string tmp;
-	for (std::string::size_type i = 0; i < s.length(); ++i) {
-		tmp += __CHAR_TO_UPPER(s[i]);
+std::string toolboxpp::strings::toUpper(const std::string &s) {
+	std::stringstream tmp;
+	for (char i : s) {
+		tmp << __CHAR_TO_UPPER(i);
 	}
 
-	return tmp;
+	return tmp.str();
 }
 
-std::string cpphelpers::strings::toLower(const std::string &s) {
-	std::string tmp;
-	for (std::string::size_type i = 0; i < s.length(); ++i) {
-		tmp += __CHAR_TO_LOWER(s[i]);
+std::string toolboxpp::strings::toLower(const std::string &s) {
+	std::stringstream tmp;
+	for (char i : s) {
+		tmp << __CHAR_TO_LOWER(i);
 	}
 
-	return tmp;
+	return tmp.str();
 }
 
 
