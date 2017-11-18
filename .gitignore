@@ -10,3 +10,4 @@ CMakeCache.txt
 *.cpp.o
 *.c.o
 main.cpp
+.vs
