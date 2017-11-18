@@ -453,12 +453,12 @@ std::string format(const_string format, Args ...args) {
 
 class _TOOLBOXPP_EXPORT Logger {
  public:
-    const unsigned short LEVEL_DEBUG = (1 << 0);
-    const unsigned short LEVEL_INFO = (1 << 1);
-    const unsigned short LEVEL_WARNING = (1 << 2);
-    const unsigned short LEVEL_ERROR = (1 << 3);
-    const unsigned short LEVEL_CRITICAL = (1 << 4);
-    const unsigned short LEVEL_ALL =
+    constexpr const static unsigned short LEVEL_DEBUG = (1 << 0);
+    constexpr const static unsigned short LEVEL_INFO = (1 << 1);
+    constexpr const static unsigned short LEVEL_WARNING = (1 << 2);
+    constexpr const static unsigned short LEVEL_ERROR = (1 << 3);
+    constexpr const static unsigned short LEVEL_CRITICAL = (1 << 4);
+    constexpr const static unsigned short LEVEL_ALL =
         LEVEL_DEBUG
             | LEVEL_INFO
             | LEVEL_WARNING
