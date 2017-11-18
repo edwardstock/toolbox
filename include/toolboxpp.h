@@ -453,12 +453,12 @@ std::string format(const_string format, Args ...args) {
 
 class _TOOLBOXPP_EXPORT Logger {
  public:
-    const static unsigned short LEVEL_DEBUG = (1 << 0);
-    const static unsigned short LEVEL_INFO = (1 << 1);
-    const static unsigned short LEVEL_WARNING = (1 << 2);
-    const static unsigned short LEVEL_ERROR = (1 << 3);
-    const static unsigned short LEVEL_CRITICAL = (1 << 4);
-    constexpr const static unsigned short LEVEL_ALL =
+    const unsigned short LEVEL_DEBUG = (1 << 0);
+    const unsigned short LEVEL_INFO = (1 << 1);
+    const unsigned short LEVEL_WARNING = (1 << 2);
+    const unsigned short LEVEL_ERROR = (1 << 3);
+    const unsigned short LEVEL_CRITICAL = (1 << 4);
+    const unsigned short LEVEL_ALL =
         LEVEL_DEBUG
             | LEVEL_INFO
             | LEVEL_WARNING
@@ -472,7 +472,7 @@ class _TOOLBOXPP_EXPORT Logger {
  private:
     typedef std::mutex mutex_t;
 
-    int level = LEVEL_ALL;
+    int level = Logger::LEVEL_ALL;
     int bufferLimit = -1;
 
     std::ostream *outStream;
@@ -482,11 +482,11 @@ class _TOOLBOXPP_EXPORT Logger {
 
     std::unordered_map<int, std::queue<std::string>> logs;
     std::unordered_map<int, std::string> levelMap = {
-        {LEVEL_DEBUG,    "debug"},
-        {LEVEL_INFO,     "info"},
-        {LEVEL_WARNING,  "warning"},
-        {LEVEL_ERROR,    "error"},
-        {LEVEL_CRITICAL, "critical"},
+        {Logger::LEVEL_DEBUG,    "debug"},
+        {Logger::LEVEL_INFO,     "info"},
+        {Logger::LEVEL_WARNING,  "warning"},
+        {Logger::LEVEL_ERROR,    "error"},
+        {Logger::LEVEL_CRITICAL, "critical"},
     };
 
     Logger();
