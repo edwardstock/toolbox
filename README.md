@@ -15,4 +15,4 @@ cmake --build . --target install
 
 By default, script installs:
 * header to: /usr/local/include/toolboxpp.h 
-* library to: /usr/local/lib{suffix}/libcpphelpers.a
+* library to: /usr/local/lib{suffix}/libtoolboxpp.a
