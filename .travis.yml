@@ -10,7 +10,7 @@ install:
   - sudo apt-get install cmake
 
 script:
-  - mkdir build && cd build
+  - mkdir -p build && cd build
   - cmake .. -DCMAKE_BUILD_TYPE=Release
   - cmake --build . --target toolboxpp
   - sudo cmake --build . --target install
