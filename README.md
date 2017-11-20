@@ -1,4 +1,4 @@
-# ToolBox++ [![Build Status](https://travis-ci.org/edwardstock/libcpphelpers.svg?branch=master)](https://travis-ci.org/edwardstock/libcpphelpers)
+# ToolBox++ [![Build Status](https://travis-ci.org/edwardstock/toolboxpp.svg?branch=master)](https://travis-ci.org/edwardstock/toolboxpp)
 
 
 ## Reqs
