@@ -313,7 +313,7 @@ std::string toolboxpp::strings::clipSubstring(const_string source,
 std::string toolboxpp::strings::toUpper(const std::string &s) {
 	std::stringstream tmp;
 	for (char i : s) {
-		tmp << __CHAR_TO_UPPER(i);
+		tmp << static_cast<char>(__CHAR_TO_UPPER(i));
 	}
 
 	return tmp.str();
@@ -322,7 +322,7 @@ std::string toolboxpp::strings::toUpper(const std::string &s) {
 std::string toolboxpp::strings::toLower(const std::string &s) {
 	std::stringstream tmp;
 	for (char i : s) {
-		tmp << __CHAR_TO_LOWER(i);
+		tmp << static_cast<char>(__CHAR_TO_LOWER(i));
 	}
 
 	return tmp.str();
