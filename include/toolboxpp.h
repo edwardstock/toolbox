@@ -454,14 +454,14 @@ std::string format(const_string format, Args ...args) {
 class _TOOLBOXPP_EXPORT Logger {
  public:
     constexpr const static unsigned short LEVEL_DEBUG = (1 << 0);
-    constexpr const static unsigned short LEVEL_INFO = (1 << 1);
-    constexpr const static unsigned short LEVEL_WARNING = (1 << 2);
+    constexpr const static unsigned short LEVEL_WARNING = (1 << 1);
+    constexpr const static unsigned short LEVEL_INFO = (1 << 2);
     constexpr const static unsigned short LEVEL_ERROR = (1 << 3);
     constexpr const static unsigned short LEVEL_CRITICAL = (1 << 4);
     constexpr const static unsigned short LEVEL_ALL =
         LEVEL_DEBUG
-            | LEVEL_INFO
             | LEVEL_WARNING
+            | LEVEL_INFO
             | LEVEL_ERROR
             | LEVEL_CRITICAL;
 
@@ -483,8 +483,8 @@ class _TOOLBOXPP_EXPORT Logger {
     std::unordered_map<int, std::queue<std::string>> logs;
     std::unordered_map<int, std::string> levelMap = {
         {Logger::LEVEL_DEBUG,    "debug"},
-        {Logger::LEVEL_INFO,     "info"},
         {Logger::LEVEL_WARNING,  "warning"},
+        {Logger::LEVEL_INFO,     "info"},
         {Logger::LEVEL_ERROR,    "error"},
         {Logger::LEVEL_CRITICAL, "critical"},
     };
