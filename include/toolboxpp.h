@@ -453,12 +453,13 @@ std::string format(const_string format, Args ...args) {
 
 class _TOOLBOXPP_EXPORT Logger {
  public:
-    constexpr const static unsigned short LEVEL_DEBUG = (1 << 0);
-    constexpr const static unsigned short LEVEL_WARNING = (1 << 1);
-    constexpr const static unsigned short LEVEL_INFO = (1 << 2);
-    constexpr const static unsigned short LEVEL_ERROR = (1 << 3);
-    constexpr const static unsigned short LEVEL_CRITICAL = (1 << 4);
-    constexpr const static unsigned short LEVEL_ALL =
+    using level_t = unsigned short;
+    constexpr const static level_t LEVEL_DEBUG = (1 << 0);
+    constexpr const static level_t LEVEL_WARNING = (1 << 1);
+    constexpr const static level_t LEVEL_INFO = (1 << 2);
+    constexpr const static level_t LEVEL_ERROR = (1 << 3);
+    constexpr const static level_t LEVEL_CRITICAL = (1 << 4);
+    constexpr const static level_t LEVEL_ALL =
         LEVEL_DEBUG
             | LEVEL_WARNING
             | LEVEL_INFO
@@ -472,7 +473,7 @@ class _TOOLBOXPP_EXPORT Logger {
  private:
     typedef std::recursive_mutex mutex_t;
 
-    int level = Logger::LEVEL_ALL;
+    level_t level = Logger::LEVEL_ALL;
     int bufferLimit = -1;
 
     std::ostream *outStream;
@@ -480,8 +481,8 @@ class _TOOLBOXPP_EXPORT Logger {
 
     mutex_t logLock;
 
-    std::unordered_map<int, std::queue<std::string>> logs;
-    std::unordered_map<int, std::string> levelMap = {
+    std::unordered_map<level_t, std::queue<std::string>> logs;
+    std::unordered_map<level_t, std::string> levelMap = {
         {Logger::LEVEL_DEBUG,    "debug"},
         {Logger::LEVEL_WARNING,  "warning"},
         {Logger::LEVEL_INFO,     "info"},
@@ -492,15 +493,17 @@ class _TOOLBOXPP_EXPORT Logger {
     Logger();
     ~Logger() = default;
 
-    std::string levelToString(int level);
-    bool canLog(int level);
+    std::string levelToString(level_t level);
+    level_t stringToLevel(const std::string &level);
+    bool canLog(level_t level);
 
  public:
     static Logger &get();
 
     void setOutStream(std::ostream *out);
     void setErrStream(std::ostream *out);
-    void setLevel(int level);
+    void setLevel(level_t level);
+    void setLevel(const std::string &stringLevel);
 
     /**
      * @param limit -1 means infinite
@@ -509,10 +512,10 @@ class _TOOLBOXPP_EXPORT Logger {
     void clear();
     void flush();
 
-    void log(int level, const char *tag, const char *message);
-    void log(int level, const std::string &tag, const std::string &message);
-    void log(int level, const char *file, int line, const char *tag, const char *message);
-    void log(int level,
+    void log(level_t level, const char *tag, const char *message);
+    void log(level_t level, const std::string &tag, const std::string &message);
+    void log(level_t level, const char *file, int line, const char *tag, const char *message);
+    void log(level_t level,
              const std::string &file,
              int line,
              const std::string &tag,
