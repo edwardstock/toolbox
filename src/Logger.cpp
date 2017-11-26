@@ -93,7 +93,7 @@ void toolboxpp::Logger::log(int level,
     const size_t bufferSize = file.length() + sizeof(line) + tag.length() + message.length() + 512;
     char buffer[bufferSize];
 
-    if (level < LEVEL_WARNING) {
+    if (level < LEVEL_ERROR) {
         sprintf(buffer, "%s: %s", tag.c_str(), message.c_str());
     } else {
         sprintf(buffer, "%s: %s \n\tSource: %s:%d", tag.c_str(), message.c_str(), file.c_str(), line);
