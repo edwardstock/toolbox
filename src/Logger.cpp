@@ -9,8 +9,8 @@
 #include "toolboxpp.h"
 
 constexpr const unsigned short toolboxpp::Logger::LEVEL_DEBUG;
-constexpr const unsigned short toolboxpp::Logger::LEVEL_INFO;
 constexpr const unsigned short toolboxpp::Logger::LEVEL_WARNING;
+constexpr const unsigned short toolboxpp::Logger::LEVEL_INFO;
 constexpr const unsigned short toolboxpp::Logger::LEVEL_ERROR;
 constexpr const unsigned short toolboxpp::Logger::LEVEL_CRITICAL;
 constexpr const unsigned short toolboxpp::Logger::LEVEL_ALL;
