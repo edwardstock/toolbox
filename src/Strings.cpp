@@ -188,7 +188,7 @@ toolboxpp::strings::substringReplaceAll(const std::vector<std::string> &search,
                                         const_string source) {
 	std::vector<std::string> toReplace;
 	if (replace.size() != search.size() && replace.size() == 1) {
-		for (int i = 0; i < search.size(); i++) {
+        for (std::size_t i = 0; i < search.size(); i++) {
 			toReplace.push_back(replace[0]);
 		}
 	} else if ((search.size() != replace.size() && replace.size() > 1) || search.empty() || replace.empty()) {

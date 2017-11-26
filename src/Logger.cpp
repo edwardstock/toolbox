@@ -40,10 +40,9 @@ toolboxpp::Logger::level_t toolboxpp::Logger::stringToLevel(const std::string &l
 }
 bool toolboxpp::Logger::canLog(level_t level) {
     return
-        not(
-            ((this->level & level) == 0) ||
-                (bufferLimit > -1 && logs[level].size() >= bufferLimit)
-        ); // buffer size exceed
+        (this->level & level) == 0
+            || bufferLimit == 0
+            || logs[level].size() <= bufferLimit;
 }
 toolboxpp::Logger &toolboxpp::Logger::get() {
     static Logger logger;
@@ -73,7 +72,7 @@ void toolboxpp::Logger::setVerbosity(toolboxpp::Logger::level_t verbosity) {
         default: setLevel(VERBOSITY_2);
     }
 }
-void toolboxpp::Logger::setBufferLimit(int limit) {
+void toolboxpp::Logger::setBufferLimit(std::size_t limit) {
     bufferLimit = limit;
 }
 void toolboxpp::Logger::clear() {
@@ -86,9 +85,9 @@ void toolboxpp::Logger::flush() {
     for (auto &levels: logs) {
         while (!levels.second.empty()) {
             if (levels.first > LEVEL_INFO) {
-                *errStream << "[" << levelToString(levels.first) << "] " << levels.second.front() << std::endl;
+                *errStream << levels.second.front() << std::endl;
             } else {
-                *outStream << "[" << levelToString(levels.first) << "] " << levels.second.front() << std::endl;
+                *outStream << levels.second.front() << std::endl;
             }
 
             levels.second.pop();
@@ -124,21 +123,28 @@ void toolboxpp::Logger::log(level_t level,
         return;
     }
 
-    const size_t bufferSize = file.length() + sizeof(line) + tag.length() + message.length() + 512;
-    char buffer[bufferSize];
+    std::stringstream out;
 
-    if (level < LEVEL_ERROR) {
-        sprintf(buffer, "%s: %s", tag.c_str(), message.c_str());
-    } else {
-        sprintf(buffer, "%s: %s \n\tSource: %s:%d", tag.c_str(), message.c_str(), file.c_str(), line);
+    if (printDateTime) {
+        time_t t = time(nullptr);
+        tm *timeinfo = localtime(&t);
+        char tbuffer[30];
+        strftime(tbuffer, 30, "%Y-%m-%d %T", timeinfo);
+        out << "[" << tbuffer << "]";
     }
 
-    const std::string out(buffer);
+    out << "[" << std::setw(8) << levelToString(level) << "] ";
+
+    if (level < LEVEL_ERROR) {
+        out << tag << ": " << message;
+    } else {
+        out << tag << ": " << message << "\n\t" << file << ":" << line;
+    }
 
     #ifndef TOOLBOXPP_LOGGER_NO_MUTEX
     std::lock_guard<mutex_t> locker(logLock);
     #endif
-    logs[level].push(std::string(buffer));
+    logs[level].push(out.str());
 
     #ifndef TOOLBOXPP_LOGGER_NO_AUTOFLUSH
     flush();
@@ -206,6 +212,9 @@ void toolboxpp::Logger::debug(const std::string &tag, const std::string &message
 }
 void toolboxpp::Logger::debug(const char *tag, const char *message) {
     debug(std::string(tag), std::string(message));
+}
+void toolboxpp::Logger::setDateTimeEnabled(bool enabled) {
+    printDateTime = enabled;
 }
 
 

@@ -41,6 +41,8 @@
 #include <fstream>
 #include <exception>
 #include <mutex>
+#include <ctime>
+#include <iomanip>
 
 #define L_LEVEL(level) toolboxpp::Logger::get().setLevel(level)
 
@@ -478,7 +480,8 @@ class _TOOLBOXPP_EXPORT Logger {
     typedef std::recursive_mutex mutex_t;
 
     level_t level = Logger::LEVEL_ALL;
-    int bufferLimit = -1;
+    std::size_t bufferLimit = 0;
+    bool printDateTime = true;
 
     std::ostream *outStream;
     std::ostream *errStream;
@@ -509,11 +512,12 @@ class _TOOLBOXPP_EXPORT Logger {
     void setLevel(level_t level);
     void setLevel(const std::string &stringLevel);
     void setVerbosity(level_t verbosity);
+    void setDateTimeEnabled(bool enabled);
 
     /**
-     * @param limit -1 means infinite
+     * @param limit 0 means infinite
      */
-    void setBufferLimit(int limit);
+    void setBufferLimit(std::size_t limit);
     void clear();
     void flush();
 

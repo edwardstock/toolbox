@@ -1,11 +1,13 @@
 cmake_minimum_required(VERSION 3.0)
 project(toolboxpp)
 
+set(CXX_FLAGS "-Wall -Werror -Wextra -pedantic -Wno-unused-parameter")
+
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_BUILD_TYPE Debug)
-set(CMAKE_CXX_COMPILER_FLAGS "-Werror -Wfatal-error -pedantic")
 set(CMAKE_CXX_LINKER_FLAGS "-static-libstdc++")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2 -Wall -pedantic")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${CXX_FLAGS} -O2")
 
 if (APPLE)
 	message(STATUS "Build for Darwin")
