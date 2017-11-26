@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_COMPILER_FLAGS "-Werror -Wfatal-error -pedantic")
 set(CMAKE_CXX_LINKER_FLAGS "-static-libstdc++")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2 -Wall -pedantic")
 
 if (APPLE)
 	message(STATUS "Build for Darwin")
