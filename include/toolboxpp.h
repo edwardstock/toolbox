@@ -466,6 +466,10 @@ class _TOOLBOXPP_EXPORT Logger {
             | LEVEL_ERROR
             | LEVEL_CRITICAL;
 
+    constexpr const static level_t VERBOSITY_0 = LEVEL_CRITICAL | LEVEL_ERROR;
+    constexpr const static level_t VERBOSITY_1 = VERBOSITY_0 | LEVEL_INFO;
+    constexpr const static level_t VERBOSITY_2 = LEVEL_ALL;
+
     Logger(const Logger &copy) = delete;
     Logger(Logger &&copy) = delete;
     Logger &operator=(const Logger &copy) = delete;
@@ -504,6 +508,7 @@ class _TOOLBOXPP_EXPORT Logger {
     void setErrStream(std::ostream *out);
     void setLevel(level_t level);
     void setLevel(const std::string &stringLevel);
+    void setVerbosity(level_t verbosity);
 
     /**
      * @param limit -1 means infinite

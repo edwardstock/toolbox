@@ -14,6 +14,9 @@ constexpr const toolboxpp::Logger::level_t toolboxpp::Logger::LEVEL_INFO;
 constexpr const toolboxpp::Logger::level_t toolboxpp::Logger::LEVEL_ERROR;
 constexpr const toolboxpp::Logger::level_t toolboxpp::Logger::LEVEL_CRITICAL;
 constexpr const toolboxpp::Logger::level_t toolboxpp::Logger::LEVEL_ALL;
+constexpr const toolboxpp::Logger::level_t toolboxpp::Logger::VERBOSITY_0;
+constexpr const toolboxpp::Logger::level_t toolboxpp::Logger::VERBOSITY_1;
+constexpr const toolboxpp::Logger::level_t toolboxpp::Logger::VERBOSITY_2;
 
 toolboxpp::Logger::Logger() :
     outStream(&std::cout),
@@ -37,8 +40,10 @@ toolboxpp::Logger::level_t toolboxpp::Logger::stringToLevel(const std::string &l
 }
 bool toolboxpp::Logger::canLog(level_t level) {
     return
-        not((this->level & level) == 0 ||
-            (bufferLimit > -1 && logs[level].size() >= bufferLimit)); // buffer size exceed
+        not(
+            ((this->level & level) == 0) ||
+                (bufferLimit > -1 && logs[level].size() >= bufferLimit)
+        ); // buffer size exceed
 }
 toolboxpp::Logger &toolboxpp::Logger::get() {
     static Logger logger;
@@ -55,6 +60,18 @@ void toolboxpp::Logger::setLevel(level_t level) {
 }
 void toolboxpp::Logger::setLevel(const std::string &stringLevel) {
     this->level = stringToLevel(stringLevel);
+}
+void toolboxpp::Logger::setVerbosity(toolboxpp::Logger::level_t verbosity) {
+    switch (verbosity) {
+        case 0:setLevel(VERBOSITY_0);
+            break;
+        case 1:setLevel(VERBOSITY_1);
+            break;
+        case 2:setLevel(VERBOSITY_2);
+            break;
+
+        default: setLevel(VERBOSITY_2);
+    }
 }
 void toolboxpp::Logger::setBufferLimit(int limit) {
     bufferLimit = limit;
