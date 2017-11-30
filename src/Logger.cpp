@@ -40,9 +40,8 @@ toolboxpp::Logger::level_t toolboxpp::Logger::stringToLevel(const std::string &l
 }
 bool toolboxpp::Logger::canLog(level_t level) {
     return
-        (this->level & level) == 0
-            || bufferLimit == 0
-            || logs[level].size() <= bufferLimit;
+        ((this->level & level) != 0) &&
+            (bufferLimit == 0 || logs[level].size() <= bufferLimit);
 }
 toolboxpp::Logger &toolboxpp::Logger::get() {
     static Logger logger;
