@@ -568,8 +568,8 @@ class _TOOLBOXPP_EXPORT Profiler {
     typedef std::chrono::high_resolution_clock::time_point hires_time_t;
     typedef std::mutex mutex_t;
     std::unordered_map<std::string, hires_time_t> timings;
-    mutex_t lock;
-
+    mutable mutex_t lock;
+    Profiler() = default;
  public:
     static Profiler &get() {
         static Profiler p;
