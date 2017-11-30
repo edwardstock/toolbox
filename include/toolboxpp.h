@@ -576,41 +576,48 @@ class _TOOLBOXPP_EXPORT Profiler {
         return p;
     }
 
+    Profiler(const Profiler &) = delete;
+    Profiler(Profiler &&) = delete;
+    ~Profiler() {
+        timings.clear();
+    }
+
     void clear() {
+        std::lock_guard<mutex_t> locker(lock);
         timings.clear();
     }
 
     std::size_t size() const {
-        return timings.size();
+        std::lock_guard<mutex_t> locker(lock);
+        std::size_t out = timings.size();
+
+        return out;
     }
 
-    void begin(const std::string &tag) {
+    void begin(std::string tag) {
+        std::lock_guard<mutex_t> locker(lock);
         if (timings.count(tag)) {
             return;
         }
 
-        lock.lock();
         timings[tag] = hires_clock::now();
-        lock.unlock();
     }
 
-    void end(const std::string &tag, double *result = nullptr) {
+    void end(std::string tag, double *result = nullptr) {
+        std::lock_guard<mutex_t> locker(lock);
         if (!timings.count(tag)) {
             return;
         }
 
-        lock.lock();
         hires_time_t past = timings[tag];
         hires_time_t now = hires_clock::now();
         std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(now - past);
         timings.erase(tag);
-        lock.unlock();
         if (result != nullptr) {
             *result = time_span.count();
         } else {
             L_DEBUG_F(tag, "Profiling time: %lf ms", time_span.count());
         }
-
     }
 };
 
