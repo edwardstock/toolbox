@@ -38,6 +38,7 @@
 #include <istream>
 #include <ostream>
 #include <vector>
+#include <algorithm>
 #ifdef HAVE_REGEX_H
 #include <regex>
 #endif
