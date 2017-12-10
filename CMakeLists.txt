@@ -20,7 +20,8 @@ include(check_system.cmake)
 
 set(PUBLIC_HEADERS
     include/toolboxpp.h
-    include/toolboxconfig.h)
+    include/toolboxppconfig.h
+    )
 
 include_directories(include)
 

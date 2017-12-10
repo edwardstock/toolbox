@@ -11,3 +11,5 @@ CMakeCache.txt
 *.c.o
 main.cpp
 .vs
+
+include/toolboxppconfig.h

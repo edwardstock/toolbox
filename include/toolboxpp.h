@@ -23,9 +23,7 @@
 #define __CHAR_TO_UPPER(c) std::toupper(c)
 #endif
 
-#include "toolboxconfig.h"
-
-#undef HAVE_REGEX_H
+#include "toolboxppconfig.h"
 
 #include <chrono>
 #include <string>
