@@ -17,7 +17,7 @@ TEST(ToolboxConsole, ConfirmAnwserNo) {
     std::ostringstream output1;
 
     bool result1 = confirm(input1, output1, "Wanna pizza?", false);
-    ASSERT_EQ(false, result1);
+    ASSERT_FALSE(result1);
     ASSERT_STREQ("Wanna pizza? (yes|no) [no]: ", output1.str().c_str());
 
 
@@ -25,7 +25,7 @@ TEST(ToolboxConsole, ConfirmAnwserNo) {
     std::istringstream input2("");
     std::ostringstream output2;
     bool result2 = confirm(input2, output2, "Wanna pizza?", true);
-    ASSERT_EQ(true, result2);
+    ASSERT_TRUE(result2);
     ASSERT_STREQ("Wanna pizza? (yes|no) [yes]: ", output2.str().c_str());
 }
 
@@ -35,7 +35,7 @@ TEST(ToolboxConsole, ConfirmAnwserYes) {
 
     bool result = confirm(input, output, "Wanna pizza?", false);
 
-    ASSERT_EQ(true, result);
+    ASSERT_TRUE(result);
     ASSERT_STREQ("Wanna pizza? (yes|no) [no]: ", output.str().c_str());
 }
 
