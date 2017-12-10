@@ -54,3 +54,28 @@ if (${PROJECT_DEV})
 else ()
 	set(CMAKE_BUILD_TYPE "Release")
 endif ()
+
+
+if (${WITH_TEST})
+	add_definitions(-DTOOLBOX_TESTING=1)
+	set(GTEST_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/googletest/googletest)
+
+	include_directories(${GTEST_SOURCE_DIR}/include ${GTEST_SOURCE_DIR})
+	add_subdirectory(${GTEST_SOURCE_DIR})
+
+	if (WIN32)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++0x")
+	elseif (APPLE)
+		add_definitions(-DGTEST_USE_OWN_TR1_TUPLE)
+		add_definitions(-D__GLIBCXX__)
+	endif ()
+
+	add_executable(
+		toolboxtest
+		tests/console_test.cpp
+		tests/filesystem_test.cpp tests/numbers_test.cpp tests/collection_test.cpp tests/strings_test.cpp)
+
+	target_link_libraries(toolboxtest gtest gtest_main)
+	target_link_libraries(toolboxtest ${PROJECT_NAME})
+
+endif ()

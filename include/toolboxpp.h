@@ -1,9 +1,8 @@
-/**
- * uedit
- * toolboxpp.h
+/*!
+ * toolboxpp. 2017
  *
- * @author Eduard Maximovich <edward.vstock@gmail.com>
- * @link https://github.com/edwardstock
+ * \author Eduard Maximovich <edward.vstock@gmail.com>
+ * \link https://github.com/edwardstock
  */
 
 #ifndef TOOLBOXPP_H
@@ -100,22 +99,49 @@
 namespace toolboxpp {
 
 namespace collection {
+
+template<typename T>
+struct is_map {
+  static const bool value = false;
+};
 template<typename K, typename V>
-std::vector<K> mapKeysToVector(const std::map<K, V> &map) {
-    std::vector<K> v(map.size());
-    for (auto &it = map.begin(); it != map.end(); ++it) {
-        v.push_back(it->first);
+struct is_map<std::map<K, V>> {
+  static const bool value = true;
+};
+template<typename K, typename V>
+struct is_map<std::unordered_map<K, V>> {
+  static const bool value = true;
+};
+template<typename K, typename V>
+struct is_map<std::unordered_multimap<K, V>> {
+  static const bool value = true;
+};
+template<typename K, typename V>
+struct is_map<std::multimap<K, V>> {
+  static const bool value = true;
+};
+
+template<typename map_type, typename key_type = typename map_type::key_type>
+std::vector<key_type> mapKeysToVector(const map_type &map) {
+    static_assert(is_map<map_type>::value, "Only map can be passed");
+    std::vector<key_type> v(map.size());
+    size_t i = 0;
+    for (auto &it: map) {
+        v[i] = it.first;
+        i++;
     }
 
     return v;
 }
 
-template<typename K, typename V>
-std::vector<V> mapValuesToVector(const std::map<K, V> &map) {
-    std::vector<V> v(map.size());
-
-    for (auto &it = map.begin(); it != map.end(); ++it) {
-        v.push_back(it->first);
+template<typename map_type, typename value_type = typename map_type::value_type::second_type>
+std::vector<value_type> mapValuesToVector(const map_type &map) {
+    static_assert(is_map<map_type>::value, "Only map can be passed");
+    std::vector<value_type> v(map.size());
+    size_t i = 0;
+    for (auto &it: map) {
+        v[i] = it.second;
+        i++;
     }
 
     return v;
@@ -137,7 +163,7 @@ bool isReal(const std::string &input);
 
 namespace fs {
 const std::string readFile(const std::string &path);
-void writeFile(const std::string &path, const std::string &data);
+bool writeFile(const std::string &path, const std::string &data);
 bool exists(const std::string &path);
 }
 
@@ -173,7 +199,7 @@ size_t stringCompare(const T &str1, const T &str2, const std::locale &loc = std:
  * @param substring
  * @return
  */
-bool hasSubstringIgnoreCase(const_string source, const_string substring);
+bool hasSubstringIgnoreCase(const std::string &substring, const std::string &source);
 
 /**
  * Search substring in string
@@ -181,14 +207,14 @@ bool hasSubstringIgnoreCase(const_string source, const_string substring);
  * @param substring
  * @return
  */
-bool hasSubstring(const_string source, const_string substring);
+bool hasSubstring(const std::string &substring, const std::string &source);
 /**
  * Serch character in string
  * @param source
  * @param substring
  * @return
  */
-bool hasSubstring(const_string source, char substring);
+bool hasSubstring(char substring, const std::string &source);
 /**
  * Match regex pattern
  * @param pattern
@@ -237,15 +263,14 @@ std::string matchRegexpFirst(const std::regex &pattern, const_string source);
  * @param source
  * @return
  */
-std::smatch matchRegexp(const_string pattern, const_string source);
+const std::vector<std::string> matchRegexp(const_string pattern, const_string source);
 /**
  * Less boilerplate to std::regex
  * @param rxPattern
  * @param source
  * @return
  */
-std::smatch matchRegexp(const std::regex &rxPattern, const_string source);
-
+const std::vector<std::string> matchRegexp(const std::regex &rxPattern, const_string source);
 /**
  * Splits string by delimiter to pair
  * @param source

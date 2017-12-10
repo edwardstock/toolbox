@@ -11,6 +11,7 @@ install:
 
 script:
   - mkdir -p build && cd build
-  - cmake .. -DCMAKE_BUILD_TYPE=Release
-  - cmake --build . --target toolboxpp
+  - cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_TEST
+  - sudo make
   - sudo cmake --build . --target install
+  - sudo ./toolboxtest
