@@ -9,9 +9,10 @@
 
 bool toolboxpp::console::confirm(std::istream &in, std::ostream &out, const std::string &message, bool defValue) {
     std::string res;
+    const std::string yesNo = defValue ? "yes" : "no";
     do {
         out << message;
-        out << " (yes|no) [" << (defValue ? "yes" : "no") << "]: ";
+        out << " (yes|no) [" << yesNo << "]: ";
         std::getline(in, res);
 
     } while (
