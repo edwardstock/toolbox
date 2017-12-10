@@ -6,6 +6,7 @@
  * @link https://github.com/edwardstock
  */
 #include "toolboxpp.h"
+#include <regex>
 
 bool toolboxpp::strings::hasSubstring(const std::string &substring, const std::string &source) {
     return source.find(substring) != std::string::npos;
