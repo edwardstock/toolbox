@@ -8,7 +8,7 @@
 #ifndef TOOLBOXPP_TOOLBOXCONFIG_H
 #define TOOLBOXPP_TOOLBOXCONFIG_H
 
-#cmakedefine HAVE_REGEX_H 1
+#define HAVE_REGEX_H 1
 
 #ifndef HAVE_REGEX_H
 #warning "Regex is not supported by your compiler (GCC < 4.9)"

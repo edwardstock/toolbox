@@ -34,6 +34,7 @@ TEST(Strings, HasSubstringChar) {
     ASSERT_FALSE(hasSubstring('d', "{a,b,c}"));
 }
 
+#ifdef HAVE_REGEX_H
 TEST(Strings, HasRegex) {
     ASSERT_TRUE(hasRegex("[0-9]", "abc123"));
     ASSERT_TRUE(hasRegex(std::regex("[a-z0-9]"), "abc123"));
@@ -102,6 +103,8 @@ TEST(Strings, MatchRegexp) {
     ASSERT_FALSE(result2.empty());
     ASSERT_STREQ(result2[1].c_str(), mustBeFounded);
 }
+
+#endif
 
 TEST(Strings, SplitPair) {
     auto result1 = splitPair("abc,def", ",");

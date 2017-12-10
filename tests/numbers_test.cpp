@@ -8,6 +8,7 @@
 #include "gtest/gtest.h"
 #include "../include/toolboxpp.h"
 
+#ifdef HAVE_REGEX_H
 using namespace toolboxpp::numbers;
 
 TEST(Numbers, IsReal) {
@@ -50,3 +51,4 @@ TEST(Numbers, IsInteger) {
     ASSERT_TRUE(isInteger(num8));
 }
 
+#endif

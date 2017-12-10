@@ -6,7 +6,6 @@
  * @link https://github.com/edwardstock
  */
 #include "toolboxpp.h"
-#include <regex>
 
 bool toolboxpp::strings::hasSubstring(const std::string &substring, const std::string &source) {
     return source.find(substring) != std::string::npos;
@@ -77,6 +76,7 @@ std::string toolboxpp::strings::toString(std::ifstream &inputStream) {
     return std::string((std::istreambuf_iterator<char>(inputStream)), std::istreambuf_iterator<char>());
 }
 
+#ifdef HAVE_REGEX_H
 std::vector<std::vector<std::string>> toolboxpp::strings::matchAllRegexp(const std::regex &rx, const_string s) {
     std::vector<std::vector<std::string>> capturedGroups;
     std::vector<std::string> capturedSubgroups;
@@ -134,6 +134,15 @@ const std::vector<std::string> toolboxpp::strings::matchRegexp(const std::regex 
     return out;
 }
 
+bool toolboxpp::strings::hasRegex(const std::regex &pattern, const_string source) {
+    std::smatch match;
+    return std::regex_search(source, match, pattern);
+}
+
+bool toolboxpp::strings::hasRegex(const_string pattern, const_string source) {
+    return hasRegex(std::regex(pattern), source);
+}
+#endif
 bool toolboxpp::strings::equalsIgnoreCase(const_string s1, const_string s2) {
     if (s1.length() != s2.length()) return false;
 
@@ -144,15 +153,6 @@ bool toolboxpp::strings::equalsIgnoreCase(const_string s1, const_string s2) {
           return __CHAR_TO_LOWER(a) == __CHAR_TO_LOWER(b);
         }
     );
-}
-
-bool toolboxpp::strings::hasRegex(const std::regex &pattern, const_string source) {
-    std::smatch match;
-    return std::regex_search(source, match, pattern);
-}
-
-bool toolboxpp::strings::hasRegex(const_string pattern, const_string source) {
-    return hasRegex(std::regex(pattern), source);
 }
 
 std::string toolboxpp::strings::glue(const_string glue, const std::vector<std::string> &strings) {

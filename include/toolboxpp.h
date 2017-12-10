@@ -23,6 +23,10 @@
 #define __CHAR_TO_UPPER(c) std::toupper(c)
 #endif
 
+#include "toolboxconfig.h"
+
+#undef HAVE_REGEX_H
+
 #include <chrono>
 #include <string>
 #include <iosfwd>
@@ -34,7 +38,9 @@
 #include <istream>
 #include <ostream>
 #include <vector>
+#ifdef HAVE_REGEX_H
 #include <regex>
+#endif
 #include <sstream>
 #include <iostream>
 #include <fstream>
@@ -156,10 +162,12 @@ std::string prompt(std::istream &in, std::ostream &out, const std::string &messa
 std::string prompt(const std::string &message, bool required = false, const std::string &defValue = "");
 }
 
+#ifdef HAVE_REGEX_H
 namespace numbers {
 bool isInteger(const std::string &input);
 bool isReal(const std::string &input);
 }
+#endif
 
 namespace fs {
 const std::string readFile(const std::string &path);
@@ -215,6 +223,8 @@ bool hasSubstring(const std::string &substring, const std::string &source);
  * @return
  */
 bool hasSubstring(char substring, const std::string &source);
+
+#ifdef HAVE_REGEX_H
 /**
  * Match regex pattern
  * @param pattern
@@ -277,6 +287,8 @@ const std::vector<std::string> matchRegexp(const std::regex &rxPattern, const_st
  * @param delimiter
  * @return
  */
+#endif
+
 std::pair<std::string, std::string> splitPair(const_string source, const_string delimiter);
 /**
  * Splits string by char delimiter to pair
