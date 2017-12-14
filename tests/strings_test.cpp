@@ -169,14 +169,20 @@ TEST(Strings, Split) {
 
     ASSERT_EQ(found2, mustBeInList.size());
 
-    bool failed = false;
-    try {
-        // only one character can be passed
-        auto result3 = split("abc/def/ghi/jkl", "def/");
-    } catch (const std::runtime_error &) {
-        failed = true;
+    std::vector<std::string> mustBeInList3{
+        "abc/", "ghi/jkl"
+    };
+    auto result3 = split("abc/def/ghi/jkl", "def/");
+    ASSERT_EQ(result3.size(), mustBeInList3.size());
+
+    size_t found3 = 0;
+    for (auto &t: result3) {
+        for (auto &m: mustBeInList3) {
+            if (m == t) {
+                found3++;
+                break;
+            }
+        }
     }
-
-    ASSERT_TRUE(failed);
-
+    ASSERT_EQ(found3, mustBeInList3.size());
 }

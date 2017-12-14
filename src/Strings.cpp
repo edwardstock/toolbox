@@ -41,10 +41,22 @@ std::vector<std::string> toolboxpp::strings::split(const_string source, const_st
         return std::vector<std::string>(0);
     }
 
-    if (delimiter.length() > 1) {
-        throw std::runtime_error("Only 1 (first) character split supported");
+    std::string src = source;
+
+    std::vector<std::string> result;
+    size_t current = 0;
+    while (current != src.npos) {
+        current = src.find(delimiter);
+        if (current != src.npos && src.substr(current, delimiter.length()) == delimiter) {
+            result.push_back(src.substr(0, current));
+            src = src.substr(current + (delimiter.length()), src.npos);
+        }
     }
-    return split(source, delimiter.c_str()[0]);
+    if (src.length() > 0) {
+        result.push_back(src);
+    }
+
+    return result;
 }
 std::vector<std::string> toolboxpp::strings::split(const_string source, const char &delimiter) {
     std::stringstream ss;
