@@ -1,9 +1,29 @@
 cmake_minimum_required(VERSION 3.0)
 project(toolboxpp)
 
+if (APPLE)
+	# Fix behavior of CMAKE_CXX_STANDARD when targeting macOS.
+	if (POLICY CMP0025)
+		cmake_policy(SET CMP0025 NEW)
+	endif ()
+endif ()
+
 set(CXX_FLAGS "-Wall -Wextra -pedantic -Wno-unused-parameter")
 
-set(CMAKE_CXX_STANDARD 11)
+macro (use_cxx11)
+	if (CMAKE_VERSION VERSION_LESS "3.1")
+		if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+			set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+		elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+			set(CMAKE_CXX_FLAGS "-stdlib=libc++ ${CMAKE_CXX_FLAGS}")
+		endif ()
+	else ()
+		set(CMAKE_CXX_STANDARD 11)
+	endif ()
+endmacro (use_cxx11)
+
+use_cxx11()
+
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_LINKER_FLAGS "-static-libstdc++")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${CXX_FLAGS} -Werror")
@@ -11,12 +31,13 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${CXX_FLAGS} -O3")
 
 if (APPLE)
 	message(STATUS "Build for Darwin")
-	set(CMAKE_CXX_COMPILER_FLAGS "${CMAKE_CXX_COMPILER_FLAGS} -stdlib=libc++ -arch=x86_64")
 	set(CMAKE_CXX_LINKER_FLAGS "${CMAKE_CXX_LINKER_FLAGS} -stdlib=libc++ -undefined dynamic_lookup")
 elseif (MSVC)
+	message(STATUS "Build for Windows")
 	add_compile_options(/W1)
 else ()
-	set(CMAKE_CXX_COMPILER_FLAGS "${CMAKE_CXX_COMPILER_FLAGS} -std=c++11")
+	message(STATUS "Build for Linux and others")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_COMPILER_FLAGS} -std=c++11")
 	set(CMAKE_CXX_LINKER_FLAGS "${CMAKE_CXX_LINKER_FLAGS} -std=c++11")
 endif ()
 
