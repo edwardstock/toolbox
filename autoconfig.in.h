@@ -12,10 +12,6 @@
 #cmakedefine HAVE_STL_REGEX 1
 #cmakedefine HAVE_BOOST_REGEX 1
 
-#define HAVE_REGEX_H 1
-#define HAVE_BOOST_REGEX 1
-//#define HAVE_STL_REGEX 1
-
 #ifndef HAVE_REGEX_H
 #warning "Regex is not supported by your compiler (GCC < 4.9)"
 #else
