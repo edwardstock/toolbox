@@ -37,9 +37,6 @@
 #include <ostream>
 #include <vector>
 #include <algorithm>
-#ifdef HAVE_REGEX_H
-#include <regex>
-#endif
 #include <sstream>
 #include <iostream>
 #include <fstream>
@@ -230,7 +227,7 @@ bool hasSubstring(char substring, const std::string &source);
  * @param source
  * @return
  */
-bool hasRegex(const std::regex &pattern, const_string source);
+bool hasRegex(const rxns::regex &pattern, const_string source);
 /**
  * Match regex pattern.
  * @param pattern Just string. By default: search with flag std::regex_constants::icase
@@ -244,7 +241,7 @@ bool hasRegex(const_string pattern, const_string source);
  * @param s
  * @return
  */
-std::vector<std::vector<std::string>> matchAllRegexp(const std::regex &pattern, const_string source);
+std::vector<std::vector<std::string>> matchAllRegexp(const rxns::regex &pattern, const_string source);
 /**
  * Returns all found groups in source with pattern
  * @param pattern
@@ -265,7 +262,7 @@ std::string matchRegexpFirst(const_string pattern, const_string source);
  * @param source
  * @return
  */
-std::string matchRegexpFirst(const std::regex &pattern, const_string source);
+std::string matchRegexpFirst(const rxns::regex &pattern, const_string source);
 /**
  * boilerplate to std::regex
  * @param pattern
@@ -279,7 +276,7 @@ const std::vector<std::string> matchRegexp(const_string pattern, const_string so
  * @param source
  * @return
  */
-const std::vector<std::string> matchRegexp(const std::regex &rxPattern, const_string source);
+const std::vector<std::string> matchRegexp(const rxns::regex &rxPattern, const_string source);
 /**
  * Splits string by delimiter to pair
  * @param source

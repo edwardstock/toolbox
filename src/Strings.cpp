@@ -89,15 +89,15 @@ std::string toolboxpp::strings::toString(std::ifstream &inputStream) {
 }
 
 #ifdef HAVE_REGEX_H
-std::vector<std::vector<std::string>> toolboxpp::strings::matchAllRegexp(const std::regex &rx, const_string s) {
+std::vector<std::vector<std::string>> toolboxpp::strings::matchAllRegexp(const rxns::regex &rx, const_string s) {
     std::vector<std::vector<std::string>> capturedGroups;
     std::vector<std::string> capturedSubgroups;
-    const std::sregex_token_iterator endIterator;
-    for (std::sregex_token_iterator it(s.cbegin(), s.cend(), rx); it != endIterator; ++it) {
+    const rxns::sregex_token_iterator endIterator;
+    for (rxns::sregex_token_iterator it(s.cbegin(), s.cend(), rx); it != endIterator; ++it) {
         capturedSubgroups.clear();
         std::string group = *it;
-        std::smatch res;
-        if (std::regex_search(group, res, rx)) {
+        rxns::smatch res;
+        if (rxns::regex_search(group, res, rx)) {
             for (auto r : res) {
                 capturedSubgroups.push_back(std::move(r));
             }
@@ -112,17 +112,17 @@ std::vector<std::vector<std::string>> toolboxpp::strings::matchAllRegexp(const s
 }
 
 std::vector<std::vector<std::string>> toolboxpp::strings::matchAllRegexp(const_string rxPattern, const_string s) {
-    return matchAllRegexp(std::regex(rxPattern, std::regex_constants::icase), s);
+    return matchAllRegexp(rxns::regex(rxPattern, rxns::regex_constants::icase), s);
 }
 
 std::string toolboxpp::strings::matchRegexpFirst(const_string rxPattern, const_string source) {
-    return matchRegexpFirst(std::regex(rxPattern, std::regex_constants::icase), source);
+    return matchRegexpFirst(rxns::regex(rxPattern, rxns::regex_constants::icase), source);
 }
 
-std::string toolboxpp::strings::matchRegexpFirst(const std::regex &rxPattern, const_string source) {
-    std::smatch results;
+std::string toolboxpp::strings::matchRegexpFirst(const rxns::regex &rxPattern, const_string source) {
+    rxns::smatch results;
     std::string result;
-    bool found = std::regex_search(source, results, rxPattern);
+    bool found = rxns::regex_search(source, results, rxPattern);
     if (!found || results.size() < 2) {
         return std::string();
     }
@@ -131,12 +131,12 @@ std::string toolboxpp::strings::matchRegexpFirst(const std::regex &rxPattern, co
 }
 
 const std::vector<std::string> toolboxpp::strings::matchRegexp(const_string rxPattern, const_string source) {
-    return matchRegexp(std::regex(rxPattern, std::regex_constants::icase), source);
+    return matchRegexp(rxns::regex(rxPattern, rxns::regex_constants::icase), source);
 }
 
-const std::vector<std::string> toolboxpp::strings::matchRegexp(const std::regex &rxPattern, const_string source) {
-    std::smatch result;
-    std::regex_search(source, result, rxPattern);
+const std::vector<std::string> toolboxpp::strings::matchRegexp(const rxns::regex &rxPattern, const_string source) {
+    rxns::smatch result;
+    rxns::regex_search(source, result, rxPattern);
     std::vector<std::string> out(result.size());
     size_t i = 0;
     for (auto &r: result) {
@@ -146,13 +146,13 @@ const std::vector<std::string> toolboxpp::strings::matchRegexp(const std::regex 
     return out;
 }
 
-bool toolboxpp::strings::hasRegex(const std::regex &pattern, const_string source) {
-    std::smatch match;
-    return std::regex_search(source, match, pattern);
+bool toolboxpp::strings::hasRegex(const rxns::regex &pattern, const_string source) {
+    rxns::smatch match;
+    return rxns::regex_search(source, match, pattern);
 }
 
 bool toolboxpp::strings::hasRegex(const_string pattern, const_string source) {
-    return hasRegex(std::regex(pattern), source);
+    return hasRegex(rxns::regex(pattern), source);
 }
 #endif
 bool toolboxpp::strings::equalsIgnoreCase(const_string s1, const_string s2) {

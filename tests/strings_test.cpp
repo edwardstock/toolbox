@@ -37,7 +37,7 @@ TEST(Strings, HasSubstringChar) {
 #ifdef HAVE_REGEX_H
 TEST(Strings, HasRegex) {
     ASSERT_TRUE(hasRegex("[0-9]", "abc123"));
-    ASSERT_TRUE(hasRegex(std::regex("[a-z0-9]"), "abc123"));
+    ASSERT_TRUE(hasRegex(rxns::regex("[a-z0-9]"), "abc123"));
     ASSERT_FALSE(hasRegex("[!@#$]", "abc123"));
 }
 
@@ -63,7 +63,7 @@ TEST(Strings, MatchAllRegex) {
 
     ASSERT_EQ(mustBeFounded.size(), found);
 
-    auto result2 = matchAllRegexp(std::regex(R"((\[[a-z]+\]))"), "[abc]\n\n[def]gagag[ghi]rg45w5[jkl]");
+    auto result2 = matchAllRegexp(rxns::regex(R"((\[[a-z]+\]))"), "[abc]\n\n[def]gagag[ghi]rg45w5[jkl]");
     size_t found2 = 0;
     for (auto &matches: result2) {
         ASSERT_EQ(2UL, matches.size());
@@ -85,7 +85,7 @@ TEST(Strings, MatchRegexpFirst) {
 
     ASSERT_STREQ(result1.c_str(), mustBeFounded.c_str());
 
-    auto result2 = matchRegexpFirst(std::regex(R"((\[[a-z]+\]))"), "[abc]\n\n[def]gagag[ghi]rg45w5[jkl]");
+    auto result2 = matchRegexpFirst(rxns::regex(R"((\[[a-z]+\]))"), "[abc]\n\n[def]gagag[ghi]rg45w5[jkl]");
 
     ASSERT_STREQ(result2.c_str(), mustBeFounded.c_str());
 }
@@ -98,7 +98,7 @@ TEST(Strings, MatchRegexp) {
     ASSERT_FALSE(result1.empty());
     ASSERT_STREQ(result1[1].c_str(), mustBeFounded);
 
-    auto result2 = matchRegexp(std::regex(R"((\[[a-z]+\]))"), "[abc]\n\n[def]gagag[ghi]rg45w5[jkl]");
+    auto result2 = matchRegexp(rxns::regex(R"((\[[a-z]+\]))"), "[abc]\n\n[def]gagag[ghi]rg45w5[jkl]");
     ASSERT_EQ(2UL, result2.size());
     ASSERT_FALSE(result2.empty());
     ASSERT_STREQ(result2[1].c_str(), mustBeFounded);

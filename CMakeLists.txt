@@ -41,8 +41,6 @@ else ()
 	set(CMAKE_CXX_LINKER_FLAGS "${CMAKE_CXX_LINKER_FLAGS} -std=c++11")
 endif ()
 
-include(options.cmake)
-include(check_system.cmake)
 
 set(PUBLIC_HEADERS
     include/toolboxpp.h
@@ -64,6 +62,10 @@ if (ENABLE_STATIC)
 else ()
 	add_library(toolboxpp SHARED ${SOURCE_FILES})
 endif ()
+
+
+include(options.cmake)
+include(check_system.cmake)
 
 install(
 	TARGETS toolboxpp
