@@ -10,7 +10,7 @@ install:
   - sudo apt-get install cmake
 
 script:
-  - sudo sh llvm_config.sh
+  - sh llvm_config.sh
   - mkdir -p build && cd build
   - cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_TEST=ON
   - sudo cmake --build .
