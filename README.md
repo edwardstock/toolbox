@@ -3,7 +3,7 @@
 
 ## Reqs
 * cmake >= 3.0
-* gcc/clang/msvc (not tested)
+* gnu gcc 4.7+/clang 5+/msvc (not tested)
 * make
 
 ## Build
@@ -13,6 +13,9 @@ cmake .. -DCMAKE_BUILD_TYPE=Release
 cmake --build . --target toolboxpp
 cmake --build . --target install 
 ```
+
+## Build with CLang on linux
+Probably, if you are compiled clang from the sources, linker may not found `libc++.so` in default lib path. You could manually add it to LD_LIBRARY_PATH or using `sudo -s source llvm_config.sh`.
 
 ## Build, Run tests, and Install if ok
 ```bash
