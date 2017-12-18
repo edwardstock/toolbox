@@ -8,9 +8,9 @@ compiler:
 install:
   - sudo apt-get update
   - sudo apt-get install cmake
-  - sudo -s source llvm_config.sh
 
 script:
+  - sudo -s source llvm_config.sh
   - mkdir -p build && cd build
   - cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_TEST=ON
   - sudo cmake --build .
