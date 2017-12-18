@@ -34,10 +34,11 @@ if (APPLE)
 elseif (MSVC)
 	message(STATUS "Build for Windows")
 	add_compile_options(/W1)
-else ()
-	message(STATUS "Build for Linux and others")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_COMPILER_FLAGS} -std=c++11")
-	set(CMAKE_CXX_LINKER_FLAGS "${CMAKE_CXX_LINKER_FLAGS} -std=c++11")
+endif ()
+
+# linux clang
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++")
 endif ()
 
 
