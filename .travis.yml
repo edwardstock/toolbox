@@ -15,4 +15,4 @@ script:
   - cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_TEST=ON
   - sudo cmake --build .
   - sudo cmake --build . --target install
-  - sudo sh run_test.sh
+  - cd ../ && sudo sh run_test.sh
