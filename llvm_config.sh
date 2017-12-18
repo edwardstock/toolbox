@@ -1,9 +1,18 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-if [ hash `llvm-config 2>/dev/null` ] && [ ! -f /etc/ld.so.conf.d/llvm.conf ];
+## osx does not have ldconfig
+if [[ "${CXX}" == *"clang++" ]] && [ ! -f /etc/ld.so.conf.d/llvm.conf ];
 then
-	echo `llvm-config --libdir` >> /etc/ld.so.conf.d/llvm.conf
-	ldconfig
-	export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:`llvm-config --libdir`
-	echo "Added llvm lib dir to ldconfig"
+	clang_bin_dir=$(clang++ --version | grep InstalledDir | awk -F ": " '{print $NF}')
+	llvmcfg_libdir=$(${clang_bin_dir}/llvm-config --libdir)
+
+	echo ${llvmcfg_libdir} | sudo tee /etc/ld.so.conf.d/llvm.conf > /dev/null
+	sudo ldconfig
+	echo "Added llvm lib dir to ldconfig:"
+	echo ${llvmcfg_libdir}
+	echo ""
+
+	#write for source'ing
+	echo "#!/bin/sh" > build/env.sh
+	echo "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${llvmcfg_libdir}" >> build/env.sh
 fi

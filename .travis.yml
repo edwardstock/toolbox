@@ -10,9 +10,12 @@ install:
   - sudo apt-get install cmake
 
 script:
-  - sudo -s source llvm_config.sh
+  - chmod +x llvm_config.sh
   - mkdir -p build && cd build
   - cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_TEST=ON
   - sudo cmake --build .
   - sudo cmake --build . --target install
-  - cd ../ && sudo sh run_test.sh
+  - sudo llvm-config --libdir
+  - ./llvm_config.sh
+  - source build/env.sh
+  - ./toolboxtest
