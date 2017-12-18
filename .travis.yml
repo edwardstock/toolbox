@@ -18,4 +18,4 @@ script:
   - cd ../
   - ./llvm_config.sh
   - source build/env.sh
-  - ./toolboxtest
+  - cd build && ./toolboxtest
