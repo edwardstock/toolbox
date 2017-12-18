@@ -5,4 +5,5 @@ then
 	echo `llvm-config --libdir` >> /etc/ld.so.conf.d/llvm.conf
 	echo `ldconfig`
 	echo "Added llvm lib dir to ldconfig"
+	export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:`llvm-config --libdir`
 fi
