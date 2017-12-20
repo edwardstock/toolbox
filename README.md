@@ -6,6 +6,42 @@
 * gnu gcc 4.7+/clang 5+/msvc (not tested)
 * make
 
+## Usage and features
+
+Namespace for all things is toolboxpp.
+
+What helpers contained:
+* **toolboxpp::strings** - strings helpers like bool hasNum = matchRegex("[0-9]", "my194string"")
+* **toolboxpp::fs** - filesystem helpers
+* **toolboxpp::collection** - collections helpers
+* **toolboxpp::numbers** - string numbers helpers
+* **toolboxpp::console** - confirm or prompt for your CLI app
+* **toolboxpp::Logger** - simple thread-safe logger
+* **toolboxpp::Profiler** - simple time-based profiler
+
+TBD (just look now at [include/toolboxpp.h](https://github.com/edwardstock/toolboxpp/blob/master/include/toolboxpp.h) - code are commented)
+
+
+## Include to your CMake project
+* Add submodule or just clone
+  * `git submodule add https://github.com/edwardstock/toolboxpp.git /path/to/libs/toolboxpp` 
+  * `git clone https://github.com/edwardstock/toolboxpp.git /path/to/libs/toolboxpp`
+  
+* Edit CMakelists.txt:
+```cmake
+# your executable or library
+add_executable(my_executable) 
+#or if library
+add_library(my_library)
+
+# include module
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/path/to/libs/toolboxpp)
+
+# link with your project
+target_link_libraries(my_[executable|library] toolboxpp)
+```
+* That's all!
+
 ## Build
 ```bash
 git clone https://github.com/edwardstock/toolboxpp.git toolboxpp && cd toolboxpp/build
