@@ -15,4 +15,7 @@ then
 	#write for source'ing
 	echo "#!/bin/sh" > build/env.sh
 	echo "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${llvmcfg_libdir}" >> build/env.sh
+else
+	#write empty env for complete sourcing
+	echo "#!/bin/sh" > build/env.sh
 fi
