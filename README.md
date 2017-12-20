@@ -11,7 +11,7 @@
 Namespace for all things is toolboxpp.
 
 What helpers contained:
-* **toolboxpp::strings** - strings helpers like bool hasNum = matchRegex("[0-9]", "my194string"")
+* **toolboxpp::strings** - strings helpers like bool hasNum = hasRegex("[0-9]", "my194string"")
 * **toolboxpp::fs** - filesystem helpers
 * **toolboxpp::collection** - collections helpers
 * **toolboxpp::numbers** - string numbers helpers
