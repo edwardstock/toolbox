@@ -19,7 +19,7 @@ What helpers contained:
 * **toolboxpp::Logger** - simple thread-safe logger
 * **toolboxpp::Profiler** - simple time-based profiler
 
-TBD (just look now at [include/toolboxpp.h](https://github.com/edwardstock/toolboxpp/blob/master/include/toolboxpp.h) - code are commented)
+TBD (just look now at [include/toolboxpp.h](https://github.com/edwardstock/toolboxpp/blob/master/include/toolboxpp.h) - almost all code are commented)
 
 
 ## Include to your CMake project
