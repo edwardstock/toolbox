@@ -8,38 +8,26 @@ if (APPLE)
 	endif ()
 endif ()
 
-set(CXX_FLAGS "-Wall -Wextra -pedantic -Wno-unused-parameter")
+# gnu
+set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 
-macro (use_cxx11)
-	if (CMAKE_VERSION VERSION_LESS "3.1")
-		if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-			set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
-		endif ()
-	else ()
-		set(CMAKE_CXX_STANDARD 11)
-	endif ()
-endmacro (use_cxx11)
-
-use_cxx11()
-
-set(CMAKE_BUILD_TYPE Debug)
-set(CMAKE_CXX_LINKER_FLAGS "-static-libstdc++")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${CXX_FLAGS} -Werror")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${CXX_FLAGS} -O3")
-
-if (APPLE)
-	message(STATUS "Build for Darwin")
-	set(CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++ ${CMAKE_CXX_FLAGS}")
+# linux clang
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+elseif (APPLE)
+	set(CMAKE_CXX_FLAGS "-stdlib=libc++ ${CMAKE_CXX_FLAGS}")
 	set(CMAKE_CXX_LINKER_FLAGS "${CMAKE_CXX_LINKER_FLAGS} -std=c++11 -stdlib=libc++ -undefined dynamic_lookup")
 elseif (MSVC)
 	message(STATUS "Build for Windows")
 	add_compile_options(/W1)
 endif ()
 
-# linux clang
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++")
-endif ()
+set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_CXX_LINKER_FLAGS "-static-libstdc++")
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -Wno-unused-parameter")
+set(CMAKE_CXX_FLAGS_DEBUG "-Werror -g -O0")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 
 set(PUBLIC_HEADERS
@@ -48,6 +36,7 @@ set(PUBLIC_HEADERS
     )
 
 include_directories(include)
+
 
 
 set(SOURCE_FILES
@@ -86,6 +75,7 @@ endif ()
 
 
 if (${WITH_TEST})
+	enable_testing()
 	add_definitions(-DTOOLBOX_TESTING=1)
 	set(GTEST_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/googletest/googletest)
 
@@ -106,5 +96,13 @@ if (${WITH_TEST})
 
 	target_link_libraries(toolboxtest gtest gtest_main)
 	target_link_libraries(toolboxtest ${PROJECT_NAME})
+
+	include(cmakes/CodeCoverage.cmake)
+	append_coverage_compiler_flags()
+	setup_target_for_coverage(
+		NAME toolboxtest_coverage
+		EXECUTABLE toolboxtest
+		DEPENDENCIES toolboxtest
+	)
 
 endif ()
