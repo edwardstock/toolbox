@@ -38,7 +38,6 @@ set(PUBLIC_HEADERS
 include_directories(include)
 
 
-
 set(SOURCE_FILES
     ${PUBLIC_HEADERS}
     src/Console.cpp
@@ -97,12 +96,14 @@ if (${WITH_TEST})
 	target_link_libraries(toolboxtest gtest gtest_main)
 	target_link_libraries(toolboxtest ${PROJECT_NAME})
 
-	include(cmakes/CodeCoverage.cmake)
-	append_coverage_compiler_flags()
-	setup_target_for_coverage(
-		NAME toolboxtest_coverage
-		EXECUTABLE toolboxtest
-		DEPENDENCIES toolboxtest
-	)
+	if (WITH_COVERAGE)
+		include(cmakes/CodeCoverage.cmake)
+		append_coverage_compiler_flags()
+		setup_target_for_coverage(
+			NAME toolboxtest_coverage
+			EXECUTABLE toolboxtest
+			DEPENDENCIES toolboxtest
+		)
+	endif ()
 
 endif ()
