@@ -45,6 +45,8 @@ set(SOURCE_FILES
     src/Strings.cpp
     src/FileSystem.cpp src/Logger.cpp)
 
+include(options.cmake)
+
 if (ENABLE_STATIC)
 	add_library(toolboxpp STATIC ${SOURCE_FILES})
 else ()
@@ -52,7 +54,6 @@ else ()
 endif ()
 
 
-include(options.cmake)
 include(check_system.cmake)
 
 install(

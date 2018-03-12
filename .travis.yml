@@ -5,14 +5,19 @@ compiler:
   - g++
   - clang
 
+branches:
+  only:
+  - master
+  - travis
+
 install:
   - sudo apt-get update
-  - sudo apt-get install cmake
+  - sudo apt-get install cmake lcov
 
 script:
   - chmod +x llvm_config.sh
   - mkdir -p build && cd build
-  - cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_TEST=ON
+  - cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_TEST=ON -DWITH_COVERAGE=ON
   - sudo cmake --build .
   - sudo cmake --build . --target install
   - cd ../
