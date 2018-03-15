@@ -26,6 +26,7 @@ TEST(Strings, HasSubstring) {
     ASSERT_FALSE(hasSubstring("bbb", "AAA"));
     ASSERT_FALSE(hasSubstring("aaaa", "A"));
     ASSERT_FALSE(hasSubstring("1", "A"));
+    ASSERT_FALSE(hasSubstring("HTTP/1.1 400 Bad Request", "HTTP"));
 }
 
 TEST(Strings, HasSubstringChar) {
@@ -38,6 +39,7 @@ TEST(Strings, HasSubstringChar) {
 TEST(Strings, HasRegex) {
     ASSERT_TRUE(hasRegex("[0-9]", "abc123"));
     ASSERT_TRUE(hasRegex(rxns::regex("[a-z0-9]"), "abc123"));
+    ASSERT_TRUE(hasRegex("HTTP", "HTTP/1.1 400 Bad Request"));
     ASSERT_FALSE(hasRegex("[!@#$]", "abc123"));
 }
 
@@ -102,6 +104,11 @@ TEST(Strings, MatchRegexp) {
     ASSERT_EQ(2UL, result2.size());
     ASSERT_FALSE(result2.empty());
     ASSERT_STREQ(result2[1].c_str(), mustBeFounded);
+
+    auto result3 = matchRegexp(R"(HTTP\/\d\.\d.(\d+).(.*))", "HTTP/1.1 400 Bad Request");
+    ASSERT_EQ(3UL, result3.size());
+    ASSERT_STREQ(result3[1].c_str(), "400");
+    ASSERT_STREQ(result3[2].c_str(), "Bad Request");
 }
 
 #endif
