@@ -15,6 +15,10 @@ bool toolboxpp::strings::hasSubstring(char substring, const std::string &source)
     return source.find(substring) != std::string::npos;
 }
 
+bool toolboxpp::strings::hasSubstring(wchar_t substring, const std::wstring &source) {
+    return source.find(substring) != std::string::npos;
+}
+
 std::pair<std::string, std::string> toolboxpp::strings::splitPair(const_string source, const_string delimiter) {
     if (delimiter.empty()) {
         return std::pair<std::string, std::string>(std::string(), std::string());
@@ -163,6 +167,18 @@ bool toolboxpp::strings::equalsIgnoreCase(const_string s1, const_string s2) {
         s1.begin(),
         [](unsigned char a, unsigned char b) {
           return __CHAR_TO_LOWER(a) == __CHAR_TO_LOWER(b);
+        }
+    );
+}
+
+bool toolboxpp::strings::equalsIgnoreCase(const std::wstring &s1, const std::wstring &s2) {
+    if (s1.length() != s2.length()) return false;
+
+    return std::equal(
+        s2.begin(), s2.end(),
+        s1.begin(),
+        [](wchar_t a, wchar_t b) {
+          return __WCHAR_TO_LOWER(a) == __WCHAR_TO_LOWER(b);
         }
     );
 }
@@ -341,6 +357,15 @@ std::string toolboxpp::strings::toUpper(const std::string &s) {
     return tmp.str();
 }
 
+std::wstring toolboxpp::strings::toUpper(const std::wstring &s) {
+    std::wstringstream tmp;
+    for (wchar_t i : s) {
+        tmp << static_cast<wchar_t>(__WCHAR_TO_UPPER(i));
+    }
+
+    return tmp.str();
+}
+
 std::string toolboxpp::strings::toLower(const std::string &s) {
     std::stringstream tmp;
     for (char i : s) {
@@ -350,6 +375,14 @@ std::string toolboxpp::strings::toLower(const std::string &s) {
     return tmp.str();
 }
 
+std::wstring toolboxpp::strings::toLower(const std::wstring &s) {
+    std::wstringstream tmp;
+    for (wchar_t i : s) {
+        tmp << static_cast<wchar_t>(__WCHAR_TO_LOWER(i));
+    }
+
+    return tmp.str();
+}
 
 
 

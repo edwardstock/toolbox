@@ -20,7 +20,9 @@
 #define __CHAR_TO_UPPER(C) _toupper(c)
 #else
 #define __CHAR_TO_LOWER(c) std::tolower(c)
+#define __WCHAR_TO_LOWER(c) std::towlower(c)
 #define __CHAR_TO_UPPER(c) std::toupper(c)
+#define __WCHAR_TO_UPPER(c) std::towupper(c)
 #endif
 
 #include "toolboxppconfig.h"
@@ -44,6 +46,36 @@
 #include <mutex>
 #include <ctime>
 #include <iomanip>
+#include <locale>
+
+#ifndef MS_STDLIB_BUGS
+#  if (_MSC_VER || __MINGW32__ || __MSVCRT__)
+#    define MS_STDLIB_BUGS 1
+#  else
+#    define MS_STDLIB_BUGS 0
+#  endif
+#endif
+
+#if MS_STDLIB_BUGS
+#  include <io.h>
+#  include <fcntl.h>
+#endif
+
+#ifndef INIT_WCHAR_UNICODE
+#if MS_STDLIB_BUGS
+#define INIT_WCHAR_UNICODE() \
+constexpr char cp_utf16le[] = ".1200"; \
+setlocale( LC_ALL, cp_utf16le ); \
+_setmode( _fileno(stdout), _O_WTEXT );
+#else
+#define INIT_WCHAR_UNICODE() \
+  constexpr char locale_name[] = ""; \
+  setlocale( LC_ALL, locale_name ); \
+  std::locale::global(std::locale(locale_name)); \
+  std::wcin.imbue(std::locale()); \
+  std::wcout.imbue(std::locale());
+#endif // if MS_STDLIB_BUGS
+#endif // ifndef INIT_WCHAR_UNICODE
 
 #define L_LEVEL(level) toolboxpp::Logger::get().setLevel(level)
 
@@ -219,6 +251,13 @@ bool hasSubstring(const std::string &substring, const std::string &source);
  * @return
  */
 bool hasSubstring(char substring, const std::string &source);
+/**
+ * Serch character in string
+ * @param source
+ * @param substring
+ * @return
+ */
+bool hasSubstring(wchar_t substring, const std::wstring &source);
 
 #ifdef HAVE_REGEX_H
 /**
@@ -389,7 +428,7 @@ void removeSubstrings(std::string &source, const_string removable);
 void removeSubstrings(std::string &source, std::vector<std::string> removables);
 
 /**
- *
+ * Getting substring from specified character
  * @param source
  * @param whence Whence start to cut. You can inverse character to cut from the end of "source"
  * Example:
@@ -452,11 +491,25 @@ std::string toString(std::ifstream &inputStream);
 std::string toLower(const_string s);
 
 /**
+ * String to lower case (wide char)
+ * @param s
+ * @return
+ */
+std::wstring toLower(const std::wstring &s);
+
+/**
  * String to upper case
  * @param s
  * @return
  */
 std::string toUpper(const_string s);
+
+/**
+ * String to upper case
+ * @param s
+ * @return
+ */
+std::wstring toUpper(const std::wstring &s);
 
 /**
  *
@@ -465,6 +518,14 @@ std::string toUpper(const_string s);
  * @return
  */
 bool equalsIgnoreCase(const_string s1, const_string s2);
+
+/**
+ * Wide version
+ * @param s1
+ * @param s2
+ * @return
+ */
+bool equalsIgnoreCase(const std::wstring &s1, const std::wstring &s2);
 
 /**
  * Works like sprintf but with std::string and returns std::string

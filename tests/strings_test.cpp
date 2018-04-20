@@ -17,6 +17,9 @@ TEST(Strings, HasSubstringIgnoreCase) {
     ASSERT_FALSE(hasSubstringIgnoreCase("bbb", "AAA"));
     ASSERT_FALSE(hasSubstringIgnoreCase("aaaa", "A"));
     ASSERT_FALSE(hasSubstringIgnoreCase("1", "A"));
+    // unicode test
+    ASSERT_TRUE(hasSubstringIgnoreCase("Ю", "ЮЮЮ"));
+    ASSERT_FALSE(hasSubstringIgnoreCase("ЯЯЯ", "Л"));
 }
 
 TEST(Strings, HasSubstring) {
@@ -27,6 +30,9 @@ TEST(Strings, HasSubstring) {
     ASSERT_FALSE(hasSubstring("aaaa", "A"));
     ASSERT_FALSE(hasSubstring("1", "A"));
     ASSERT_FALSE(hasSubstring("HTTP/1.1 400 Bad Request", "HTTP"));
+    // unicode test
+    ASSERT_TRUE(hasSubstring("Привет", "Привет! Как дела?"));
+    ASSERT_FALSE(hasSubstring("Как дела?", "Привет"));
 }
 
 TEST(Strings, HasSubstringChar) {
@@ -41,6 +47,8 @@ TEST(Strings, HasRegex) {
     ASSERT_TRUE(hasRegex(rxns::regex("[a-z0-9]"), "abc123"));
     ASSERT_TRUE(hasRegex("HTTP", "HTTP/1.1 400 Bad Request"));
     ASSERT_FALSE(hasRegex("[!@#$]", "abc123"));
+    ASSERT_TRUE(hasRegex("[а-я]", "привет"));
+    ASSERT_FALSE(hasRegex("[а-я]", "hello"));
 }
 
 TEST(Strings, MatchAllRegex) {
@@ -141,6 +149,10 @@ TEST(Strings, SplitPair) {
     auto result7 = splitPair("abcdef", ',');
     ASSERT_STREQ("abcdef", result7.first.c_str());
     ASSERT_STREQ("", result7.second.c_str());
+
+    auto result8 = splitPair("привет! как дела?", '!');
+    ASSERT_STREQ("привет", result8.first.c_str());
+    ASSERT_STREQ(" как дела?", result8.second.c_str());
 }
 
 TEST(Strings, Split) {
@@ -192,4 +204,102 @@ TEST(Strings, Split) {
         }
     }
     ASSERT_EQ(found3, mustBeInList3.size());
+}
+
+TEST(Strings, Replace) {
+    std::string test1 = "hello world!";
+    replace("hello", "hell or", test1);
+    replace("world", "piece", test1);
+    replace("!", "?", test1);
+    ASSERT_STREQ("hell or piece?", test1.c_str());
+}
+
+TEST(Strings, ReplaceAll) {
+    std::string test1 = "hello world!";
+    replaceAll("o", "!", test1);
+    ASSERT_STREQ("hell! w!rld!", test1.c_str());
+
+    replaceAll("ll", "bb", test1);
+    ASSERT_STREQ("hebb! w!rld!", test1.c_str());
+}
+
+TEST(Strings, RemoveSubstrings) {
+    std::string test = "hello world!";
+    removeSubstrings(test, " ");
+    ASSERT_STREQ("helloworld!", test.c_str());
+}
+
+TEST(Strings, RemoveSubstringsVector) {
+    std::string test = "hello world!";
+    removeSubstrings(test, {"ll", "!", " "});
+    ASSERT_STREQ("heoworld", test.c_str());
+}
+
+TEST(Strings, SubstringInverse) {
+    std::string test = "hello world!";
+    std::string res1 = substrInverse(test, ' ');
+    ASSERT_STREQ("hello", res1.c_str());
+
+    std::string res2 = substrInverse(test, ~' ');
+    ASSERT_STREQ("world!", res2.c_str());
+}
+
+TEST(Strings, ToLower) {
+    INIT_WCHAR_UNICODE();
+    std::string test1 = "Upper Case";
+    std::string res1 = toLower(test1);
+    ASSERT_STREQ("upper case", res1.c_str());
+
+    std::wstring test2 = L"Верхний Регистр";
+    std::wstring res2 = toLower(test2);
+    std::wstring resp = L"верхний регистр";
+    ASSERT_STREQ(resp.c_str(), res2.c_str());
+}
+
+TEST(Strings, ClipSubstring) {
+    std::string test1 = "aaa bbb ccc";
+    std::string res1 = clipSubstring(test1, "bbb", 7);
+    ASSERT_STREQ("a bbb c", res1.c_str());
+
+    std::string test2 = "aaabbbccc";
+    std::string res2 = clipSubstring(test2, "bbb", 3);
+    ASSERT_STREQ("bbb", res2.c_str());
+}
+
+TEST(Strings, Glue) {
+    std::string g = ";";
+    const std::vector<std::string> data1{
+        "aaa",
+        "bbb",
+        "ccc"
+    };
+
+    std::string res1 = glue(g, data1);
+    ASSERT_STREQ("aaa;bbb;ccc", res1.c_str());
+
+    const std::vector<std::string> data2{
+        "ааа",
+        "ббб",
+        "ввв"
+    };
+    std::string res2 = glue(g, data2);
+    ASSERT_STREQ("ааа;ббб;ввв", res2.c_str());
+}
+
+TEST(Strings, EqualsICase) {
+    const std::string t1 = "FirSt";
+    const std::string t2 = "fIRsT";
+
+    ASSERT_TRUE(equalsIgnoreCase(t1, t2));
+
+    const std::string t3 = "ПервЫЙ";
+    const std::string t4 = "пЕрВый";
+
+    ASSERT_FALSE(equalsIgnoreCase(t3, t4));
+
+    const std::wstring t5 = L"ПервЫЙ";
+    const std::wstring t6 = L"первый";
+
+    ASSERT_TRUE(equalsIgnoreCase(t5, t6));
+
 }
