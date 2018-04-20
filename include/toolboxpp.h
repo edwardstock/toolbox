@@ -257,7 +257,7 @@ bool hasSubstring(char substring, const std::string &source);
  * @param substring
  * @return
  */
-bool hasSubstring(wchar_t substring, const std::wstring &source);
+bool hasWSubstring(wchar_t substring, const std::wstring &source);
 
 #ifdef HAVE_REGEX_H
 /**
@@ -495,7 +495,7 @@ std::string toLower(const_string s);
  * @param s
  * @return
  */
-std::wstring toLower(const std::wstring &s);
+std::wstring toWLower(const std::wstring &s);
 
 /**
  * String to upper case
@@ -509,7 +509,7 @@ std::string toUpper(const_string s);
  * @param s
  * @return
  */
-std::wstring toUpper(const std::wstring &s);
+std::wstring toWUpper(const std::wstring &s);
 
 /**
  *
@@ -525,7 +525,7 @@ bool equalsIgnoreCase(const_string s1, const_string s2);
  * @param s2
  * @return
  */
-bool equalsIgnoreCase(const std::wstring &s1, const std::wstring &s2);
+bool equalsIgnoreWCase(const std::wstring &s1, const std::wstring &s2);
 
 /**
  * Works like sprintf but with std::string and returns std::string

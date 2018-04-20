@@ -251,7 +251,7 @@ TEST(Strings, ToLower) {
     ASSERT_STREQ("upper case", res1.c_str());
 
     std::wstring test2 = L"Верхний Регистр";
-    std::wstring res2 = toLower(test2);
+    std::wstring res2 = toWLower(test2);
     std::wstring resp = L"верхний регистр";
     ASSERT_STREQ(resp.c_str(), res2.c_str());
 }
@@ -300,6 +300,6 @@ TEST(Strings, EqualsICase) {
     const std::wstring t5 = L"ПервЫЙ";
     const std::wstring t6 = L"первый";
 
-    ASSERT_TRUE(equalsIgnoreCase(t5, t6));
+    ASSERT_TRUE(equalsIgnoreWCase(t5, t6));
 
 }
