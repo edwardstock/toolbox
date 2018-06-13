@@ -12,9 +12,9 @@ endif ()
 set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 
 # linux clang
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+if (NOT APPLE AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-elseif (APPLE)
+elseif (APPLE AND CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
 	set(CMAKE_CXX_FLAGS "-stdlib=libc++ ${CMAKE_CXX_FLAGS}")
 	set(CMAKE_CXX_LINKER_FLAGS "${CMAKE_CXX_LINKER_FLAGS} -std=c++11 -stdlib=libc++ -undefined dynamic_lookup")
 elseif (MSVC)
