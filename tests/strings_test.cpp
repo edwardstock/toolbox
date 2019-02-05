@@ -221,6 +221,18 @@ TEST(Strings, ReplaceAll) {
 
     replaceAll("ll", "bb", test1);
     ASSERT_STREQ("hebb! w!rld!", test1.c_str());
+
+    const std::vector<std::string> from1{"aaa", "bbb"};
+    const std::vector<std::string> to1{"yyy", "zzz"};
+    std::string test2 = "aaabbb";
+    replaceAll(from1, to1, test2);
+    ASSERT_STREQ("yyyzzz", test2.c_str());
+
+    std::vector<std::string> from2{"aaa", "bbb"};
+    std::vector<std::string> to2{"yyy", "zzz"};
+    std::string test3 = "aaabbb";
+    replaceAll(from2, to2, test3);
+    ASSERT_STREQ("yyyzzz", test3.c_str());
 }
 
 TEST(Strings, RemoveSubstrings) {

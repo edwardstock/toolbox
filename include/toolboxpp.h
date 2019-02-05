@@ -266,56 +266,56 @@ bool hasWSubstring(wchar_t substring, const std::wstring &source);
  * @param source
  * @return
  */
-bool hasRegex(const rxns::regex &pattern, const_string source);
+bool hasRegex(const rxns::regex &pattern, const std::string &source);
 /**
  * Match regex pattern.
  * @param pattern Just string. By default: search with flag std::regex_constants::icase
  * @param source
  * @return
  */
-bool hasRegex(const_string pattern, const_string source);
+bool hasRegex(const std::string &pattern, const std::string &source);
 /**
  * Returns all found groups in source with pattern
  * @param rx custom regex object
  * @param s
  * @return
  */
-std::vector<std::vector<std::string>> matchAllRegexp(const rxns::regex &pattern, const_string source);
+std::vector<std::vector<std::string>> matchAllRegexp(const rxns::regex &pattern, const std::string &source);
 /**
  * Returns all found groups in source with pattern
  * @param pattern
  * @param source
  * @return
  */
-std::vector<std::vector<std::string>> matchAllRegexp(const_string pattern, const_string source);
+std::vector<std::vector<std::string>> matchAllRegexp(const std::string &pattern, const std::string &source);
 /**
  * Take first regex match and return it (with custom regex object)
  * @param pattern
  * @param source
  * @return
  */
-std::string matchRegexpFirst(const_string pattern, const_string source);
+std::string matchRegexpFirst(const std::string &pattern, const std::string &source);
 /**
  * Take first regex match and return it
  * @param pattern
  * @param source
  * @return
  */
-std::string matchRegexpFirst(const rxns::regex &pattern, const_string source);
+std::string matchRegexpFirst(const rxns::regex &pattern, const std::string &source);
 /**
  * boilerplate to std::regex
  * @param pattern
  * @param source
  * @return
  */
-const std::vector<std::string> matchRegexp(const_string pattern, const_string source);
+const std::vector<std::string> matchRegexp(const std::string &pattern, const std::string &source);
 /**
  * Less boilerplate to std::regex
  * @param rxPattern
  * @param source
  * @return
  */
-const std::vector<std::string> matchRegexp(const rxns::regex &rxPattern, const_string source);
+const std::vector<std::string> matchRegexp(const rxns::regex &rxPattern, const std::string &source);
 /**
  * Splits string by delimiter to pair
  * @param source
@@ -324,49 +324,49 @@ const std::vector<std::string> matchRegexp(const rxns::regex &rxPattern, const_s
  */
 #endif
 
-std::pair<std::string, std::string> splitPair(const_string source, const_string delimiter);
+std::pair<std::string, std::string> splitPair(const std::string &source, const std::string &delimiter);
 /**
  * Splits string by char delimiter to pair
  * @param source
  * @param delimiter
  * @return
  */
-std::pair<std::string, std::string> splitPair(const_string source, const char &delimiter);
+std::pair<std::string, std::string> splitPair(const std::string &source, const char &delimiter);
 /**
  * Splits string by char delimiter to vector list
  * @param source
  * @param delimiter
  * @return
  */
-std::vector<std::string> split(const_string source, const_string delimiter);
+std::vector<std::string> split(const std::string &source, const std::string &delimiter);
 /**
  * Splits string by delimiter to vector list
  * @param source
  * @param delimiter
  * @return
  */
-std::vector<std::string> split(const_string source, const char &delimiter);
+std::vector<std::string> split(const std::string &source, const char &delimiter);
 
 /**
- * @see substringReplace(const_string search,
-									const_string replace,
-									const_string source) but mutable behavior
+ * @see substringReplace(const std::string &search,
+									const std::string &replace,
+									const std::string &source) but mutable behavior
  * @param search
  * @param replace
  * @param source Mutable
  * @return
  */
-void replace(const_string search, const_string replace, std::string &source);
+void replace(const std::string &search, const std::string &replace, std::string &source);
 
 /**
- * @see substringReplaceAll(const_string search,
-									   const_string replace,
-									   const_string source)
+ * @see substringReplaceAll(const std::string &search,
+									   const std::string &replace,
+									   const std::string &source)
  * @param search
  * @param replace
  * @param source Mutable
  */
-void replaceAll(const_string search, const_string replace, std::string &source);
+void replaceAll(const std::string &search, const std::string &replace, std::string &source);
 
 /*!
  *
@@ -385,9 +385,9 @@ void replaceAll(const std::vector<std::string> &search,
  * @param source Immutable
  * @return If search string were not found, function will return source string.
  */
-std::string substringReplace(const_string search,
-                             const_string replace,
-                             const_string source);
+std::string substringReplace(const std::string &search,
+                             const std::string &replace,
+                             const std::string &source);
 /**
  * Replaces list search strings with replace list. Vectors size must be equals!
  * Example:
@@ -402,24 +402,24 @@ std::string substringReplace(const_string search,
  */
 std::string substringReplaceAll(const std::vector<std::string> &search,
                                 const std::vector<std::string> &replace,
-                                const_string source);
+                                const std::string &source);
 /**
- * Works like std::string substringReplace(const_string search, const_string replace, const_string source);
+ * Works like std::string substringReplace(const std::string &search, const std::string &replace, const std::string &source);
  * but replaces all "search" occurrences with "replace" string
  * @param search
  * @param replace
  * @param source
  * @return
  */
-std::string substringReplaceAll(const_string search,
-                                const_string replace,
-                                const_string source);
+std::string substringReplaceAll(const std::string &search,
+                                const std::string &replace,
+                                const std::string &source);
 /**
  * Find "removable" string in "source" and remove it
  * @param source Mutable value!
  * @param removable
  */
-void removeSubstrings(std::string &source, const_string removable);
+void removeSubstrings(std::string &source, const std::string &removable);
 /**
  * Find all "removables" strings in "source" and remove it
  * @param source
@@ -443,10 +443,10 @@ void removeSubstrings(std::string &source, std::vector<std::string> removables);
 		result: "def"
  * @return
  */
-std::string substrInverse(const_string source, char whence);
-std::string substrInverse(const_string source, char begin, char end, long offset = 0);
-std::string substrInverse(const_string source, const_string begin);
-std::string substrInverse(const_string source, const_string begin, const_string end, long offset = 0);
+std::string substrInverse(const std::string &source, char whence);
+std::string substrInverse(const std::string &source, char begin, char end, long offset = 0);
+std::string substrInverse(const std::string &source, const std::string &begin);
+std::string substrInverse(const std::string &source, const std::string &begin, const std::string &end, long offset = 0);
 
 /**
  * How works:
@@ -466,7 +466,7 @@ std::string substrInverse(const_string source, const_string begin, const_string 
  * @param icase case sensetivity
  * @return
  */
-std::string clipSubstring(const_string source, const_string search, size_t width, bool icase = false);
+std::string clipSubstring(const std::string &source, const std::string &search, size_t width, bool icase = false);
 
 /**
  * Concatenates strings by glue
@@ -474,7 +474,7 @@ std::string clipSubstring(const_string source, const_string search, size_t width
  * @param strings
  * @return
  */
-std::string glue(const_string glue, const std::vector<std::string> &strings);
+std::string glue(const std::string &glue, const std::vector<std::string> &strings);
 
 /**
  * Input file stream to string
@@ -488,7 +488,7 @@ std::string toString(std::ifstream &inputStream);
  * @param s
  * @return
  */
-std::string toLower(const_string s);
+std::string toLower(const std::string &s);
 
 /**
  * String to lower case (wide char)
@@ -502,7 +502,7 @@ std::wstring toWLower(const std::wstring &s);
  * @param s
  * @return
  */
-std::string toUpper(const_string s);
+std::string toUpper(const std::string &s);
 
 /**
  * String to upper case
@@ -517,7 +517,7 @@ std::wstring toWUpper(const std::wstring &s);
  * @param s2
  * @return
  */
-bool equalsIgnoreCase(const_string s1, const_string s2);
+bool equalsIgnoreCase(const std::string &s1, const std::string &s2);
 
 /**
  * Wide version
@@ -535,7 +535,7 @@ bool equalsIgnoreWCase(const std::wstring &s1, const std::wstring &s2);
  * @return
  */
 template<typename... Args>
-std::string format(const_string format, Args ...args) {
+std::string format(const std::string &format, Args ...args) {
     auto *tmp = new char[format.length()];
 
     sprintf(tmp, format.c_str(), args...);

@@ -26,7 +26,7 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_LINKER_FLAGS "-static-libstdc++")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -Wno-unused-parameter")
-set(CMAKE_CXX_FLAGS_DEBUG "-Werror -g -O0")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 
@@ -92,10 +92,15 @@ if (${WITH_TEST})
 	add_executable(
 		toolboxtest
 		tests/console_test.cpp
-		tests/filesystem_test.cpp tests/numbers_test.cpp tests/collection_test.cpp tests/strings_test.cpp)
+		tests/filesystem_test.cpp
+		tests/numbers_test.cpp
+		tests/collection_test.cpp
+		tests/strings_test.cpp)
 
-	target_link_libraries(toolboxtest gtest gtest_main)
+	target_compile_options(toolboxtest PRIVATE -Wno-missing-field-initializers)
+
 	target_link_libraries(toolboxtest ${PROJECT_NAME})
+	target_link_libraries(toolboxtest gtest gtest_main)
 
 	if (WITH_COVERAGE)
 		include(cmakes/CodeCoverage.cmake)
