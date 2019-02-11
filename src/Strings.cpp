@@ -105,8 +105,9 @@ std::vector<std::vector<std::string>> toolboxpp::strings::matchAllRegexp(const r
         std::string group = *it;
         rxns::smatch res;
         if (rxns::regex_search(group, res, rx)) {
-            for (auto r : res) {
-                capturedSubgroups.push_back(std::move(r));
+            for (size_t i = 0; i < res.size();
+                 i++) { // NOLINT(modernize-loop-convert), sometimes foreach has strange effect - size is 0, but iterator have != 0 items
+                capturedSubgroups.push_back(res[i]);
             }
 
             if (!capturedSubgroups.empty()) {
@@ -147,12 +148,13 @@ const std::vector<std::string> toolboxpp::strings::matchRegexp(const rxns::regex
                                                                const std::string &source) {
     rxns::smatch result;
     rxns::regex_search(source, result, rxPattern);
+
     std::vector<std::string> out(result.size());
-    size_t i = 0;
-    for (auto &r: result) {
-        out[i] = r;
-        i++;
+    const size_t cnt = result.size();
+    for (size_t i = 0; i < cnt; i++) {
+        out[i] = result[i];
     }
+
     return out;
 }
 

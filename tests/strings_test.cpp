@@ -119,6 +119,14 @@ TEST(Strings, MatchRegexp) {
     ASSERT_STREQ(result3[2].c_str(), "Bad Request");
 }
 
+TEST(Strings, MatchEmptyStrangeSmatchBehavior) {
+    const std::string urlParseRegex =
+        R"(([a-zA-Z]+)\:\/\/([a-zA-Z0-9\.\-_]+):?([0-9]{1,5})?(\/[a-zA-Z0-9\/\+\-\.\%\/_]*)\??([a-zA-Z0-9\-_\+\=\&\%\.]*))";
+    auto res = toolboxpp::strings::matchRegexp(urlParseRegex, "http://wtf");
+
+    ASSERT_EQ(0, res.size());
+}
+
 #endif
 
 TEST(Strings, SplitPair) {
