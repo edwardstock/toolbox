@@ -11,7 +11,7 @@ check_include_file_cxx("ostream" HAVE_OSTREAM_H)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9)
 	set(Boost_DEBUG OFF)
-	check_include_file_cxx("${BOOST_ROOT}/include/boost/regex.hpp" HAVE_REGEX_H)
+	check_include_file_cxx("boost/regex.hpp" HAVE_REGEX_H)
 	if (HAVE_REGEX_H)
 		find_package(Boost 1.54.0 COMPONENTS regex REQUIRED)
 		target_compile_definitions(${PROJECT_NAME} PUBLIC USE_BOOST_REGEX)
