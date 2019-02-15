@@ -12,8 +12,7 @@ branches:
 
 install:
   - sudo apt-get update
-  - sudo apt-get install -y libboost-regex1.54.0 libboost-regex1.54-dev
-  - sudo apt-get install cmake lcov
+  - sudo apt-get install -y libboost-regex1.54.0 libboost-regex1.54-dev cmake lcov
 
 script:
   - chmod +x llvm_config.sh

@@ -43,7 +43,8 @@ set(SOURCE_FILES
     src/Console.cpp
     src/Numbers.cpp
     src/Strings.cpp
-    src/FileSystem.cpp src/Logger.cpp)
+    src/FileSystem.cpp
+    src/Logger.cpp)
 
 include(options.cmake)
 
