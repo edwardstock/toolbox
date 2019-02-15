@@ -2,7 +2,7 @@ dist: trusty
 sudo: required
 language: c++
 compiler:
-  - g++
+  - gcc
   - clang
 
 branches:
@@ -12,6 +12,7 @@ branches:
 
 install:
   - sudo apt-get update
+  - sudo apt-get install -y libboost-regex1.54.0 libboost-regex1.54-dev
   - sudo apt-get install cmake lcov
 
 script:
