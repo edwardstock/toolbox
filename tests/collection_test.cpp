@@ -6,7 +6,7 @@
  */
 #include <iostream>
 #include "gtest/gtest.h"
-#include "../include/toolboxpp.h"
+#include "toolboxpp.hpp"
 
 using namespace toolboxpp::collection;
 

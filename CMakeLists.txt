@@ -25,14 +25,14 @@ endif ()
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_LINKER_FLAGS "-static-libstdc++")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -Wno-unused-parameter")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fPIC -Wextra -pedantic -Wno-unused-parameter")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 
 set(PUBLIC_HEADERS
-    include/toolboxpp.h
-    include/toolboxppconfig.h
+    include/${PROJECT_NAME}.hpp
+    include/${PROJECT_NAME}config.h
     )
 
 include_directories(include)
@@ -40,27 +40,21 @@ include_directories(include)
 
 set(SOURCE_FILES
     ${PUBLIC_HEADERS}
-    src/Console.cpp
-    src/Numbers.cpp
-    src/Strings.cpp
-    src/FileSystem.cpp
     src/Logger.cpp)
 
 include(options.cmake)
 
-if (ENABLE_STATIC)
-	add_library(toolboxpp STATIC ${SOURCE_FILES})
-else ()
-	add_library(toolboxpp SHARED ${SOURCE_FILES})
-endif ()
+add_library(${PROJECT_NAME} INTERFACE)
+
+target_include_directories(${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 
 include(check_system.cmake)
 
-install(
-	TARGETS toolboxpp
-	DESTINATION lib${LIB_SUFFIX}
-)
+#install(
+#	TARGETS toolboxpp
+#	DESTINATION lib${LIB_SUFFIX}
+#)
 
 install(
 	FILES ${PUBLIC_HEADERS}
@@ -102,6 +96,7 @@ if (${WITH_TEST})
 
 	target_link_libraries(toolboxtest ${PROJECT_NAME})
 	target_link_libraries(toolboxtest gtest gtest_main)
+	target_link_libraries(toolboxtest)
 
 	if (WITH_COVERAGE)
 		include(cmakes/CodeCoverage.cmake)

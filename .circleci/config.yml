@@ -1,0 +1,18 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: debian:jessie
+    steps:
+      - checkout
+      - run: apt-get update
+      - run: apt-get install -y cmake lcov gcc g++
+      - run: chmod +x llvm_config.sh
+      - run: mkdir -p build && cd build
+      - run: cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_TEST=ON -DWITH_COVERAGE=ON
+      - run: sudo cmake --build .
+      - run: sudo cmake --build . --target install
+      - run: cd ../
+      - run: ./llvm_config.sh
+      - run: source build/env.sh
+      - run: cd build && ./toolboxtest

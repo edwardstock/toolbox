@@ -6,7 +6,7 @@
  */
 
 #include "gtest/gtest.h"
-#include "../include/toolboxpp.h"
+#include "toolboxpp.hpp"
 
 #ifdef HAVE_REGEX_H
 using namespace toolboxpp::numbers;
