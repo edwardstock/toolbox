@@ -4,20 +4,16 @@ jobs:
     docker:
       - image: debian:jessie
     steps:
-      - run:
-          name: Checking PWD
-          command: echo $PWD
       - run: apt-get update
       - run: apt-get install -y git cmake lcov gcc g++
-      - run: git clone --recursive https://github.com/edwardstock/toolboxpp
-      - run: cd toolboxpp && chmod +x llvm_config.sh
-      - run:
-          name: Checking in target dir
-          command: ls -lsah
-      - run: mkdir -p build && cd build
-      - run: cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_TEST=ON -DWITH_COVERAGE=ON
-      - run: sudo cmake --build .
-      - run: sudo cmake --build . --target install
-      - run: cd ../ && ./llvm_config.sh
+      - run: git clone --recursive https://github.com/edwardstock/toolboxpp .
+      - run: chmod +x llvm_config.sh
+      - run: mkdir -p build
+      - run: cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_TEST=ON -DWITH_COVERAGE=ON
+      - run: sudo cmake --build ./build
+      - run: sudo cmake --build ./build --target install
+      - run: ./llvm_config.sh
       - run: source build/env.sh
-      - run: cd build && ./toolboxtest
+      - run:
+          name: Testing
+          command: ./build/toolboxtest
