@@ -4,10 +4,10 @@ jobs:
     docker:
       - image: debian:jessie
     steps:
-      - checkout
       - run: apt-get update
-      - run: apt-get install -y cmake lcov gcc g++
-      - run: chmod +x llvm_config.sh
+      - run: apt-get install -y git cmake lcov gcc g++
+      - run: git clone --recursive https://github.com/edwardstock/toolboxpp
+      - run: cd toolboxpp && chmod +x llvm_config.sh
       - run: mkdir -p build && cd build
       - run: cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_TEST=ON -DWITH_COVERAGE=ON
       - run: sudo cmake --build .
