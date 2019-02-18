@@ -10,8 +10,8 @@ jobs:
       - run: chmod +x llvm_config.sh
       - run: mkdir -p build
       - run: cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_TEST=ON -DWITH_COVERAGE=ON
-      - run: sudo cmake --build ./build
-      - run: sudo cmake --build ./build --target install
+      - run: cmake --build ./build
+      - run: cmake --build ./build --target install
       - run: ./llvm_config.sh
       - run: source build/env.sh
       - run:
