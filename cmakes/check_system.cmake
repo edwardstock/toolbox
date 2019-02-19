@@ -19,4 +19,4 @@ check_include_file_cxx("iostream" HAVE_IOSTREAM_H)
 check_include_file_cxx("fstream" HAVE_FSTREAM_H)
 check_include_file_cxx("exception" HAVE_EXCEPTION_H)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/autoconfig.in.h ${CMAKE_CURRENT_SOURCE_DIR}/include/toolboxppconfig.h)
+#configure_file(${CMAKE_CURRENT_SOURCE_DIR}/autoconfig.in.h ${CMAKE_CURRENT_SOURCE_DIR}/include/toolboxppconfig.h)

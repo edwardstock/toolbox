@@ -5,15 +5,16 @@ jobs:
       - image: debian:jessie
     steps:
       - run: apt-get update
-      - run: apt-get install -y git cmake lcov gcc g++
+      - run: apt-get install -y python gcovr git cmake lcov gcc g++
+      - run: dpkg-reconfigure locales
       - run: git clone --recursive https://github.com/edwardstock/toolboxpp .
       - run: chmod +x llvm_config.sh
       - run: mkdir -p build
-      - run: cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_TEST=ON -DWITH_COVERAGE=ON
+      - run: cd build && cmake .. -DCMAKE_BUILD_TYPE=Debug -DWITH_TEST=ON -DWITH_COVERAGE=On -DENABLE_MULTIBYTE=Off -DPython_DIR=/usr
       - run: cmake --build ./build
       - run: cmake --build ./build --target install
       - run: ./llvm_config.sh
       - run: source build/env.sh
       - run:
           name: Testing
-          command: ./build/toolboxtest
+          command: cmake --build ./build --target toolboxtest_coverage

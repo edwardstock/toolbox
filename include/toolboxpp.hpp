@@ -19,14 +19,13 @@
 #define __WCHAR_TO_UPPER(c) std::towupper(c)
 #endif
 
-#include "toolboxppconfig.h"
-
 #include <chrono>
 #include <string>
 #include <iosfwd>
 #include <vector>
 #include <map>
 #include <deque>
+#include <regex>
 #include <queue>
 #include <unordered_map>
 #include <istream>
@@ -41,6 +40,7 @@
 #include <ctime>
 #include <iomanip>
 #include <locale>
+#include <sys/stat.h>
 
 #ifndef MS_STDLIB_BUGS
 #  if (_MSC_VER || __MINGW32__ || __MSVCRT__)
@@ -55,19 +55,19 @@
 #  include <fcntl.h>
 #endif
 
+#include <locale>
 #ifndef INIT_WCHAR_UNICODE
 #if MS_STDLIB_BUGS
 #define INIT_WCHAR_UNICODE() \
 constexpr char cp_utf16le[] = ".1200"; \
 setlocale( LC_ALL, cp_utf16le ); \
-_setmode( _fileno(stdout), _O_WTEXT );
+_setmode( _fileno(stdout), _O_WTEXT )
 #else
 #define INIT_WCHAR_UNICODE() \
-  constexpr char locale_name[] = ""; \
-  setlocale( LC_ALL, locale_name ); \
-  std::locale::global(std::locale(locale_name)); \
+  std::setlocale( LC_ALL, "" ); \
+  std::locale::global(std::locale("")); \
   std::wcin.imbue(std::locale()); \
-  std::wcout.imbue(std::locale());
+  std::wcout.imbue(std::locale())
 #endif // if MS_STDLIB_BUGS
 #endif // ifndef INIT_WCHAR_UNICODE
 
@@ -231,6 +231,8 @@ inline bool hasSubstring(const std::string &substring, const std::string &source
 inline bool hasSubstring(char substring, const std::string &source) {
     return source.find(substring) != std::string::npos;
 }
+
+#ifdef TOOLBOX_ENABLE_MB
 /**
  * Serch character in string
  * @param source
@@ -240,17 +242,17 @@ inline bool hasSubstring(char substring, const std::string &source) {
 inline bool hasWSubstring(wchar_t substring, const std::wstring &source) {
     return source.find(substring) != std::string::npos;
 }
+#endif
 
-#ifdef HAVE_REGEX_H
 /**
  * Match regex pattern
  * @param pattern
  * @param source
  * @return
  */
-inline bool hasRegex(const rxns::regex &pattern, const std::string &source) {
-    rxns::smatch match;
-    return rxns::regex_search(source, match, pattern);
+inline bool hasRegex(const std::regex &pattern, const std::string &source) {
+    std::smatch match;
+    return std::regex_search(source, match, pattern);
 }
 /**
  * Match regex pattern.
@@ -259,7 +261,7 @@ inline bool hasRegex(const rxns::regex &pattern, const std::string &source) {
  * @return
  */
 inline bool hasRegex(const std::string &pattern, const std::string &source) {
-    return hasRegex(rxns::regex(pattern, rxns::regex_constants::icase), source);
+    return hasRegex(std::regex(pattern, std::regex_constants::icase), source);
 }
 /**
  * Returns all found groups in source with pattern
@@ -267,15 +269,15 @@ inline bool hasRegex(const std::string &pattern, const std::string &source) {
  * @param s
  * @return
  */
-inline std::vector<std::vector<std::string>> matchAllRegexp(const rxns::regex &pattern, const std::string &source) {
+inline std::vector<std::vector<std::string>> matchAllRegexp(const std::regex &pattern, const std::string &source) {
     std::vector<std::vector<std::string>> capturedGroups;
     std::vector<std::string> capturedSubgroups;
-    const rxns::sregex_token_iterator endIterator;
-    for (rxns::sregex_token_iterator it(source.cbegin(), source.cend(), pattern); it != endIterator; ++it) {
+    const std::sregex_token_iterator endIterator;
+    for (std::sregex_token_iterator it(source.cbegin(), source.cend(), pattern); it != endIterator; ++it) {
         capturedSubgroups.clear();
         std::string group = *it;
-        rxns::smatch res;
-        if (rxns::regex_search(group, res, pattern)) {
+        std::smatch res;
+        if (std::regex_search(group, res, pattern)) {
             for (size_t i = 0; i < res.size();
                  i++) { // NOLINT(modernize-loop-convert), sometimes foreach has strange effect - size is 0, but iterator have != 0 items
                 capturedSubgroups.push_back(res[i]);
@@ -296,7 +298,7 @@ inline std::vector<std::vector<std::string>> matchAllRegexp(const rxns::regex &p
  * @return
  */
 inline std::vector<std::vector<std::string>> matchAllRegexp(const std::string &pattern, const std::string &source) {
-    return matchAllRegexp(rxns::regex(pattern, rxns::regex_constants::icase), source);
+    return matchAllRegexp(std::regex(pattern, std::regex_constants::icase), source);
 }
 /**
  * Take first regex match and return it
@@ -304,10 +306,10 @@ inline std::vector<std::vector<std::string>> matchAllRegexp(const std::string &p
  * @param source
  * @return
  */
-inline std::string matchRegexpFirst(const rxns::regex &pattern, const std::string &source) {
-    rxns::smatch results;
+inline std::string matchRegexpFirst(const std::regex &pattern, const std::string &source) {
+    std::smatch results;
     std::string result;
-    bool found = rxns::regex_search(source, results, pattern);
+    bool found = std::regex_search(source, results, pattern);
     if (!found || results.size() < 2) {
         return std::string();
     }
@@ -321,7 +323,7 @@ inline std::string matchRegexpFirst(const rxns::regex &pattern, const std::strin
  * @return
  */
 inline std::string matchRegexpFirst(const std::string &pattern, const std::string &source) {
-    return matchRegexpFirst(rxns::regex(pattern, rxns::regex_constants::icase), source);
+    return matchRegexpFirst(std::regex(pattern, std::regex_constants::icase), source);
 }
 
 /**
@@ -332,9 +334,9 @@ inline std::string matchRegexpFirst(const std::string &pattern, const std::strin
  * @param source
  * @return
  */
-inline const std::vector<std::string> matchRegexp(const rxns::regex &rxPattern, const std::string &source) {
-    rxns::smatch result;
-    rxns::regex_search(source, result, rxPattern);
+inline const std::vector<std::string> matchRegexp(const std::regex &rxPattern, const std::string &source) {
+    std::smatch result;
+    std::regex_search(source, result, rxPattern);
 
     std::vector<std::string> out(result.size());
     const size_t cnt = result.size();
@@ -354,16 +356,9 @@ inline const std::vector<std::string> matchRegexp(const rxns::regex &rxPattern, 
  * @return
  */
 inline const std::vector<std::string> matchRegexp(const std::string &pattern, const std::string &source) {
-    return matchRegexp(rxns::regex(pattern, rxns::regex_constants::icase), source);
+    return matchRegexp(std::regex(pattern, std::regex_constants::icase), source);
 }
 
-/**
- * Splits string by delimiter to pair
- * @param source
- * @param delimiter
- * @return
- */
-#endif
 
 /**
  * Splits string by char delimiter to vector list
@@ -738,6 +733,7 @@ inline std::string toLower(const std::string &s) {
     return tmp.str();
 }
 
+#ifdef TOOLBOX_ENABLE_MB
 /**
  * String to lower case (wide char)
  * @param s
@@ -745,14 +741,13 @@ inline std::string toLower(const std::string &s) {
  */
 inline std::wstring toWLower(const std::wstring &s) {
     std::wstringstream tmp;
-    std::locale loc("");
-    for (auto c: s) {
-        // This is recommended
-        tmp << std::tolower(c, loc);
+    for (wchar_t i : s) {
+        tmp << static_cast<wchar_t>(__WCHAR_TO_LOWER(i));
     }
 
     return tmp.str();
 }
+#endif
 
 /**
  * String to upper case
@@ -768,6 +763,7 @@ inline std::string toUpper(const std::string &s) {
     return tmp.str();
 }
 
+#ifdef TOOLBOX_ENABLE_MB
 /**
  * String to upper case
  * @param s
@@ -781,6 +777,7 @@ inline std::wstring toWUpper(const std::wstring &s) {
 
     return tmp.str();
 }
+#endif
 
 /**
  *
@@ -800,6 +797,7 @@ inline bool equalsIgnoreCase(const std::string &s1, const std::string &s2) {
     );
 }
 
+#ifdef TOOLBOX_ENABLE_MB
 /**
  * Wide version
  * @param s1
@@ -817,6 +815,7 @@ inline bool equalsIgnoreWCase(const std::wstring &s1, const std::wstring &s2) {
         }
     );
 }
+#endif
 
 /**
  * Works like sprintf but with std::string and returns std::string
@@ -869,17 +868,16 @@ inline bool exists(const std::string &path) {
 }
 }
 
-#ifdef HAVE_REGEX_H
 namespace numbers {
 inline bool isInteger(const std::string &input) {
-    return rxns::regex_match(input, rxns::regex(R"(^[-]?[0-9eE+]+?$)"));
+    return std::regex_match(input, std::regex(R"(^[-]?[0-9eE+]+?$)"));
 }
 inline bool isReal(const std::string &input) {
-    return rxns::regex_match(input, rxns::regex(R"(^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$)"));
+    return std::regex_match(input, std::regex(R"(^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$)"));
 }
 }
-#endif
 
+//LCOV_EXCL_START
 namespace console {
 inline bool confirm(std::istream &in, std::ostream &out, const std::string &message, bool defValue = false) {
     std::string res;
@@ -931,6 +929,7 @@ inline std::string prompt(const std::string &message, bool required = false, con
     return prompt(std::cin, std::cout, message, required, defValue);
 }
 }
+//LCOV_EXCL_STOP
 
 class Logger {
 public:

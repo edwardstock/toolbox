@@ -22,7 +22,6 @@ elseif (MSVC)
 	add_compile_options(/W1)
 endif ()
 
-set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_LINKER_FLAGS "-static-libstdc++")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fPIC -Wextra -pedantic -Wno-unused-parameter")
@@ -30,10 +29,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 
-set(PUBLIC_HEADERS
-    include/${PROJECT_NAME}.hpp
-    include/${PROJECT_NAME}config.h
-    )
+set(PUBLIC_HEADERS include/${PROJECT_NAME}.hpp)
 
 include_directories(include)
 
@@ -46,15 +42,16 @@ include(options.cmake)
 
 add_library(${PROJECT_NAME} INTERFACE)
 
+option(ENABLE_MULTIBYTE "Enable wchat_t optimizations" ON)
+
+if (ENABLE_MULTIBYTE)
+	target_compile_definitions(${PROJECT_NAME} INTERFACE -DTOOLBOX_ENABLE_MB=1)
+endif ()
+
 target_include_directories(${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 
-include(check_system.cmake)
-
-#install(
-#	TARGETS toolboxpp
-#	DESTINATION lib${LIB_SUFFIX}
-#)
+include(cmakes/check_system.cmake)
 
 install(
 	FILES ${PUBLIC_HEADERS}
@@ -64,8 +61,6 @@ install(
 if (${PROJECT_DEV})
 	add_executable(dev main.cpp)
 	target_link_libraries(dev toolboxpp)
-else ()
-	set(CMAKE_BUILD_TYPE "Release")
 endif ()
 
 
@@ -99,9 +94,10 @@ if (${WITH_TEST})
 	target_link_libraries(toolboxtest)
 
 	if (WITH_COVERAGE)
+		set(COVERAGE_LCOV_EXCLUDES 'libs/*' '/usr/include/*' 'tests/*')
 		include(cmakes/CodeCoverage.cmake)
 		append_coverage_compiler_flags()
-		setup_target_for_coverage(
+		setup_target_for_coverage_lcov(
 			NAME toolboxtest_coverage
 			EXECUTABLE toolboxtest
 			DEPENDENCIES toolboxtest

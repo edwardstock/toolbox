@@ -340,10 +340,13 @@ TEST(Strings, SubstringInverse) {
 }
 
 TEST(Strings, ToLower) {
-    INIT_WCHAR_UNICODE();
+
     std::string test1 = "Upper Case";
     std::string res1 = toLower(test1);
     ASSERT_STREQ("upper case", res1.c_str());
+
+    #ifdef TOOLBOX_ENABLE_MB
+    INIT_WCHAR_UNICODE();
 
     std::wstring test2 = L"Верхний Регистр";
     std::wstring res2 = toWLower(test2);
@@ -354,6 +357,7 @@ TEST(Strings, ToLower) {
     std::wstring res3 = toWLower(test3);
     std::wstring resp3 = L"upper case";
     ASSERT_STREQ(resp3.c_str(), res3.c_str());
+    #endif
 }
 
 TEST(Strings, ClipSubstring) {
@@ -387,6 +391,7 @@ TEST(Strings, Glue) {
 }
 
 TEST(Strings, EqualsICase) {
+    INIT_WCHAR_UNICODE();
     const std::string t1 = "FirSt";
     const std::string t2 = "fIRsT";
 
@@ -400,6 +405,8 @@ TEST(Strings, EqualsICase) {
     const std::wstring t5 = L"ПервЫЙ";
     const std::wstring t6 = L"первый";
 
+    #ifdef TOOLBOX_ENABLE_MB
     ASSERT_TRUE(equalsIgnoreWCase(t5, t6));
+    #endif
 
 }
