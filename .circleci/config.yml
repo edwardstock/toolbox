@@ -6,7 +6,6 @@ jobs:
     steps:
       - run: apt-get update
       - run: apt-get install -y python gcovr git cmake lcov gcc g++
-      - run: dpkg-reconfigure locales
       - run: git clone --recursive https://github.com/edwardstock/toolboxpp .
       - run: chmod +x llvm_config.sh
       - run: mkdir -p build
