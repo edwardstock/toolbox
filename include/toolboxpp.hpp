@@ -745,8 +745,10 @@ inline std::string toLower(const std::string &s) {
  */
 inline std::wstring toWLower(const std::wstring &s) {
     std::wstringstream tmp;
-    for (wchar_t i : s) {
-        tmp << static_cast<wchar_t>(__WCHAR_TO_LOWER(i));
+    std::locale loc("");
+    for (auto c: s) {
+        // This is recommended
+        tmp << std::tolower(c, loc);
     }
 
     return tmp.str();

@@ -349,6 +349,11 @@ TEST(Strings, ToLower) {
     std::wstring res2 = toWLower(test2);
     std::wstring resp = L"верхний регистр";
     ASSERT_STREQ(resp.c_str(), res2.c_str());
+
+    std::wstring test3 = L"Upper Case";
+    std::wstring res3 = toWLower(test3);
+    std::wstring resp3 = L"upper case";
+    ASSERT_STREQ(resp3.c_str(), res3.c_str());
 }
 
 TEST(Strings, ClipSubstring) {
