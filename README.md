@@ -1,9 +1,9 @@
-# ToolBox++ [![Build Status](https://travis-ci.org/edwardstock/toolboxpp.svg?branch=master)](https://travis-ci.org/edwardstock/toolboxpp)
+# ToolBox++ [![CircleCI](https://circleci.com/gh/edwardstock/toolboxpp/tree/master.svg?style=svg)](https://circleci.com/gh/edwardstock/toolboxpp/tree/master)
 
 
 ## Reqs
 * cmake >= 3.0
-* gnu gcc 4.7+/clang 5+/msvc (not tested)
+* gnu gcc 4.9+/clang 5+/msvc (not tested)
 * make
 
 ## Usage and features
@@ -19,7 +19,7 @@ What helpers contained:
 * **toolboxpp::Logger** - simple thread-safe logger
 * **toolboxpp::Profiler** - simple time-based profiler
 
-TBD (just look now at [include/toolboxpp.h](https://github.com/edwardstock/toolboxpp/blob/master/include/toolboxpp.h) - almost all code are commented)
+See [include/toolboxpp.hpp](include/toolboxpp.h) - almost all code are commented
 
 
 ## Include to your CMake project
@@ -62,5 +62,4 @@ cmake --build .
 ```
 
 By default, script installs:
-* header to: /usr/local/include/toolboxpp.h (also toolboxconfig.h)
-* library to: /usr/local/lib{suffix}/libtoolboxppd.a
+* header to: /usr/local/include/toolboxpp.hpp

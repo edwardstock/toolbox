@@ -29,14 +29,10 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 
-set(PUBLIC_HEADERS include/${PROJECT_NAME}.hpp)
-
 include_directories(include)
 
-
-set(SOURCE_FILES
-    ${PUBLIC_HEADERS}
-    src/Logger.cpp)
+set(PUBLIC_HEADERS include/toolboxpp.hpp)
+set(SOURCE_FILES ${PUBLIC_HEADERS})
 
 include(options.cmake)
 
@@ -52,11 +48,6 @@ target_include_directories(${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
 
 
 include(cmakes/check_system.cmake)
-
-install(
-	FILES ${PUBLIC_HEADERS}
-	DESTINATION include/${PROJECT}
-)
 
 if (${PROJECT_DEV})
 	add_executable(dev main.cpp)
@@ -105,3 +96,8 @@ if (${WITH_TEST})
 	endif ()
 
 endif ()
+
+install(
+	FILES ${PUBLIC_HEADERS}
+	DESTINATION include
+)
