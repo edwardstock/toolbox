@@ -1,6 +1,7 @@
 import os
 from conans import ConanFile, CMake, tools
 
+
 class ToolboxppConan(ConanFile):
     name = "toolboxpp"
     version = "2.0.0"
