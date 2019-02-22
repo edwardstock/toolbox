@@ -64,7 +64,7 @@ setlocale( LC_ALL, cp_utf16le ); \
 _setmode( _fileno(stdout), _O_WTEXT )
 #else
 #define INIT_WCHAR_UNICODE() \
-  std::setlocale( LC_ALL, "" ); \
+  setlocale( LC_ALL, "" ); \
   std::locale::global(std::locale("")); \
   std::wcin.imbue(std::locale()); \
   std::wcout.imbue(std::locale())

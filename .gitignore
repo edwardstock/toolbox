@@ -1,5 +1,7 @@
 build/**
-cmake-build-debug/
+_build/**
+cmake-build-debug
+cmake-build-debug-*/
 !.gitkeep
 .idea/
 CMakeCache.txt
@@ -11,5 +13,6 @@ CMakeCache.txt
 *.c.o
 main.cpp
 .vs
+*.junk
 
 include/toolboxppconfig.h

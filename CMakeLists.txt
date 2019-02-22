@@ -1,15 +1,13 @@
 cmake_minimum_required(VERSION 3.0)
-project(toolboxpp)
+project(toolboxpp VERSION 2.0.0)
 
-if (APPLE)
-	# Fix behavior of CMAKE_CXX_STANDARD when targeting macOS.
-	if (POLICY CMP0025)
-		cmake_policy(SET CMP0025 NEW)
-	endif ()
-endif ()
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmakes)
 
-# gnu
-set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+include(ConanInit)
+include(SystemDetector)
+include(options.cmake)
+
+set(CMAKE_CXX_STANDARD 11)
 
 # linux clang
 if (NOT APPLE AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -34,18 +32,16 @@ include_directories(include)
 set(PUBLIC_HEADERS include/toolboxpp.hpp)
 set(SOURCE_FILES ${PUBLIC_HEADERS})
 
-include(options.cmake)
+
 
 add_library(${PROJECT_NAME} INTERFACE)
 
-option(ENABLE_MULTIBYTE "Enable wchat_t optimizations" ON)
+
 
 if (ENABLE_MULTIBYTE)
 	target_compile_definitions(${PROJECT_NAME} INTERFACE -DTOOLBOX_ENABLE_MB=1)
 endif ()
 
-
-include(cmakes/check_system.cmake)
 
 if (${PROJECT_DEV})
 	add_executable(dev main.cpp)
@@ -53,17 +49,9 @@ if (${PROJECT_DEV})
 endif ()
 
 
-if (${WITH_TEST})
+if (WITH_TEST)
 	enable_testing()
 	add_definitions(-DTOOLBOX_TESTING=1)
-	if (NOT GTEST_SOURCE_DIR)
-		set(GTEST_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/googletest/googletest)
-	endif ()
-
-	if (NOT TARGET gtest)
-		include_directories(${GTEST_SOURCE_DIR}/include ${GTEST_SOURCE_DIR})
-		add_subdirectory(${GTEST_SOURCE_DIR})
-	endif ()
 
 	if (WIN32)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++0x")
@@ -72,22 +60,30 @@ if (${WITH_TEST})
 		add_definitions(-D__GLIBCXX__)
 	endif ()
 
-	add_executable(
-		toolboxtest
-		tests/console_test.cpp
-		tests/filesystem_test.cpp
-		tests/numbers_test.cpp
-		tests/collection_test.cpp
-		tests/strings_test.cpp)
+	add_executable(toolboxtest
+	               tests/console_test.cpp
+	               tests/filesystem_test.cpp
+	               tests/numbers_test.cpp
+	               tests/collection_test.cpp
+	               tests/strings_test.cpp)
 
 	target_compile_options(toolboxtest PRIVATE -Wno-missing-field-initializers)
 
-	target_link_libraries(toolboxtest ${PROJECT_NAME})
-	target_link_libraries(toolboxtest gtest gtest_main)
-	target_link_libraries(toolboxtest)
+	target_include_directories(toolboxtest INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include/toolboxpp.hpp)
+
+	target_link_libraries(toolboxtest CONAN_PKG::gtest)
 
 	if (WITH_COVERAGE)
-		set(COVERAGE_LCOV_EXCLUDES 'libs/*' '/usr/include/*' 'tests/*')
+		set(COVERAGE_LCOV_EXCLUDES
+		    'libs/*'
+		    '/usr/include/*'
+		    'tests/*'
+		    'boost/*'
+		    '/usr/include/*'
+		    '/usr/local/*'
+		    'v1'
+		    '4.9'
+		    )
 		include(cmakes/CodeCoverage.cmake)
 		append_coverage_compiler_flags()
 		setup_target_for_coverage_lcov(
@@ -96,6 +92,8 @@ if (${WITH_TEST})
 			DEPENDENCIES toolboxtest
 		)
 	endif ()
+
+	add_test(NAME test-all COMMAND ${CMAKE_CURRENT_BINARY_DIR}/toolboxtest)
 
 endif ()
 
