@@ -44,8 +44,6 @@ if (ENABLE_MULTIBYTE)
 	target_compile_definitions(${PROJECT_NAME} INTERFACE -DTOOLBOX_ENABLE_MB=1)
 endif ()
 
-target_include_directories(${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
 
 include(cmakes/check_system.cmake)
 
