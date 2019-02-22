@@ -5,15 +5,11 @@ jobs:
       - image: debian:jessie
     steps:
       - run: apt-get update
-      - run: apt-get install -y python gcovr git cmake lcov gcc g++
+      - run: apt-get install -y python3 python3-pip gcovr git cmake lcov gcc g++
+      - run: pip3 install setuptools -U
+      - run: pip3 install conan
+      - run: conan remote add scatter https://api.bintray.com/conan/edwardstock/scatter
+      - run: conan user -p $BINTRAY_API_KEY -r scatter edwardstock
       - run: git clone --recursive https://github.com/edwardstock/toolboxpp .
-      - run: chmod +x llvm_config.sh
-      - run: mkdir -p build
-      - run: cd build && cmake .. -DCMAKE_BUILD_TYPE=Debug -DWITH_TEST=ON -DWITH_COVERAGE=On -DENABLE_MULTIBYTE=Off -DPython_DIR=/usr
-      - run: cmake --build ./build
-      - run: cmake --build ./build --target install
-      - run: ./llvm_config.sh
-      - run: source build/env.sh
-      - run:
-          name: Testing
-          command: cmake --build ./build --target toolboxtest_coverage
+      - run: $(which bash) .circleci/test.sh
+      - run: $(which bash) .circleci/deploy.sh

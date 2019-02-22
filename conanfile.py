@@ -4,14 +4,24 @@ from conans import ConanFile, CMake, tools
 class ToolboxppConan(ConanFile):
     name = "toolboxpp"
     version = "2.0.0"
-    # exports_sources = "include/*"
     license = "MIT"
     author = "Eduard Maximovich edward.vstock@gmail.com"
     url = "https://github.com/edwardstock/toolboxpp"
     description = "Lightweight everyday C++ helpers"
     topics = ("cpp-helpers", "helpers", "header-only", "lightweight")
     generators = "cmake"
-    exports_sources = "*"
+    exports_sources = (
+        "cmakes/*",
+        "options.cmake",
+        "include/*",
+        "tests/*",
+        "src/*",
+        "CMakeLists.txt",
+        "conanfile.py",
+        "conanfile.txt",
+        "LICENSE.md",
+        "README.md"
+    )
     no_copy_source = True
     requires = "gtest/1.8.1@bincrafters/stable"
 
