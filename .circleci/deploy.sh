@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 conan create . scatter/testing
 conan export . toolboxpp/2.0.0@scatter/testing
