@@ -1,4 +1,9 @@
-# ToolBox++ [![CircleCI](https://circleci.com/gh/edwardstock/toolboxpp/tree/master.svg?style=svg)](https://circleci.com/gh/edwardstock/toolboxpp/tree/master)
+# ToolBox++
+
+| Bintray | Windows | Linux & macOS |
+|:--------:|:---------:|:-----------------:|
+|[ ![Download](https://api.bintray.com/packages/edwardstock/scatter/toolboxpp%3Ascatter/images/download.svg) ](https://bintray.com/edwardstock/scatter/toolboxpp%3Ascatter/_latestVersion)|unavailable|[![CircleCI](https://circleci.com/gh/edwardstock/toolboxpp/tree/master.svg?style=svg)](https://circleci.com/gh/edwardstock/toolboxpp/tree/master)|
+
 
 
 ## Reqs
