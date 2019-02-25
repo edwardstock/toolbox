@@ -931,25 +931,25 @@ inline std::string prompt(const std::string &message, bool required = false, con
 }
 //LCOV_EXCL_STOP
 
+using level_t = unsigned short;
+constexpr const static level_t LEVEL_DEBUG = (1 << 0);
+constexpr const static level_t LEVEL_WARNING = (1 << 1);
+constexpr const static level_t LEVEL_INFO = (1 << 2);
+constexpr const static level_t LEVEL_ERROR = (1 << 3);
+constexpr const static level_t LEVEL_CRITICAL = (1 << 4);
+constexpr const static level_t LEVEL_ALL =
+    LEVEL_DEBUG
+        | LEVEL_WARNING
+        | LEVEL_INFO
+        | LEVEL_ERROR
+        | LEVEL_CRITICAL;
+
+constexpr const static level_t VERBOSITY_0 = LEVEL_CRITICAL | LEVEL_ERROR;
+constexpr const static level_t VERBOSITY_1 = VERBOSITY_0 | LEVEL_INFO;
+constexpr const static level_t VERBOSITY_2 = LEVEL_ALL;
+
 class Logger {
 public:
-    using level_t = unsigned short;
-    constexpr const static level_t LEVEL_DEBUG = (1 << 0);
-    constexpr const static level_t LEVEL_WARNING = (1 << 1);
-    constexpr const static level_t LEVEL_INFO = (1 << 2);
-    constexpr const static level_t LEVEL_ERROR = (1 << 3);
-    constexpr const static level_t LEVEL_CRITICAL = (1 << 4);
-    constexpr const static level_t LEVEL_ALL =
-        LEVEL_DEBUG
-            | LEVEL_WARNING
-            | LEVEL_INFO
-            | LEVEL_ERROR
-            | LEVEL_CRITICAL;
-
-    constexpr const static level_t VERBOSITY_0 = LEVEL_CRITICAL | LEVEL_ERROR;
-    constexpr const static level_t VERBOSITY_1 = VERBOSITY_0 | LEVEL_INFO;
-    constexpr const static level_t VERBOSITY_2 = LEVEL_ALL;
-
     Logger(const Logger &copy) = delete;
     Logger(Logger &&copy) = delete;
     Logger &operator=(const Logger &copy) = delete;
@@ -957,7 +957,7 @@ public:
 private:
     typedef std::recursive_mutex mutex_t;
 
-    level_t level = Logger::LEVEL_ALL;
+    level_t level = LEVEL_ALL;
     std::size_t bufferLimit = 0;
     bool printDateTime = true;
 
@@ -968,11 +968,11 @@ private:
 
     std::unordered_map<level_t, std::queue<std::string>> logs;
     std::unordered_map<level_t, std::string> levelMap = {
-        {Logger::LEVEL_DEBUG,    "debug"},
-        {Logger::LEVEL_WARNING,  "warning"},
-        {Logger::LEVEL_INFO,     "info"},
-        {Logger::LEVEL_ERROR,    "error"},
-        {Logger::LEVEL_CRITICAL, "critical"},
+        {LEVEL_DEBUG,    "debug"},
+        {LEVEL_WARNING,  "warning"},
+        {LEVEL_INFO,     "info"},
+        {LEVEL_ERROR,    "error"},
+        {LEVEL_CRITICAL, "critical"},
     };
 
     Logger() :
