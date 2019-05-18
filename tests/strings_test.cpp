@@ -410,3 +410,27 @@ TEST(Strings, EqualsICase) {
     #endif
 
 }
+
+TEST(Strings, RepeatString) {
+
+    const std::string src = "==";
+    const std::string target = repeat(src, 3);
+
+    ASSERT_STREQ("======", target.c_str());
+}
+
+TEST(String, RepeatChar) {
+
+    const std::string target = repeat("-", 4);
+    ASSERT_STREQ("----", target.c_str());
+
+    const std::string target2 = repeat("-", 0);
+    ASSERT_STREQ("", target2.c_str());
+}
+
+TEST(String, SplitByLen) {
+    std::string src = "Hello my beautiful world";
+    auto res = splitByLength(src, 8);
+    ASSERT_STREQ("Hello my", res[0].c_str());
+    ASSERT_STREQ(" beautiful world", res[1].c_str());
+}

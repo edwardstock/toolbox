@@ -41,6 +41,9 @@
 #include <iomanip>
 #include <locale>
 #include <sys/stat.h>
+#include <termios.h>
+#include <errno.h>   /* for errno */
+#include <unistd.h>  /* for EINTR */
 
 #ifndef MS_STDLIB_BUGS
 #  if (_MSC_VER || __MINGW32__ || __MSVCRT__)
@@ -177,8 +180,7 @@ std::vector<value_type> mapValuesToVector(const map_type &map) {
 }
 
 namespace strings {
-typedef size_t strlen_t;
-typedef const std::string &const_string;
+using strlen_t = std::string::size_type;
 
 template<typename _CharT>
 struct StringEqualing {
@@ -407,6 +409,35 @@ inline std::vector<std::string> split(const std::string &source, const char &del
 }
 
 /**
+ * \brief Split given string by max length. Example: abc, max len: 2, output will: std::vector<std::string>{"ab", "c"}
+ * \param src source string
+ * \param max max length
+ * \return separated string to vector. If src length less than maximum, vector will contain 1 element with src
+ */
+inline std::vector<std::string> splitByLength(const std::string &src, size_t max) {
+    std::vector<std::string> out;
+    if (src.length() > max) {
+        size_t got = 0;
+        for (size_t i = 0; i < src.length(); i += max) {
+            size_t n;
+            if (got + max > src.length()) {
+                n = src.length() - got;
+            } else {
+                n = got + max;
+                got = n;
+            }
+            auto part = src.substr(i, n);
+
+            out.push_back(part);
+        }
+    } else {
+        out.push_back(src);
+    }
+
+    return out;
+}
+
+/**
  * Splits string by char delimiter to pair
  * @param source
  * @param delimiter
@@ -516,6 +547,36 @@ inline std::string substringReplaceAll(const std::vector<std::string> &search,
 }
 
 /**
+ * \brief Repeat input string N times
+ * \param in input string
+ * \param n number of times to repeat
+ * \return repeated string
+ */
+inline std::string repeat(const std::string &in, size_t n = 1) {
+    std::stringstream ss;
+    for (size_t i = 0; i < n; i++) {
+        ss << in;
+    }
+
+    return ss.str();
+}
+
+/*!
+ * \brief Repeat input char N times
+ * \param in input char
+ * \param n number of times to repeat
+ * \return repeated string
+ */
+inline std::string repeat(char in, size_t n = 1) {
+    std::stringstream ss;
+    for (size_t i = 0; i < n; i++) {
+        ss << in;
+    }
+
+    return ss.str();
+}
+
+/*!
  * @see substringReplace(const std::string &search,
 									const std::string &replace,
 									const std::string &source) but mutable behavior
@@ -879,6 +940,84 @@ inline bool isReal(const std::string &input) {
 
 //LCOV_EXCL_START
 namespace console {
+
+inline ssize_t _password(const std::string &message, char **pw, size_t sz, int mask = 0, FILE *fp = stdin) {
+    if (!pw || !sz || !fp) return -1;       /* validate input   */
+#ifdef MAXPW
+    if (sz > MAXPW) sz = MAXPW;
+#endif
+
+    std::cout << message << ": \n";
+
+    if (*pw == nullptr) {              /* reallocate if no address */
+        void *tmp = realloc(*pw, sz * sizeof **pw);
+        if (!tmp)
+            return -1;
+        memset(tmp, 0, sz);    /* initialize memory to 0   */
+        *pw = static_cast<char *>(tmp);
+    }
+
+    size_t idx = 0;         /* index, number of chars in read   */
+    int c = 0;
+
+    termios old_kbd_mode;    /* orig keyboard settings   */
+    termios new_kbd_mode;
+
+    if (tcgetattr(0, &old_kbd_mode)) { /* save orig settings   */
+        fprintf(stderr, "%s() error: tcgetattr failed.\n", __func__);
+        return -1;
+    }   /* copy old to new */
+    memcpy(&new_kbd_mode, &old_kbd_mode, sizeof(struct termios));
+
+    new_kbd_mode.c_lflag &= ~(ICANON | ECHO);  /* new kbd flags */
+    new_kbd_mode.c_cc[VTIME] = 0;
+    new_kbd_mode.c_cc[VMIN] = 1;
+    if (tcsetattr(0, TCSANOW, &new_kbd_mode)) {
+        fprintf(stderr, "%s() error: tcsetattr failed.\n", __func__);
+        return -1;
+    }
+
+    /* read chars from fp, mask if valid char specified */
+    while (((c = fgetc(fp)) != '\n' && c != EOF && idx < sz - 1) ||
+        (idx == sz - 1 && c == 127)) {
+        if (c != 127) {
+            if (31 < mask && mask < 127)    /* valid ascii char */
+                fputc(mask, stdout);
+            (*pw)[idx++] = c;
+        } else if (idx > 0) {         /* handle backspace (del)   */
+            if (31 < mask && mask < 127) {
+                fputc(0x8, stdout);
+                fputc(' ', stdout);
+                fputc(0x8, stdout);
+            }
+            (*pw)[--idx] = 0;
+        }
+    }
+    (*pw)[idx] = 0; /* null-terminate   */
+
+    /* reset original keyboard  */
+    if (tcsetattr(0, TCSANOW, &old_kbd_mode)) {
+        fprintf(stderr, "%s() error: tcsetattr failed.\n", __func__);
+        return -1;
+    }
+
+    if (idx == sz - 1 && c != '\n') /* warn if pw truncated */
+        fprintf(stderr, " (%s() warning: truncated at %zu chars.)\n",
+                __func__, sz - 1);
+
+    return idx; /* number of chars in passwd    */
+}
+
+inline std::string promptPassword(const std::string &message, const size_t passSize = 32) {
+    char *pw = new char[passSize];
+
+    _password(message, &pw, passSize);
+
+    auto out = std::string(pw);
+    delete[] pw;
+    return out;
+}
+
 inline bool confirm(std::istream &in, std::ostream &out, const std::string &message, bool defValue = false) {
     std::string res;
     const std::string yesNo = defValue ? "yes" : "no";
