@@ -52,3 +52,38 @@ TEST(Numbers, IsInteger) {
 }
 
 #endif
+
+TEST(Numbers, DecimalFormatter) {
+    toolboxpp::numbers::decimal_formatter form("1567948125.105");
+
+    form.set_delimiter('\'');
+    form.set_min_fractions(4);
+    form.set_max_fractions(18);
+
+    ASSERT_STREQ("1'567'948'125.1050", form.format().c_str());
+
+    form.set_delimiter(' ');
+    ASSERT_STREQ("1 567 948 125.1050", form.format().c_str());
+}
+
+TEST(Numbers, DecimalFormatterFractions) {
+    toolboxpp::numbers::decimal_formatter form("1567948125.10203040506070809080706050");
+
+    form.set_delimiter('\'');
+    form.set_min_fractions(4);
+    form.set_max_fractions(18);
+
+    ASSERT_STREQ("1'567'948'125.102030405060708090", form.format().c_str());
+}
+
+TEST(Numbers, SimpleFormatter) {
+    ASSERT_STREQ("1 567 948 125.1050", toolboxpp::numbers::decimal_formatter()("1567948125.105").c_str());
+}
+
+TEST(Numbers, SimpleFormatterMinFracts) {
+    ASSERT_STREQ("1 567 948 125.1000", toolboxpp::numbers::decimal_formatter()("1567948125.1").c_str());
+}
+
+TEST(Numbers, SimpleFormatterNoFractions) {
+    ASSERT_STREQ("1 567 948 125.0000", toolboxpp::numbers::decimal_formatter()("1567948125").c_str());
+}

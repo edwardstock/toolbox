@@ -44,6 +44,7 @@
 #include <termios.h>
 #include <errno.h>   /* for errno */
 #include <unistd.h>  /* for EINTR */
+#include <stack>
 
 #ifndef MS_STDLIB_BUGS
 #  if (_MSC_VER || __MINGW32__ || __MSVCRT__)
@@ -936,6 +937,115 @@ inline bool isInteger(const std::string &input) {
 inline bool isReal(const std::string &input) {
     return std::regex_match(input, std::regex(R"(^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$)"));
 }
+
+class decimal_formatter {
+public:
+    decimal_formatter() = default;
+    decimal_formatter(int num) {
+        std::stringstream ss;
+        ss << num;
+        m_num = ss.str();
+    }
+    decimal_formatter(double num) {
+        std::stringstream ss;
+        ss << num;
+        m_num = ss.str();
+    }
+    decimal_formatter(float num) {
+        std::stringstream ss;
+        ss << num;
+        m_num = ss.str();
+    }
+    decimal_formatter(const std::string &num) : m_num(num) { }
+    decimal_formatter(const char *&num) : m_num(std::string(num)) { }
+    decimal_formatter(std::string &&num) : m_num(std::move(num)) { }
+
+    std::string operator()(const std::string &num) {
+        m_num = num;
+        return format();
+    }
+
+    decimal_formatter &set_delimiter(const std::string &delimiter) {
+        m_delimiter = delimiter;
+        return *this;
+    }
+    decimal_formatter &set_delimiter(char delimiter) {
+        std::stringstream ss;
+        ss << delimiter;
+        m_delimiter = ss.str();
+        return *this;
+    }
+    decimal_formatter &set_decimals_group(size_t num) {
+        m_decimals = num;
+        return *this;
+    }
+    decimal_formatter &set_max_fractions(size_t max_fractions) {
+        m_max_fractions = max_fractions;
+        return *this;
+    }
+    decimal_formatter &set_min_fractions(size_t min_fractions) {
+        m_min_fractions = min_fractions;
+        return *this;
+    }
+
+    std::string format() const {
+        if (m_num.empty()) {
+            throw std::runtime_error("Empty number passed to decimal formatter");
+        }
+        std::pair<std::string, std::string> lr = toolboxpp::strings::splitPair(m_num, '.');
+
+        std::stringstream out;
+        std::stack<std::string> parts;
+
+        if (m_min_fractions > 0) {
+            size_t fr_size = lr.second.size();
+            // if fractial size less than min required fractions, adding zeroes to end
+            if (fr_size < m_min_fractions) {
+                parts.push(toolboxpp::strings::repeat('0', m_min_fractions - fr_size));
+                parts.push(lr.second);
+            } else if (fr_size >= m_min_fractions) {
+                if (fr_size > m_max_fractions) {
+                    parts.push(lr.second.substr(0, m_max_fractions));
+                } else {
+                    parts.push(lr.second);
+                }
+            }
+
+            parts.push(".");
+        }
+
+        size_t prev_i;
+        for (size_t i = lr.first.size(); i > 0;) {
+            prev_i = i;
+            if (m_decimals >= i) {
+                i = 0;
+            } else {
+                i -= m_decimals;
+            }
+
+            size_t len = (i == 0) ? prev_i : m_decimals;
+            std::string part = lr.first.substr(i, len);
+
+            parts.push(std::move(part));
+            if (i != 0) {
+                parts.push(std::string(m_delimiter));
+            }
+        }
+
+        while (!parts.empty()) {
+            out << parts.top();
+            parts.pop();
+        }
+
+        return out.str();
+    }
+private:
+    std::string m_num;
+    size_t m_decimals = 3;
+    size_t m_max_fractions = 18;
+    size_t m_min_fractions = 4;
+    std::string m_delimiter = " ";
+};
 }
 
 //LCOV_EXCL_START
