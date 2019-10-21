@@ -8,7 +8,11 @@
 #ifndef TOOLBOXPP_HPP
 #define TOOLBOXPP_HPP
 
-#ifdef _WIN32
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__) || defined(__MINGW32__) || defined(__MINGW64__)
+#define TOOLBOXPP_WIN32 1
+#endif
+
+#if defined(_WIN32) && !defined(__MINGW64__)
 #include <tchar.h>
 #define __CHAR_TO_LOWER(c) _tolower(c)
 #define __CHAR_TO_UPPER(C) _toupper(c)
@@ -41,7 +45,10 @@
 #include <iomanip>
 #include <locale>
 #include <sys/stat.h>
+
+#ifndef TOOLBOXPP_WIN32
 #include <termios.h>
+#endif
 #include <errno.h>   /* for errno */
 #include <unistd.h>  /* for EINTR */
 #include <stack>
@@ -1051,6 +1058,8 @@ private:
 //LCOV_EXCL_START
 namespace console {
 
+#ifndef TOOLBOXPP_WIN32
+
 inline ssize_t _password(const std::string &message, char **pw, size_t sz, int mask = 0, FILE *fp = stdin) {
     if (!pw || !sz || !fp) return -1;       /* validate input   */
 #ifdef MAXPW
@@ -1127,6 +1136,8 @@ inline std::string promptPassword(const std::string &message, const size_t passS
     delete[] pw;
     return out;
 }
+
+#endif
 
 inline bool confirm(std::istream &in, std::ostream &out, const std::string &message, bool defValue = false) {
     std::string res;
