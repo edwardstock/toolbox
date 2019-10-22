@@ -42,10 +42,11 @@ add_library(${PROJECT_NAME} INTERFACE)
 
 
 if (ENABLE_MULTIBYTE)
-	add_definitions(-DTOOLBOX_ENABLE_MB=1)
-	if (MSVC)
-		add_definitions(/D_UNICODE=1 /D_MBCS=1)
-	endif ()
+	# DISABLED for now, it's not just working
+	#	add_definitions(-DTOOLBOX_ENABLE_MB=1)
+	#	if (MSVC)
+	#		add_definitions(/D_UNICODE=1 /D_MBCS=1)
+	#	endif ()
 endif ()
 
 

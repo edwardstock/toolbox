@@ -340,23 +340,14 @@ TEST(Strings, SubstringInverse) {
 }
 
 TEST(Strings, ToLower) {
-    #ifdef TOOLBOX_ENABLE_MB
-    INIT_WCHAR_UNICODE();
-
-    std::wstring test2 = L"Верхний Регистр";
-    std::wstring res2 = toWLower(test2);
-    std::wstring resp = L"верхний регистр";
-    ASSERT_STREQ(resp.c_str(), res2.c_str());
-
-    std::wstring test3 = L"Upper Case";
-    std::wstring res3 = toWLower(test3);
-    std::wstring resp3 = L"upper case";
-    ASSERT_STREQ(resp3.c_str(), res3.c_str());
-    #else
     std::string test1 = "Upper Case";
     std::string res1 = toLower(test1);
     ASSERT_NE(res1.compare(test1), 0);
-    #endif
+
+    std::string test2 = "привет меДВЕД";
+    std::string res2 = toLower(test2);
+
+    ASSERT_EQ(test2.compare(res2), 0);
 }
 
 TEST(Strings, ClipSubstring) {
