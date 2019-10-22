@@ -8,20 +8,35 @@
 #include <cstdio>
 #include "gtest/gtest.h"
 #include "toolboxpp.hpp"
+#include <stdlib.h>
 
 using namespace toolboxpp::fs;
 
 TEST(FileSystem, ReadWriteExistCheck) {
-    bool written = writeFile("/tmp/test_file.txt", "CONTENT");
+
+    char *tmpPath = std::getenv("TMP");
+    std::string tmp(tmpPath);
+    if (tmp.empty()) {
+        tmp = "/tmp";
+    }
+    #ifdef _MSC_VER
+    const std::string ds = "\\";
+    #else
+    const std::string ds = "/";
+    #endif
+
+    std::string targetPath = tmp + ds + "test_file.txt";
+
+    bool written = writeFile(targetPath, "CONTENT");
     ASSERT_TRUE(written);
 
-    bool exist = exists("/tmp/test_file.txt");
+    bool exist = exists(targetPath);
     ASSERT_TRUE(exist);
 
-    std::string content = readFile("/tmp/test_file.txt");
+    std::string content = readFile(targetPath);
     ASSERT_STREQ(content.c_str(), "CONTENT");
 
-    remove("/tmp/test_file.txt");
-    ASSERT_FALSE(exists("/tmp/test_file.txt"));
+    remove(targetPath.c_str());
+    ASSERT_FALSE(exists(targetPath));
 
 }

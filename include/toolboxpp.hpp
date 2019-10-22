@@ -12,11 +12,19 @@
 #define TOOLBOXPP_WIN32 1
 #endif
 
-#if defined(_WIN32) && !defined(__MINGW64__)
+#ifdef _MSC_VER
 #include <tchar.h>
-#define __CHAR_TO_LOWER(c) _tolower(c)
-#define __CHAR_TO_UPPER(C) _toupper(c)
-#else
+#include <ctype.h>
+#define __CHAR_TO_LOWER(c) _totlower(c)
+#define __CHAR_TO_UPPER(c) _totupper(c)
+
+#ifdef TOOLBOX_ENABLE_MB
+#include <wchar.h>
+#include <clocale>
+#define __WCHAR_TO_LOWER(c) _towlower_l(c, _get_current_locale())
+#define __WCHAR_TO_UPPER(c) _towupper_l(c, _get_current_locale())
+#endif // TOOLBOX_ENABLE_MB
+#else // other
 #define __CHAR_TO_LOWER(c) std::tolower(c)
 #define __WCHAR_TO_LOWER(c) std::towlower(c)
 #define __CHAR_TO_UPPER(c) std::toupper(c)
@@ -49,8 +57,12 @@
 #ifndef TOOLBOXPP_WIN32
 #include <termios.h>
 #endif
-#include <errno.h>   /* for errno */
+
+#ifndef _MSC_VER
 #include <unistd.h>  /* for EINTR */
+#endif
+
+#include <errno.h>   /* for errno */
 #include <stack>
 
 #ifndef MS_STDLIB_BUGS
@@ -858,8 +870,8 @@ inline bool equalsIgnoreCase(const std::string &s1, const std::string &s2) {
     if (s1.length() != s2.length()) return false;
 
     return std::equal(
-        s2.begin(), s2.end(),
-        s1.begin(),
+        s1.begin(), s1.end(),
+        s2.begin(),
         [](unsigned char a, unsigned char b) {
           return __CHAR_TO_LOWER(a) == __CHAR_TO_LOWER(b);
         }
