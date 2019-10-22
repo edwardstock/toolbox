@@ -13,9 +13,8 @@
 using namespace toolboxpp::fs;
 
 TEST(FileSystem, ReadWriteExistCheck) {
-
     char *tmpPath = std::getenv("TMP");
-    std::string tmp(tmpPath);
+    std::string tmp(tmpPath == nullptr ? "" : tmpPath);
     if (tmp.empty()) {
         tmp = "/tmp";
     }
