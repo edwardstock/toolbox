@@ -53,6 +53,7 @@
 #include <iomanip>
 #include <locale>
 #include <sys/stat.h>
+#include <cassert>
 
 #ifndef TOOLBOXPP_WIN32
 #include <termios.h>
