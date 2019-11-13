@@ -1067,6 +1067,577 @@ private:
 };
 }
 
+namespace data {
+
+/// \brief Convert hex string to unsigned byte vector
+/// \param hex
+/// \return
+static std::vector<uint8_t> hexToBytes(const std::string &hex) {
+    std::vector<uint8_t> bytes;
+
+    for (size_t i = 0; i < hex.length(); i += 2) {
+        std::string byteString = hex.substr(i, 2);
+        auto byte = (uint8_t) strtol(byteString.c_str(), nullptr, 16);
+        bytes.push_back(byte);
+    }
+
+    return bytes;
+}
+
+/// \brief Convert byte array to hex string
+/// \param data
+/// \param len
+/// \return output len will be len*2, as 1 byte in hex is a 2 chars
+static std::string bytesToHex(const uint8_t *data, size_t len) {
+    std::stringstream ss;
+    ss << std::hex;
+    for (size_t i = 0; i < len; ++i) {
+        ss << std::setw(2) << std::setfill('0') << (int) data[i];
+    }
+
+    return ss.str();
+}
+
+/// \brief Convert any integral type to byte array
+/// \tparam NumT any integral type, that can be asserted with std::is_integral
+/// \param num value
+/// \param out output vector ref
+template<typename NumT>
+void numToBytes(const NumT num, std::vector<uint8_t> &out) {
+    static_assert(std::is_integral<NumT>::value, "Only integral types can be passed");
+
+    size_t sz = sizeof(num);
+    for (size_t i = 0; i < sz; i++) {
+        out[(out.size() - 1) - i] = (num >> (i * 8));
+    }
+}
+
+inline uint8_t operator ""_byte(unsigned long long val) {
+    return (uint8_t) val;
+}
+
+inline uint8_t operator ""_bytes(unsigned long long val) {
+    return (uint8_t) val;
+}
+
+inline uint16_t operator ""_dbyte(unsigned long long val) {
+    return (uint16_t) val;
+}
+
+inline uint16_t operator ""_dbytes(unsigned long long val) {
+    return (uint16_t) val;
+}
+
+/// \brief Special class to help you handle bytes
+class bytes_data {
+public:
+    using container_t = std::vector<uint8_t>;
+    using iterator = container_t::iterator;
+    using const_iterator = container_t::const_iterator;
+    using reverse_iterator = container_t::reverse_iterator;
+
+    template<typename NumT>
+    static bytes_data read_number(NumT num) {
+        bytes_data out(sizeof(num));
+        numToBytes<NumT>(num, out.get());
+        return out;
+    }
+
+    template<typename NumT>
+    static bytes_data read_number(NumT num, size_t outSize) {
+        assert(outSize >= sizeof(num));
+        bytes_data out(outSize);
+        numToBytes<NumT>(num, out.get());
+        return out;
+    }
+
+    bytes_data() = default;
+    bytes_data(std::size_t size) {
+        m_data.resize(size);
+    }
+
+    bytes_data(const char *hexString) : m_data(hexToBytes(hexString)) { }
+    bytes_data(const std::string &hexString) : m_data(hexToBytes(hexString)) { }
+    bytes_data(const std::vector<uint8_t> &data) : m_data(data) { }
+    bytes_data(std::vector<uint8_t> &&data) : m_data(std::move(data)) { }
+    bytes_data(const uint8_t *data, size_t len) {
+        m_data.resize(len);
+        memcpy(this->data(), data, len);
+    }
+
+    bytes_data(const bytes_data &other) = default;
+    bytes_data(bytes_data &&other) = default;
+    bytes_data &operator=(const bytes_data &other) = default;
+    bytes_data &operator=(bytes_data &&other) = default;
+    virtual ~bytes_data() = default;
+
+    const std::vector<uint8_t> &get() const {
+        return m_data;
+    }
+
+    std::vector<uint8_t> &get() {
+        return m_data;
+    }
+
+    uint8_t at(size_t n) const {
+        return get().at(n);
+    }
+
+    std::string to_hex() const {
+        return bytesToHex(&m_data[0], size());
+    }
+
+    size_t size() const {
+        return m_data.size();
+    }
+
+    bool empty() const {
+        return m_data.empty();
+    }
+
+    operator bool() const noexcept {
+        return !empty();
+    }
+
+    uint8_t *data() {
+        return &m_data[0];
+    }
+
+    const uint8_t *cdata() const {
+        return &m_data[0];
+    }
+
+    std::string to_string() const {
+        return std::string(get().begin(), get().end());
+    }
+
+    std::vector<uint8_t> take_first(size_t n) const {
+        std::vector<uint8_t> out;
+        out.insert(out.begin(), m_data.begin(), m_data.begin() + n);
+        return out;
+    }
+
+    std::vector<uint8_t> take_last(size_t n) const {
+        std::vector<uint8_t> out;
+        out.insert(out.begin(), m_data.end() - n, m_data.end());
+        return out;
+    }
+
+    std::vector<uint8_t> take_range_from(size_t from) const {
+        return take_range(from, size());
+    }
+
+    std::vector<uint8_t> take_range_to(size_t to) const {
+        return take_range(0, to);
+    }
+
+    std::vector<uint8_t> take_range(size_t from, size_t to) const {
+        if (from > to) {
+            throw std::out_of_range("'from' can't be more than 'to'");
+        } else if (to > size()) {
+            throw std::out_of_range("'to' can't be more than size()");
+        } else if (from > size()) {
+            throw std::out_of_range("'from' can't be more than size()");
+        }
+
+        std::vector<uint8_t> out;
+        out.reserve(to - from);
+        out.insert(out.begin(), m_data.begin() + from, m_data.begin() + to);
+        return out;
+    }
+
+    size_t write(size_t pos, const uint8_t *data, size_t dataLen) {
+        if (pos >= size()) {
+            throw std::out_of_range("Position overflows size of this buffer. Use push_back method instead");
+        }
+        for (size_t i = 0; i < dataLen; i++) {
+            m_data[i + pos] = data[i];
+        }
+        return dataLen;
+    }
+
+    /// \brief Write method overwrite existing data, and if input data.size() > buffer.size(), it resizes current buffer
+    /// \param pos
+    /// \param data
+    /// \return
+    size_t write(size_t pos, const bytes_data &data) {
+        return write(pos, data.get());
+    }
+
+    size_t write(size_t pos, const std::vector<uint8_t> &data) {
+        return write(pos, data.begin(), data.end());
+    }
+
+    size_t write(size_t pos, std::vector<uint8_t> &&data) {
+        return write(pos, data.begin(), data.end());
+    }
+
+    template<typename _InputIterator>
+    size_t write(iterator position, _InputIterator start, _InputIterator end) {
+        size_t dist = std::distance(begin(), position);
+        return write(dist, start, end);
+    }
+
+    template<typename _InputIterator>
+    size_t write(size_t pos, _InputIterator start, _InputIterator end) {
+        std::map<size_t, uint8_t> tmp;
+        size_t i = pos;
+        for (auto it = start; it != end; ++it) {
+            tmp[i++] = *it;
+        }
+
+        return write_batch(std::move(tmp));
+    }
+
+    void write(size_t pos, uint8_t val) {
+        if (pos >= size()) {
+            size_t alloc;
+            if (size() != 0) {
+                alloc = size() + 1;
+            } else {
+                alloc = 1;
+            }
+            m_data.resize(alloc);
+        }
+        m_data[pos] = val;
+    }
+
+    void write(size_t pos, uint16_t val) {
+        write_batch(
+            {
+                {pos + 0, (uint8_t) (val >> 8u)},
+                {pos + 1, (uint8_t) (val)}
+            });
+    }
+
+    void write(size_t pos, uint32_t val) {
+        write_batch(
+            {
+                {pos + 0, (uint8_t) (val >> 24u)},
+                {pos + 1, (uint8_t) (val >> 16u)},
+                {pos + 2, (uint8_t) (val >> 8u)},
+                {pos + 3, (uint8_t) (val)}
+            });
+    }
+
+    void write(size_t pos, uint64_t val) {
+        write_batch(
+            {
+                {pos + 0, (uint8_t) (val >> 56u)},
+                {pos + 1, (uint8_t) (val >> 48u)},
+                {pos + 2, (uint8_t) (val >> 40u)},
+                {pos + 3, (uint8_t) (val >> 32u)},
+                {pos + 4, (uint8_t) (val >> 24u)},
+                {pos + 5, (uint8_t) (val >> 16u)},
+                {pos + 6, (uint8_t) (val >> 8u)},
+                {pos + 7, (uint8_t) (val)}
+            });
+    }
+
+    size_t write_tail(size_t pos, const uint8_t *data, size_t dataLen) {
+        std::vector<uint8_t> tmp(data, data + dataLen);
+        return write_tail(pos, tmp);
+    }
+
+    size_t write_tail(size_t pos, const bytes_data &data) {
+        return write_tail(pos, data.get());
+    }
+
+    size_t write_tail(size_t pos, const std::vector<uint8_t> &data) {
+        std::vector<uint8_t> tmp(m_data.begin(), m_data.begin() + pos);
+        tmp.insert(tmp.begin() + pos, data.begin(), data.end());
+        clear();
+        m_data = std::move(tmp);
+        return data.size();
+    }
+
+    /// \brief batch reduces allocations
+    /// \param vals map of positions -> values
+    /// \return written values count
+    size_t write_batch(std::map<size_t, uint8_t> &&vals) {
+        if (vals.empty()) {
+            return 0;
+        }
+
+        size_t minPos = SIZE_MAX;
+        size_t maxPos = 0;
+        for (const auto &it: vals) {
+            minPos = std::min(minPos, it.first);
+            maxPos = std::max(maxPos, it.first);
+        }
+
+        if (maxPos >= size()) {
+            size_t alloc;
+            if (size() != 0) {
+                alloc = minPos + vals.size() - size();
+                alloc += size();
+            } else {
+                alloc = vals.size();
+            }
+            m_data.resize(alloc);
+        }
+
+        for (auto &&el: vals) {
+            m_data[el.first] = el.second;
+        }
+
+        return vals.size();
+    }
+
+    void push_back(uint8_t val) {
+        m_data.push_back(val);
+    }
+
+    void push_back(uint16_t val) {
+        m_data.push_back(val >> 8u);
+        m_data.push_back(val & 0xFFu);
+    }
+
+    void push_back(uint32_t val) {
+        m_data.push_back(val >> 24u);
+        m_data.push_back(val >> 16u);
+        m_data.push_back(val >> 8u);
+        m_data.push_back(val & 0xFFu);
+    }
+
+    void push_back(uint64_t val) {
+        m_data.push_back(val >> 56u);
+        m_data.push_back(val >> 48u);
+        m_data.push_back(val >> 40u);
+        m_data.push_back(val >> 32u);
+        m_data.push_back(val >> 24u);
+        m_data.push_back(val >> 16u);
+        m_data.push_back(val >> 8u);
+        m_data.push_back(val & 0xFFu);
+    }
+
+    void push_back(const std::vector<uint8_t> &data) {
+        m_data.insert(m_data.end(), data.begin(), data.end());
+    }
+
+    void push_back(const bytes_data &data) {
+        push_back(data.get());
+    }
+
+    const_iterator cbegin() const {
+        return m_data.cbegin();
+    }
+
+    const_iterator begin() const {
+        return m_data.begin();
+    }
+
+    iterator begin() {
+        return m_data.begin();
+    }
+
+    const_iterator cend() const {
+        return m_data.cend();
+    }
+
+    const_iterator end() const {
+        return m_data.end();
+    }
+
+    iterator end() {
+        return m_data.end();
+    }
+
+    void push_back(const uint8_t *data, size_t len) {
+        std::vector<uint8_t> tmp(data, data + len);
+        m_data.insert(m_data.end(), tmp.begin(), tmp.end());
+    }
+
+    void push_back(const_iterator start, const_iterator end) {
+        m_data.insert(m_data.end(), start, end);
+    }
+
+    void push_back(iterator start, iterator end) {
+        m_data.insert(m_data.end(), start, end);
+    }
+
+    inline uint8_t &operator[](std::size_t idx) noexcept {
+        return m_data[idx];
+    }
+
+    inline uint8_t operator[](std::size_t idx) const noexcept {
+        return m_data[idx];
+    }
+
+    bool operator==(const bytes_data &other) const noexcept {
+        return m_data == other.m_data;
+    }
+
+    bool operator!=(const bytes_data &other) const noexcept {
+        return m_data != other.m_data;
+    }
+
+    /// \brief Make sure that 'other' have at least size() elements, otherwise UB is your friend
+    /// \param other
+    /// \return
+    bool operator==(const uint8_t *other) const noexcept {
+        if (!other || !other[0] || !other[m_data.size() - 1]) {
+            return false;
+        }
+
+        for (size_t i = 0; i < m_data.size(); i++) {
+            if (m_data[i] != other[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    bool operator!=(const uint8_t *other) const noexcept {
+        return !operator==(other);
+    }
+
+    void clear() {
+        std::fill(m_data.begin(), m_data.end(), 0);
+        m_data.clear();
+    }
+
+    void resize(size_t sz) {
+        m_data.resize(sz);
+    }
+
+    template<typename T>
+    T to_num() const {
+        return to_num<T>(0);
+    }
+
+    template<typename T>
+    T to_num(size_t from, size_t to) const {
+        auto data = take_range(from, to);
+
+        size_t len = sizeof(T);
+        if (len == 1) {
+            return data[0];
+        } else if (len == 2) {
+            return static_cast<uint64_t>(data[0]) << 8u |
+                static_cast<uint64_t>(data[1]);
+        } else if (len == 4) {
+            return static_cast<uint64_t>(data[0]) << 24u |
+                static_cast<uint64_t>(data[1]) << 16u |
+                static_cast<uint64_t>(data[2]) << 8u |
+                static_cast<uint64_t>(data[3]);
+        } else if (sizeof(uint64_t) == len) {
+            return
+                static_cast<uint64_t>(data[0]) << 56u |
+                    static_cast<uint64_t>(data[1]) << 48u |
+                    static_cast<uint64_t>(data[2]) << 40u |
+                    static_cast<uint64_t>(data[3]) << 32u |
+                    static_cast<uint64_t>(data[4]) << 24u |
+                    static_cast<uint64_t>(data[5]) << 16u |
+                    static_cast<uint64_t>(data[6]) << 8u |
+                    static_cast<uint64_t>(data[7]);
+        }
+
+        return 0;
+    }
+
+    template<typename T>
+    T to_num(size_t readFrom) const {
+        return to_num<T>(readFrom, readFrom + sizeof(T));
+    }
+
+    explicit operator uint8_t() const {
+        return to_num<uint8_t>();
+    }
+
+    explicit operator char() const {
+        return to_num<char>();
+    }
+
+    explicit operator uint16_t() const {
+        return to_num<uint16_t>();
+    }
+
+    explicit operator int16_t() const {
+        return to_num<int16_t>();
+    }
+
+    explicit operator uint32_t() const {
+        return to_num<uint32_t>();
+    }
+
+    explicit operator int32_t() const {
+        return to_num<int32_t>();
+    }
+
+    explicit operator uint64_t() const {
+        return to_num<uint64_t>();
+    }
+
+    explicit operator int64_t() const {
+        return to_num<int64_t>();
+    }
+
+protected:
+    container_t m_data;
+
+};
+
+class bytes_buffer : public bytes_data {
+public:
+    bytes_buffer() : bytes_data() { }
+    bytes_buffer(size_t size) : bytes_data(size) { }
+    bytes_buffer(const char *hexString) : bytes_data(hexString) { }
+    bytes_buffer(const std::string &hexString) : bytes_data(hexString) { }
+    bytes_buffer(const std::vector<uint8_t> &data) : bytes_data(data) { }
+    bytes_buffer(std::vector<uint8_t> &&data) : bytes_data(data) { }
+    bytes_buffer(const uint8_t *data, size_t len) : bytes_data(data, len) { }
+    bytes_buffer(const bytes_data &other) : bytes_data(other) { }
+    bytes_buffer(bytes_data &&other) : bytes_data(other) { }
+
+    size_t pop_front_to(size_t outPosition, bytes_data &out) {
+        if (outPosition >= out.size()) {
+            throw std::out_of_range("'outPosition' is >= than 'out' size");
+        }
+        return pop_front_to(out.size() - outPosition, outPosition, out);
+    }
+
+    size_t pop_front_to(size_t readLength, size_t position, bytes_data &out) {
+        return pop_front_to(readLength, out.begin() + position, out);
+    }
+
+    size_t pop_front_to(size_t readLength, iterator position, bytes_data &out) {
+        if (readLength == 0 || out.empty() || empty()) {
+            return 0;
+        }
+
+        size_t s = readLength;
+        if (readLength >= size()) {
+            s = size();
+        }
+
+        if (s > out.size()) {
+            s = out.size();
+        }
+
+        auto it = std::distance(out.begin(), position);
+        for (size_t i = 0; i < s; i++) {
+            out[i + it] = m_data.at(i);
+        }
+
+        // if we have read full buffer, than cleanup this
+        if (s == size()) {
+            clear();
+            resize(0);
+        } else {
+            // otherwise, taking begin()+s + end() and rewrite this with new vector
+            auto newData = std::vector<uint8_t>(m_data.begin() + s, m_data.end());
+            clear();
+            resize(newData.size());
+            m_data = std::move(newData);
+        }
+
+        return s;
+    }
+};
+}
+
 //LCOV_EXCL_START
 namespace console {
 

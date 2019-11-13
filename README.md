@@ -8,7 +8,7 @@
 
 ## Reqs
 * cmake >= 3.0
-* gnu gcc 4.9+/clang 5+/msvc (not tested)
+* gnu gcc 4.9+/clang 5+/msvc
 * make
 
 ## Usage and features
@@ -20,6 +20,7 @@ What helpers contained:
 * **toolboxpp::fs** - filesystem helpers
 * **toolboxpp::collection** - collections helpers
 * **toolboxpp::numbers** - string numbers helpers
+* **toolboxpp::data** - bytes buffer helpers
 * **toolboxpp::console** - confirm or prompt for your CLI app
 * **toolboxpp::Logger** - simple thread-safe logger
 * **toolboxpp::Profiler** - simple time-based profiler
@@ -36,13 +37,13 @@ conan remote add scatter https://api.bintray.com/conan/edwardstock/scatter
 ```
 
 ```bash
-conan install <path/to/your/project> toolboxpp/2.0.0@scatter/stable
+conan install <path/to/your/project> toolboxpp/2.3.0@scatter/stable
 ```
 
 or using `conanfile.txt`
 ```ini
 [requires]
-toolboxpp/2.0.0@scatter/stable
+toolboxpp/2.3.0@scatter/stable
 
 [generators]
 cmake

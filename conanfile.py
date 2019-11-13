@@ -4,7 +4,7 @@ from conans import ConanFile, CMake, tools
 
 class ToolboxppConan(ConanFile):
     name = "toolboxpp"
-    version = "2.2.2"
+    version = "2.3.0"
     license = "MIT"
     author = "Eduard Maximovich edward.vstock@gmail.com"
     url = "https://github.com/edwardstock/toolboxpp"

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(toolboxpp VERSION 2.2.2)
+project(toolboxpp VERSION 2.3.0)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmakes)
 
@@ -77,7 +77,7 @@ if (WITH_TEST)
 	               tests/filesystem_test.cpp
 	               tests/numbers_test.cpp
 	               tests/collection_test.cpp
-	               tests/strings_test.cpp)
+	               tests/strings_test.cpp tests/data_test.cpp)
 
 	if (NOT MSVC)
 		target_compile_options(toolboxtest PRIVATE -Wno-missing-field-initializers)
