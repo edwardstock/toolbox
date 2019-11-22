@@ -19,6 +19,7 @@ class ToolboxppConan(ConanFile):
     description = "Lightweight everyday C++ helpers"
     topics = ("cpp-helpers", "helpers", "header-only", "lightweight")
     generators = "cmake"
+    exports = "version"
     exports_sources = (
         "cmakes/*",
         "options.cmake",
@@ -28,8 +29,7 @@ class ToolboxppConan(ConanFile):
         "CMakeLists.txt",
         "conanfile.py",
         "LICENSE.md",
-        "README.md",
-        "version"
+        "README.md"
     )
     no_copy_source = True
     build_requires = (
