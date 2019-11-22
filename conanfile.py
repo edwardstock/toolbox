@@ -27,7 +27,6 @@ class ToolboxppConan(ConanFile):
         "src/*",
         "CMakeLists.txt",
         "conanfile.py",
-        "conanfile.txt",
         "LICENSE.md",
         "README.md"
     )
