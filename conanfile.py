@@ -28,7 +28,8 @@ class ToolboxppConan(ConanFile):
         "CMakeLists.txt",
         "conanfile.py",
         "LICENSE.md",
-        "README.md"
+        "README.md",
+        "version"
     )
     no_copy_source = True
     build_requires = (
