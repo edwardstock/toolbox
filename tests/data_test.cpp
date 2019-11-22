@@ -269,6 +269,50 @@ TEST(ByteBuffer, PopFrontLimit) {
     }
 }
 
+TEST(BytesData, RealCase1) {
+    bytes_data buffer(64);
+    //01 01 05 00 00 00 05 00 01 00 90 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    buffer.write(0, 0x01_byte);
+    buffer.write(1, 0x01_byte);
+    buffer.write(2, 0x05_byte);
+    buffer.write(3, 0x00_byte);
+    buffer.write(4, 0x00_byte);
+    buffer.write(5, 0x00_byte);
+    buffer.write(6, 0x05_byte);
+    buffer.write(7, 0x00_byte);
+    buffer.write(8, 0x01_byte);
+    buffer.write(9, 0x00_byte);
+    buffer.write(10, 0x90_byte);
+    buffer.write(11, 0x00_byte);
+    for (int i = 12; i < 64; i++) {
+        buffer.write(i, 0x0_byte);
+    }
+
+    // parse header 5 bytes
+    // 2 bytes
+    auto channelId = buffer.to_num<uint16_t>(0);
+    // 1 byte
+    uint8_t commandTag = buffer.at(2);
+    // 2 bytes
+    auto cseq = buffer.to_num<uint16_t>(3);
+
+    ASSERT_EQ(0x0101_dbyte, channelId);
+    ASSERT_EQ(0x05_dbyte, commandTag);
+    ASSERT_EQ(0x00, cseq);
+
+    // data len
+    ASSERT_EQ(0x05_dbyte, buffer.at(6));
+
+    // version
+    ASSERT_EQ(0x00, buffer.at(7));
+    ASSERT_EQ(0x01_dbyte, buffer.at(8));
+    ASSERT_EQ(0x00, buffer.at(9));
+
+    uint16_t statusCode = buffer.to_num<uint16_t>(10);
+    ASSERT_EQ(0x9000_dbyte, statusCode);
+
+}
+
 TEST(ByteData, WriteReadNumber) {
     bytes_data d(32);
     d.write(0, (uint16_t) 0x8080u);

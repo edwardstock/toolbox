@@ -1,10 +1,18 @@
 import os
 from conans import ConanFile, CMake, tools
 
+def get_version():
+    with open(os.path.join(os.path.dirname(__file__), 'version'), 'r') as f:
+        content = f.read()
+        try:
+            content = content.decode()
+        except AttributeError:
+            pass
+        return content.strip()
 
 class ToolboxppConan(ConanFile):
     name = "toolboxpp"
-    version = "2.3.1"
+    version = get_version()
     license = "MIT"
     author = "Eduard Maximovich edward.vstock@gmail.com"
     url = "https://github.com/edwardstock/toolboxpp"
@@ -24,7 +32,9 @@ class ToolboxppConan(ConanFile):
         "README.md"
     )
     no_copy_source = True
-    requires = "gtest/1.8.1@bincrafters/stable"
+    build_requires = (
+        "gtest/1.8.1@bincrafters/stable"
+    )
 
     def source(self):
         if "CONAN_LOCAL" not in os.environ:

@@ -31,6 +31,7 @@
 #define __WCHAR_TO_UPPER(c) std::towupper(c)
 #endif
 
+#include <atomic>
 #include <chrono>
 #include <string>
 #include <iosfwd>
@@ -1153,24 +1154,25 @@ public:
     }
 
     bytes_data() = default;
-    bytes_data(std::size_t size) {
+    virtual ~bytes_data() = default;
+    bytes_data(const bytes_data &other) = default;
+    bytes_data(bytes_data &&other) = default;
+    bytes_data &operator=(bytes_data other) noexcept {
+        std::swap(m_data, other.m_data);
+        return *this;
+    }
+
+    explicit bytes_data(std::size_t size) {
         m_data.resize(size);
     }
 
     bytes_data(const char *hexString) : m_data(hexToBytes(hexString)) { }
     bytes_data(const std::string &hexString) : m_data(hexToBytes(hexString)) { }
-    bytes_data(const std::vector<uint8_t> &data) : m_data(data) { }
-    bytes_data(std::vector<uint8_t> &&data) : m_data(std::move(data)) { }
+    bytes_data(std::vector<uint8_t> data) : m_data(std::move(data)) { }
     bytes_data(const uint8_t *data, size_t len) {
         m_data.resize(len);
         memcpy(this->data(), data, len);
     }
-
-    bytes_data(const bytes_data &other) = default;
-    bytes_data(bytes_data &&other) = default;
-    bytes_data &operator=(const bytes_data &other) = default;
-    bytes_data &operator=(bytes_data &&other) = default;
-    virtual ~bytes_data() = default;
 
     const std::vector<uint8_t> &get() const {
         return m_data;
@@ -1495,8 +1497,22 @@ public:
     }
 
     void clear() {
-        std::fill(m_data.begin(), m_data.end(), 0);
-        m_data.clear();
+        static std::atomic<uint8_t> s_cleanseCounter{0u};
+        auto *p = data();
+        size_t const len = (uint8_t *) (data() + size()) - p;
+        size_t loop = len;
+        size_t count = s_cleanseCounter;
+        while (loop--) {
+            *(p++) = (uint8_t) count;
+            count += (17u + ((size_t) p & 0x0Fu));
+        }
+        p = (uint8_t *) memchr((uint8_t *) data(), (uint8_t) count, len);
+        if (p) {
+            count += (63u + (size_t) p);
+        }
+
+        s_cleanseCounter = (uint8_t) count;
+        memset((uint8_t *) data(), 0, len);
     }
 
     void resize(size_t sz) {
@@ -1583,14 +1599,14 @@ protected:
 class bytes_buffer : public bytes_data {
 public:
     bytes_buffer() : bytes_data() { }
+    virtual ~bytes_buffer() override = default;
+    bytes_buffer(const bytes_data &other) : bytes_data(other) { }
+    bytes_buffer(bytes_data &&other) : bytes_data(other) { }
     bytes_buffer(size_t size) : bytes_data(size) { }
     bytes_buffer(const char *hexString) : bytes_data(hexString) { }
     bytes_buffer(const std::string &hexString) : bytes_data(hexString) { }
     bytes_buffer(const std::vector<uint8_t> &data) : bytes_data(data) { }
-    bytes_buffer(std::vector<uint8_t> &&data) : bytes_data(data) { }
     bytes_buffer(const uint8_t *data, size_t len) : bytes_data(data, len) { }
-    bytes_buffer(const bytes_data &other) : bytes_data(other) { }
-    bytes_buffer(bytes_data &&other) : bytes_data(other) { }
 
     size_t pop_front_to(size_t outPosition, bytes_data &out) {
         if (outPosition >= out.size()) {

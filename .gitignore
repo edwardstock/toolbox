@@ -14,5 +14,6 @@ CMakeCache.txt
 main.cpp
 .vs
 *.junk
+CMakeSettings.json
 
 include/toolboxppconfig.h

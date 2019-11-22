@@ -1,5 +1,15 @@
 cmake_minimum_required(VERSION 3.0)
-project(toolboxpp VERSION 2.3.1)
+project(toolboxpp VERSION 2.3.2)
+
+if (WIN32)
+	execute_process(
+		COMMAND cmd /C "echo ${CMAKE_PROJECT_VERSION} > ${CMAKE_CURRENT_SOURCE_DIR}/version"
+	)
+else ()
+	execute_process(
+		COMMAND bash -c "echo ${CMAKE_PROJECT_VERSION} > ${CMAKE_CURRENT_SOURCE_DIR}/version"
+	)
+endif ()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmakes)
 
@@ -78,6 +88,16 @@ if (WITH_TEST)
 	               tests/numbers_test.cpp
 	               tests/collection_test.cpp
 	               tests/strings_test.cpp tests/data_test.cpp)
+
+	if (ENABLE_PVS)
+		include(PVS-Studio)
+		pvs_studio_add_target(TARGET ${PROJECT_NAME}.analyze ALL
+		                      OUTPUT FORMAT errorfile
+		                      CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/pvs.cfg
+		                      ANALYZE toolboxtest
+		                      SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/include
+		                      LOG target.err)
+	endif ()
 
 	if (NOT MSVC)
 		target_compile_options(toolboxtest PRIVATE -Wno-missing-field-initializers)

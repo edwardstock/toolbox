@@ -2,7 +2,7 @@
 
 | Bintray | Windows | Linux & macOS |
 |:--------:|:---------:|:-----------------:|
-|[ ![Download](https://api.bintray.com/packages/edwardstock/scatter/toolboxpp%3Ascatter/images/download.svg) ](https://bintray.com/edwardstock/scatter/toolboxpp%3Ascatter/_latestVersion)|unavailable|[![CircleCI](https://circleci.com/gh/edwardstock/toolboxpp/tree/master.svg?style=svg)](https://circleci.com/gh/edwardstock/toolboxpp/tree/master)|
+|[ ![Download](https://api.bintray.com/packages/edwardstock/conan-public/toolboxpp%3Aconan-public/images/download.svg) ](https://bintray.com/edwardstock/conan-public/toolboxpp%3Aconan-public/_latestVersion)|unavailable|[![CircleCI](https://circleci.com/gh/edwardstock/toolboxpp/tree/master.svg?style=svg)](https://circleci.com/gh/edwardstock/toolboxpp/tree/master)|
 
 
 
@@ -33,17 +33,17 @@ See [include/toolboxpp.hpp](include/toolboxpp.hpp) - almost all code are comment
 
 Add remote:
 ```bash
-conan remote add scatter https://api.bintray.com/conan/edwardstock/scatter
+conan remote add edwardstock https://api.bintray.com/conan/edwardstock/conan-public
 ```
 
 ```bash
-conan install <path/to/your/project> toolboxpp/2.3.0@scatter/stable
+conan install <path/to/your/project> toolboxpp/2.3.0@edwardstock/latest
 ```
 
 or using `conanfile.txt`
 ```ini
 [requires]
-toolboxpp/2.3.0@scatter/stable
+toolboxpp/2.3.0@edwardstock/latest
 
 [generators]
 cmake
