@@ -6,6 +6,7 @@
 #include "toolboxpp.hpp"
 
 using namespace toolboxpp::data;
+using namespace toolboxpp::data::literals;
 
 TEST(ByteData, Write) {
     bytes_data d1;
@@ -97,6 +98,62 @@ TEST(ByteData, Write) {
         threw = true;
     }
     ASSERT_TRUE(threw);
+}
+
+TEST(BytesData, Resize) {
+    bytes_data d(32);
+    for (int i = 0; i < 32; i++) {
+        if (i < 16) {
+            d.write(i, (uint8_t) 0x7F);
+        } else {
+            d.write(i, (uint8_t) 0xFF);
+        }
+
+    }
+
+    bytes_data target(d.take_range_from(d.size() / 2));
+    ASSERT_EQ(16, target.size());
+    d.resize(16);
+    ASSERT_EQ(16, d.size());
+    ASSERT_EQ(0xFF_byte, target[0]);
+    ASSERT_EQ(0xFF_byte, target[15]);
+    ASSERT_EQ(0x7F_byte, d[0]);
+    ASSERT_EQ(0x7F_byte, d[15]);
+
+}
+
+TEST(BytesData, PopBackTo) {
+    bytes_buffer d(32);
+    for (int i = 0; i < 32; i++) {
+        if (i < 16) {
+            d.write(i, (uint8_t) 0x7F);
+        } else {
+            d.write(i, (uint8_t) 0xFF);
+        }
+
+    }
+    bytes_data target(16);
+    d.pop_back_to(target);
+    ASSERT_EQ(16, target.size());
+    ASSERT_EQ(16, d.size());
+    ASSERT_EQ(0xFF_byte, target[0]);
+    ASSERT_EQ(0xFF_byte, target[15]);
+    ASSERT_EQ(0x7F_byte, d[0]);
+    ASSERT_EQ(0x7F_byte, d[15]);
+
+    bytes_data target2(8);
+    d.pop_back_to(8, target2);
+    ASSERT_EQ(8, target2.size());
+    ASSERT_EQ(8, d.size());
+
+    bytes_data target3(16);
+    d.pop_back_to(target3);
+    ASSERT_EQ(0, d.size());
+    ASSERT_EQ(16, target3.size());
+    ASSERT_EQ(0x7F_byte, target3[0]);
+    ASSERT_EQ(0x7F_byte, target3[7]);
+    ASSERT_EQ(0x00_byte, target3[15]);
+
 }
 
 TEST(ByteData, InsertIterator) {
@@ -206,7 +263,7 @@ TEST(ByteData, push_back) {
 
 }
 
-TEST(ByteBuffer, pop_front_to) {
+TEST(ByteBuffer, PopFrontTo) {
     bytes_buffer buffer(256);
     ASSERT_EQ(256, buffer.size());
     std::fill(buffer.begin(), buffer.end(), 0xFFu);

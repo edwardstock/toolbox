@@ -1113,6 +1113,7 @@ void numToBytes(const NumT num, std::vector<uint8_t> &out) {
     }
 }
 
+namespace literals {
 inline uint8_t operator ""_byte(unsigned long long val) {
     return (uint8_t) val;
 }
@@ -1127,6 +1128,7 @@ inline uint16_t operator ""_dbyte(unsigned long long val) {
 
 inline uint16_t operator ""_dbytes(unsigned long long val) {
     return (uint16_t) val;
+}
 }
 
 /// \brief Special class to help you handle bytes
@@ -1673,6 +1675,29 @@ public:
 
     size_t pop_front_to(size_t readLength, size_t position, bytes_data &out) {
         return pop_front_to(readLength, out.begin() + position, out);
+    }
+
+    size_t pop_back_to(bytes_data &out) {
+        return pop_back_to(out.size(), out);
+    }
+
+    size_t pop_back_to(size_t readLength, bytes_data &out) {
+        if (readLength == 0 || out.empty() || empty()) {
+            return 0;
+        }
+        size_t s = std::min(readLength, size());
+        s = std::min(s, out.size());
+
+        auto data = take_range_from(size() - s);
+        out.write(0, std::move(data));
+
+        int64_t resizeLen = size() - readLength;
+        if (resizeLen < 0) {
+            resize(0);
+            return s;
+        }
+        resize(resizeLen);
+        return s;
     }
 
     size_t pop_front_to(size_t readLength, iterator position, bytes_data &out) {
