@@ -383,7 +383,6 @@ inline const std::vector<std::string> matchRegexp(const std::string &pattern, co
     return matchRegexp(std::regex(pattern, std::regex_constants::icase), source);
 }
 
-
 /**
  * Splits string by char delimiter to vector list
  * @param source
@@ -1313,6 +1312,10 @@ public:
             });
     }
 
+    void write(size_t pos, int32_t val) {
+        write(pos, static_cast<uint32_t>(val));
+    }
+
     void write(size_t pos, uint32_t val) {
         write_batch(
             {
@@ -1522,6 +1525,59 @@ public:
     template<typename T>
     T to_num() const {
         return to_num<T>(0);
+    }
+
+    template<typename T>
+    uint64_t to_num_any(size_t from) {
+        return to_num_any(from, from + sizeof(T));
+    }
+
+    template<typename T>
+    T to_num_any_size(size_t from) {
+        return to_num_any_size<T>(from, from + sizeof(T));
+    }
+
+    template<typename FromSize, typename ToSize>
+    ToSize to_num_any_size(size_t pos) {
+        return to_num_any_size<ToSize>(pos, pos + sizeof(FromSize));
+    }
+
+    template<typename T>
+    T to_num_any_size(size_t from, size_t to) {
+        auto data = take_range(from, std::min(to, size()));
+
+        size_t len = data.size();
+        T out = 0;
+
+        if (len < sizeof(T)) {
+            len = sizeof(T);
+
+            for (size_t i = 0; i < len; i++) {
+                if (i < data.size()) {
+                    out |= data[i] << (8u * i);
+                } else {
+                    out |= 0x00u << (8u * i);
+                }
+            }
+        } else {
+            for (size_t i = 0, p = (len - 1); i < len; i++, p--) {
+                out |= data[i] << (8u * p);
+            }
+        }
+
+        return out;
+    }
+
+    uint64_t to_num_any(size_t from, size_t to) {
+        auto data = take_range(from, to);
+
+        size_t len = data.size();
+        uint64_t out = 0x0ULL;
+        for (uint8_t i = 0, p = len - 1; i < len; i++, p--) {
+            out |= data[i] << (8u * p);
+        }
+
+        return out;
     }
 
     template<typename T>

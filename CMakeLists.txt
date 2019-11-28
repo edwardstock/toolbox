@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(toolboxpp VERSION 2.3.2)
+project(toolboxpp VERSION 2.3.3)
 
 if (WIN32)
 	execute_process(

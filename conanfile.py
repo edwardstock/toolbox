@@ -31,7 +31,6 @@ class ToolboxppConan(ConanFile):
         "LICENSE.md",
         "README.md"
     )
-    no_copy_source = True
     build_requires = (
         "gtest/1.8.1@bincrafters/stable"
     )

@@ -358,3 +358,49 @@ TEST(ByteData, WriteReadNumber) {
     ASSERT_EQ((uint16_t) 257, d.to_num<uint16_t>());
 
 }
+
+TEST(BytesData, ToNumAny) {
+    bytes_data d;
+    d.write(0, UINT64_MAX);
+
+    uint64_t r1 = d.to_num_any(0, sizeof(uint64_t));
+    ASSERT_EQ(UINT64_MAX, r1);
+
+    d.clear();
+    d.write(0, 0xFF_byte);
+
+    auto r2 = d.to_num_any_size<uint8_t>(0, 0 + 1);
+    ASSERT_EQ(0xFF_byte, r2);
+
+    d.clear();
+    d.write(0, 250);
+
+    auto r3 = d.to_num_any_size<uint32_t>(0);
+    ASSERT_EQ(250_byte, r3);
+
+    d.clear();
+    d.write(0, (uint32_t) UINT16_MAX);
+    auto r5 = d.to_num_any_size<uint16_t>(0, 0 + sizeof(uint32_t));
+    ASSERT_EQ(UINT16_MAX, r5);
+
+    d.clear();
+    d.write(0, (uint32_t) UINT16_MAX);
+    auto r6 = d.to_num_any_size<uint32_t, uint16_t>(0);
+    ASSERT_EQ(UINT16_MAX, r6);
+
+    d.clear();
+    d.write(0, 250_byte);
+    auto r4 = d.to_num_any_size<uint32_t>(0);
+    ASSERT_NE((uint32_t) 250, r4);
+    // r4 case works, only if data container has only 1 byte size, but there already 8,
+    // so, if we would try to convert 0-4 indexes to uint32_t, we'll get little-endian encoding, toolbox does not support
+    // little endian.
+    // If you need to convert between values, set 2 types explicitly, like below
+
+    auto r7 = d.to_num_any_size<uint8_t, uint32_t>(0);
+    ASSERT_EQ((uint32_t) 250, r7);
+
+    auto r8 = d.to_num_any(0, 8);
+    // the same issue, use explicit types
+    ASSERT_NE(250ull, r8);
+}
