@@ -1221,18 +1221,62 @@ public:
         return out;
     }
 
+    bytes_data take_first_c(size_t n) const {
+        return bytes_data(take_first(n));
+    }
+
+    bytes_data &take_first_m(size_t n) {
+        auto cp = take_first(n);
+        clear();
+        m_data = std::move(cp);
+        return *this;
+    }
+
     std::vector<uint8_t> take_last(size_t n) const {
         std::vector<uint8_t> out;
         out.insert(out.begin(), m_data.end() - n, m_data.end());
         return out;
     }
 
+    bytes_data take_last_c(size_t n) const {
+        return bytes_data(take_last(n));
+    }
+
+    bytes_data &take_last_m(size_t n) {
+        auto cp = take_last(n);
+        clear();
+        m_data = std::move(cp);
+        return *this;
+    }
+
     std::vector<uint8_t> take_range_from(size_t from) const {
         return take_range(from, size());
     }
 
+    bytes_data take_range_from_c(size_t from) const {
+        return bytes_data(take_range_from(from));
+    }
+
+    bytes_data &take_range_from_m(size_t from) {
+        auto cp = take_range_from(from);
+        clear();
+        m_data = std::move(cp);
+        return *this;
+    }
+
     std::vector<uint8_t> take_range_to(size_t to) const {
         return take_range(0, to);
+    }
+
+    bytes_data take_range_to_c(size_t to) const {
+        return bytes_data(take_range_to(to));
+    }
+
+    bytes_data &take_range_to_m(size_t to) {
+        auto cp = take_range_to(to);
+        clear();
+        m_data = std::move(cp);
+        return *this;
     }
 
     std::vector<uint8_t> take_range(size_t from, size_t to) const {
@@ -1248,6 +1292,17 @@ public:
         out.reserve(to - from);
         out.insert(out.begin(), m_data.begin() + from, m_data.begin() + to);
         return out;
+    }
+
+    bytes_data take_range_c(size_t from, size_t to) const {
+        return bytes_data(take_range(from, to));
+    }
+
+    bytes_data &take_range_m(size_t from, size_t to) {
+        auto cp = take_range(from, to);
+        clear();
+        m_data = cp;
+        return *this;
     }
 
     size_t write(size_t pos, const uint8_t *data, size_t dataLen) {
@@ -1266,6 +1321,10 @@ public:
     /// \return
     size_t write(size_t pos, const bytes_data &data) {
         return write(pos, data.get());
+    }
+
+    size_t write(size_t pos, bytes_data &&data) {
+        return write(pos, std::move(data.get()));
     }
 
     size_t write(size_t pos, const std::vector<uint8_t> &data) {
@@ -1392,6 +1451,42 @@ public:
         return vals.size();
     }
 
+    void write_back(uint8_t val) {
+        write(size(), val);
+    }
+
+    void write_back(uint16_t val) {
+        write(size(), val);
+    }
+
+    void write_back(uint32_t val) {
+        write(size(), val);
+    }
+
+    void write_back(uint64_t val) {
+        write(size(), val);
+    }
+
+    void write_back(const std::vector<uint8_t> &data) {
+        write(size(), data);
+    }
+
+    void write_back(std::vector<uint8_t> &&data) {
+        write(size(), std::move(data));
+    }
+
+    void write_back(const bytes_data &data) {
+        write(size(), data);
+    }
+
+    void write_back(bytes_data &&data) {
+        write(size(), std::move(data));
+    }
+
+    void write_back(const uint8_t *data, size_t len) {
+        write(size(), data, len);
+    }
+
     void push_back(uint8_t val) {
         m_data.push_back(val);
     }
@@ -1427,6 +1522,19 @@ public:
         push_back(data.get());
     }
 
+    void push_back(const uint8_t *data, size_t len) {
+        std::vector<uint8_t> tmp(data, data + len);
+        m_data.insert(m_data.end(), tmp.begin(), tmp.end());
+    }
+
+    void push_back(const_iterator start, const_iterator end) {
+        m_data.insert(m_data.end(), start, end);
+    }
+
+    void push_back(iterator start, iterator end) {
+        m_data.insert(m_data.end(), start, end);
+    }
+
     const_iterator cbegin() const {
         return m_data.cbegin();
     }
@@ -1449,19 +1557,6 @@ public:
 
     iterator end() {
         return m_data.end();
-    }
-
-    void push_back(const uint8_t *data, size_t len) {
-        std::vector<uint8_t> tmp(data, data + len);
-        m_data.insert(m_data.end(), tmp.begin(), tmp.end());
-    }
-
-    void push_back(const_iterator start, const_iterator end) {
-        m_data.insert(m_data.end(), start, end);
-    }
-
-    void push_back(iterator start, iterator end) {
-        m_data.insert(m_data.end(), start, end);
     }
 
     inline uint8_t &operator[](std::size_t idx) noexcept {
@@ -1530,22 +1625,17 @@ public:
     }
 
     template<typename T>
-    uint64_t to_num_any(size_t from) {
-        return to_num_any(from, from + sizeof(T));
-    }
-
-    template<typename T>
-    T to_num_any_size(size_t from) {
+    T to_num_any_size(size_t from) const {
         return to_num_any_size<T>(from, from + sizeof(T));
     }
 
     template<typename FromSize, typename ToSize>
-    ToSize to_num_any_size(size_t pos) {
+    ToSize to_num_any_size(size_t pos) const {
         return to_num_any_size<ToSize>(pos, pos + sizeof(FromSize));
     }
 
     template<typename T>
-    T to_num_any_size(size_t from, size_t to) {
+    T to_num_any_size(size_t from, size_t to) const {
         auto data = take_range(from, std::min(to, size()));
 
         size_t len = data.size();
@@ -1570,7 +1660,18 @@ public:
         return out;
     }
 
-    uint64_t to_num_any(size_t from, size_t to) {
+    template<typename T>
+    uint64_t to_num_any(size_t from) const {
+        return to_num_any(from, from + sizeof(T));
+    }
+
+    /// \brief Be carefully! Reads from zero to maximum 8 bytes (to avoid unsigned long long overflow)
+    /// \return
+    uint64_t to_num_any() const {
+        return to_num_any(0, std::min(8UL, size()));
+    }
+
+    uint64_t to_num_any(size_t from, size_t to) const {
         auto data = take_range(from, to);
 
         size_t len = data.size();
