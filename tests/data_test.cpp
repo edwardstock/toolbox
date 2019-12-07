@@ -16,40 +16,40 @@ TEST(BytesData, Write) {
     bytes_data d1;
     d1.write(0, (uint8_t) 0x05);
     ASSERT_EQ(1, d1.size());
-    ASSERT_EQ(0x05, d1[0]);
+    ASSERT_EQ(0x05, d1.at(0));
 
     d1.write(1, (uint16_t) 0x0101);
     ASSERT_EQ(3, d1.size());
-    ASSERT_EQ((uint8_t) 0x01, d1[1]);
-    ASSERT_EQ((uint8_t) 0x01, d1[2]);
+    ASSERT_EQ((uint8_t) 0x01, d1.at(1));
+    ASSERT_EQ((uint8_t) 0x01, d1.at(2));
 
     d1.write(3, (uint32_t) 20);
     ASSERT_EQ(3 + 4, d1.size());
-    ASSERT_EQ(20u >> 24u, d1[3]);
-    ASSERT_EQ(20u >> 16u, d1[4]);
-    ASSERT_EQ(20u >> 8u, d1[5]);
-    ASSERT_EQ(20u & 0xFFu, d1[6]);
+    ASSERT_EQ(20u >> 24u, d1.at(3));
+    ASSERT_EQ(20u >> 16u, d1.at(4));
+    ASSERT_EQ(20u >> 8u, d1.at(5));
+    ASSERT_EQ(20u & 0xFFu, d1.at(6));
 
     d1.write(7, (uint64_t) 40ULL);
     ASSERT_EQ(3 + 4 + 8, d1.size());
-    ASSERT_EQ(40ULL >> 56u, d1[7]);
-    ASSERT_EQ(40ULL >> 48u, d1[8]);
-    ASSERT_EQ(40ULL >> 40u, d1[9]);
-    ASSERT_EQ(40ULL >> 32u, d1[10]);
-    ASSERT_EQ(40ULL >> 24u, d1[11]);
-    ASSERT_EQ(40ULL >> 16u, d1[12]);
-    ASSERT_EQ(40ULL >> 8u, d1[13]);
-    ASSERT_EQ(40ULL & 0xFFu, d1[14]);
+    ASSERT_EQ(40ULL >> 56u, d1.at(7));
+    ASSERT_EQ(40ULL >> 48u, d1.at(8));
+    ASSERT_EQ(40ULL >> 40u, d1.at(9));
+    ASSERT_EQ(40ULL >> 32u, d1.at(10));
+    ASSERT_EQ(40ULL >> 24u, d1.at(11));
+    ASSERT_EQ(40ULL >> 16u, d1.at(12));
+    ASSERT_EQ(40ULL >> 8u, d1.at(13));
+    ASSERT_EQ(40ULL & 0xFFu, d1.at(14));
 
     size_t n = d1.size();
     std::vector<uint8_t> tmp1{0x0, 0x01, 0x02, 0x03};
     d1.write(15, tmp1);
 
     ASSERT_EQ(n + tmp1.size(), d1.size());
-    ASSERT_EQ(0x00u, d1[15]);
-    ASSERT_EQ(0x01u, d1[16]);
-    ASSERT_EQ(0x02u, d1[17]);
-    ASSERT_EQ(0x03u, d1[18]);
+    ASSERT_EQ(0x00u, d1.at(15));
+    ASSERT_EQ(0x01u, d1.at(16));
+    ASSERT_EQ(0x02u, d1.at(17));
+    ASSERT_EQ(0x03u, d1.at(18));
 
     // 19 items now
     //    size_t s2 = n + tmp1.size();
@@ -63,14 +63,14 @@ TEST(BytesData, Write) {
     d1.write(10, tmp2);
 
     ASSERT_EQ(74, d1.size());
-    ASSERT_EQ(0xFFu, d1[10]);
-    ASSERT_EQ(0xFFu, d1[73]);
+    ASSERT_EQ(0xFFu, d1.at(10));
+    ASSERT_EQ(0xFFu, d1.at(73));
 
     // now replace tail with new data
     d1.write_tail(10, tmp2);
     ASSERT_EQ(74, d1.size());
-    ASSERT_EQ(0xFFu, d1[10]);
-    ASSERT_EQ(0xFFu, d1[73]);
+    ASSERT_EQ(0xFFu, d1.at(10));
+    ASSERT_EQ(0xFFu, d1.at(73));
     // now we've removed old tail with new
     // scheme:
     // [ 0 - 18 old data ]
@@ -100,7 +100,7 @@ TEST(BytesData, Write) {
     d1.write(0, d2);
     ASSERT_EQ(d1.size(), d2.size());
     for (size_t i = 0; i < d1.size(); i++) {
-        ASSERT_EQ(d1[i], d2[i]);
+        ASSERT_EQ(d1.at(i), d2.at(i));
     }
 
     d1.clear();
@@ -115,7 +115,7 @@ TEST(BytesData, Write) {
     d1.write(0, d3);
     ASSERT_EQ(d1.size(), d3.size());
     for (size_t i = 0; i < d1.size(); i++) {
-        ASSERT_EQ(d1[i], d3[i]);
+        ASSERT_EQ(d1.at(i), d3.at(i));
     }
 
     bytes_data d4 = d1;
@@ -124,7 +124,7 @@ TEST(BytesData, Write) {
     d1.write(0, std::move(d3));
     ASSERT_EQ(d1.size(), d3.size());
     for (size_t i = 0; i < d1.size(); i++) {
-        ASSERT_EQ(d1[i], d3[i]);
+        ASSERT_EQ(d1.at(i), d3.at(i));
     }
 }
 
@@ -142,10 +142,10 @@ TEST(BytesData, Resize) {
     ASSERT_EQ(16, target.size());
     d.resize(16);
     ASSERT_EQ(16, d.size());
-    ASSERT_EQ(0xFF_byte, target[0]);
-    ASSERT_EQ(0xFF_byte, target[15]);
-    ASSERT_EQ(0x7F_byte, d[0]);
-    ASSERT_EQ(0x7F_byte, d[15]);
+    ASSERT_EQ(0xFF_byte, target.at(0));
+    ASSERT_EQ(0xFF_byte, target.at(15));
+    ASSERT_EQ(0x7F_byte, d.at(0));
+    ASSERT_EQ(0x7F_byte, d.at(15));
 }
 
 TEST(BytesData, PopBackTo) {
@@ -161,10 +161,10 @@ TEST(BytesData, PopBackTo) {
     d.pop_back_to(target);
     ASSERT_EQ(16, target.size());
     ASSERT_EQ(16, d.size());
-    ASSERT_EQ(0xFF_byte, target[0]);
-    ASSERT_EQ(0xFF_byte, target[15]);
-    ASSERT_EQ(0x7F_byte, d[0]);
-    ASSERT_EQ(0x7F_byte, d[15]);
+    ASSERT_EQ(0xFF_byte, target.at(0));
+    ASSERT_EQ(0xFF_byte, target.at(15));
+    ASSERT_EQ(0x7F_byte, d.at(0));
+    ASSERT_EQ(0x7F_byte, d.at(15));
 
     bytes_data target2(8);
     d.pop_back_to(8, target2);
@@ -175,9 +175,9 @@ TEST(BytesData, PopBackTo) {
     d.pop_back_to(target3);
     ASSERT_EQ(0, d.size());
     ASSERT_EQ(16, target3.size());
-    ASSERT_EQ(0x7F_byte, target3[0]);
-    ASSERT_EQ(0x7F_byte, target3[7]);
-    ASSERT_EQ(0x00_byte, target3[15]);
+    ASSERT_EQ(0x7F_byte, target3.at(0));
+    ASSERT_EQ(0x7F_byte, target3.at(7));
+    ASSERT_EQ(0x00_byte, target3.at(15));
 }
 
 TEST(BytesData, InsertIterator) {
@@ -208,20 +208,20 @@ TEST(BytesData, PushBackIterators) {
     d.resize(0);
     d.push_back(src.begin(), src.end());
     ASSERT_EQ(4, d.size());
-    ASSERT_EQ(5, d[0]);
-    ASSERT_EQ(6, d[1]);
-    ASSERT_EQ(7, d[2]);
-    ASSERT_EQ(8, d[3]);
+    ASSERT_EQ(5, d.at(0));
+    ASSERT_EQ(6, d.at(1));
+    ASSERT_EQ(7, d.at(2));
+    ASSERT_EQ(8, d.at(3));
 
     const auto data3 = src;
     d.clear();
     d.resize(0);
     d.push_back(data3.begin(), data3.end());
     ASSERT_EQ(4, d.size());
-    ASSERT_EQ(5, d[0]);
-    ASSERT_EQ(6, d[1]);
-    ASSERT_EQ(7, d[2]);
-    ASSERT_EQ(8, d[3]);
+    ASSERT_EQ(5, d.at(0));
+    ASSERT_EQ(6, d.at(1));
+    ASSERT_EQ(7, d.at(2));
+    ASSERT_EQ(8, d.at(3));
 
     bytes_data nd;
     nd.push_back(d);
@@ -236,8 +236,8 @@ TEST(BytesData, PushBackIterators) {
 
     d.push_back(another);
     ASSERT_EQ(2, d.size());
-    ASSERT_EQ(0xAA, d[0]);
-    ASSERT_EQ(0xFF, d[1]);
+    ASSERT_EQ(0xAA, d.at(0));
+    ASSERT_EQ(0xFF, d.at(1));
 
     const bytes_data another_move("aaff");
     d.clear();
@@ -245,8 +245,8 @@ TEST(BytesData, PushBackIterators) {
 
     d.push_back(std::move(another));
     ASSERT_EQ(2, d.size());
-    ASSERT_EQ(0xAA, d[0]);
-    ASSERT_EQ(0xFF, d[1]);
+    ASSERT_EQ(0xAA, d.at(0));
+    ASSERT_EQ(0xFF, d.at(1));
 }
 
 TEST(BytesData, WriteBatch) {
@@ -262,34 +262,34 @@ TEST(BytesData, Ranges) {
     std::vector<uint8_t> tmp{1, 2, 3, 4};
     d.push_back(tmp);
 
-    ASSERT_EQ(1, d[0]);
-    ASSERT_EQ(2, d[1]);
-    ASSERT_EQ(3, d[2]);
-    ASSERT_EQ(4, d[3]);
+    ASSERT_EQ(1, d.at(0));
+    ASSERT_EQ(2, d.at(1));
+    ASSERT_EQ(3, d.at(2));
+    ASSERT_EQ(4, d.at(3));
 
     auto slice1 = d.take_first(2);
     ASSERT_EQ(2, slice1.size());
-    ASSERT_EQ(1, slice1[0]);
-    ASSERT_EQ(2, slice1[1]);
+    ASSERT_EQ(1, slice1.at(0));
+    ASSERT_EQ(2, slice1.at(1));
 
     auto slice2 = d.take_last(2);
     ASSERT_EQ(2, slice2.size());
-    ASSERT_EQ(3, slice2[0]);
-    ASSERT_EQ(4, slice2[1]);
+    ASSERT_EQ(3, slice2.at(0));
+    ASSERT_EQ(4, slice2.at(1));
 
     auto slice3 = d.take_range(0, 2);
     ASSERT_EQ(2, slice3.size());
-    ASSERT_EQ(1, slice3[0]);
-    ASSERT_EQ(2, slice3[1]);
+    ASSERT_EQ(1, slice3.at(0));
+    ASSERT_EQ(2, slice3.at(1));
 
     auto slice4 = d.take_range(3, 4);
     ASSERT_EQ(1, slice4.size());
-    ASSERT_EQ(4, slice4[0]);
+    ASSERT_EQ(4, slice4.at(0));
 
     auto slice5 = d.take_range(2, 4);
     ASSERT_EQ(2, slice5.size());
-    ASSERT_EQ(3, slice5[0]);
-    ASSERT_EQ(4, slice5[1]);
+    ASSERT_EQ(3, slice5.at(0));
+    ASSERT_EQ(4, slice5.at(1));
 
     auto slice6 = d.take_range(4, 4);
     ASSERT_EQ(0, slice6.size());
@@ -473,22 +473,22 @@ TEST(BytesData, WriteReadNumber) {
     d.write(2, (uint32_t) UINT32_MAX);
     ASSERT_EQ(0xFFFFFFFFU, UINT32_MAX);
     ASSERT_EQ(32, d.size());
-    ASSERT_EQ(0xFFu, d[2]);
-    ASSERT_EQ(0xFFu, d[3]);
-    ASSERT_EQ(0xFFu, d[4]);
-    ASSERT_EQ(0xFFu, d[5]);
+    ASSERT_EQ(0xFFu, d.at(2));
+    ASSERT_EQ(0xFFu, d.at(3));
+    ASSERT_EQ(0xFFu, d.at(4));
+    ASSERT_EQ(0xFFu, d.at(5));
     ASSERT_EQ(0xFFFFFFFFU, d.to_num<uint32_t>(2));
 
     d.write(6, (uint64_t) UINT64_MAX);
     ASSERT_EQ(32, d.size());
-    ASSERT_EQ(0xFFu, d[6]);
-    ASSERT_EQ(0xFFu, d[7]);
-    ASSERT_EQ(0xFFu, d[8]);
-    ASSERT_EQ(0xFFu, d[9]);
-    ASSERT_EQ(0xFFu, d[10]);
-    ASSERT_EQ(0xFFu, d[11]);
-    ASSERT_EQ(0xFFu, d[12]);
-    ASSERT_EQ(0xFFu, d[13]);
+    ASSERT_EQ(0xFFu, d.at(6));
+    ASSERT_EQ(0xFFu, d.at(7));
+    ASSERT_EQ(0xFFu, d.at(8));
+    ASSERT_EQ(0xFFu, d.at(9));
+    ASSERT_EQ(0xFFu, d.at(10));
+    ASSERT_EQ(0xFFu, d.at(11));
+    ASSERT_EQ(0xFFu, d.at(12));
+    ASSERT_EQ(0xFFu, d.at(13));
     ASSERT_EQ((uint64_t) UINT64_MAX, d.to_num<uint64_t>(6));
 
     d.write(14, (uint8_t) 0xFFu);
@@ -584,22 +584,22 @@ TEST(BytesData, Map) {
     bytes_data d = {0x01_byte, 0x02_byte, 0x01_byte, 0x02_byte};
 
     ASSERT_EQ(4, d.size());
-    ASSERT_EQ(0x01_byte, d[0]);
-    ASSERT_EQ(0x02_byte, d[d.size() - 1]);
+    ASSERT_EQ(0x01_byte, d.at(0));
+    ASSERT_EQ(0x02_byte, d.at(d.size() - 1));
 
     d.map([](uint8_t val) { return (uint8_t)(val * 2); });
 
     ASSERT_EQ(4, d.size());
-    ASSERT_EQ(0x02_byte, d[0]);
-    ASSERT_EQ(0x04_byte, d[d.size() - 1]);
+    ASSERT_EQ(0x02_byte, d.at(0));
+    ASSERT_EQ(0x04_byte, d.at(d.size() - 1));
 }
 
 TEST(BytesData, SwitchMap) {
     bytes_data d = {0x01_byte, 0x02_byte, 0x01_byte, 0x02_byte};
 
     ASSERT_EQ(4, d.size());
-    ASSERT_EQ(0x01_byte, d[0]);
-    ASSERT_EQ(0x02_byte, d[d.size() - 1]);
+    ASSERT_EQ(0x01_byte, d.at(0));
+    ASSERT_EQ(0x02_byte, d.at(d.size() - 1));
 
     d.switch_map([](std::vector<uint8_t> old) {
         std::vector<uint8_t> out;
@@ -610,16 +610,16 @@ TEST(BytesData, SwitchMap) {
     });
 
     ASSERT_EQ(4, d.size());
-    ASSERT_EQ(0x04_byte, d[0]);
-    ASSERT_EQ(0x08_byte, d[d.size() - 1]);
+    ASSERT_EQ(0x04_byte, d.at(0));
+    ASSERT_EQ(0x08_byte, d.at(d.size() - 1));
 }
 
 TEST(BytesData, SwitchMapReduce) {
     bytes_data d = {0x01_byte, 0x02_byte, 0x01_byte, 0x02_byte};
 
     ASSERT_EQ(4, d.size());
-    ASSERT_EQ(0x01_byte, d[0]);
-    ASSERT_EQ(0x02_byte, d[d.size() - 1]);
+    ASSERT_EQ(0x01_byte, d.at(0));
+    ASSERT_EQ(0x02_byte, d.at(d.size() - 1));
 
     d.switch_map([](std::vector<uint8_t> old) {
         std::vector<uint8_t> out;
@@ -630,16 +630,16 @@ TEST(BytesData, SwitchMapReduce) {
     });
 
     ASSERT_EQ(2, d.size());
-    ASSERT_EQ(0x04_byte, d[0]);
-    ASSERT_EQ(0x08_byte, d[d.size() - 1]);
+    ASSERT_EQ(0x04_byte, d.at(0));
+    ASSERT_EQ(0x08_byte, d.at(d.size() - 1));
 }
 
 TEST(BytesData, SwitchMapCopy) {
     bytes_data d = {0x01_byte, 0x02_byte, 0x01_byte, 0x02_byte};
 
     ASSERT_EQ(4, d.size());
-    ASSERT_EQ(0x01_byte, d[0]);
-    ASSERT_EQ(0x02_byte, d[3]);
+    ASSERT_EQ(0x01_byte, d.at(0));
+    ASSERT_EQ(0x02_byte, d.at(3));
 
     auto res = d.switch_map_c([](std::vector<uint8_t> old) {
         std::vector<uint8_t> out(old.size());
@@ -651,16 +651,16 @@ TEST(BytesData, SwitchMapCopy) {
     });
 
     ASSERT_EQ(4, res.size());
-    ASSERT_EQ(0x02_byte, res[0]);
-    ASSERT_EQ(0x04_byte, res[1]);
-    ASSERT_EQ(0x02_byte, res[2]);
-    ASSERT_EQ(0x04_byte, res[3]);
+    ASSERT_EQ(0x02_byte, res.at(0));
+    ASSERT_EQ(0x04_byte, res.at(1));
+    ASSERT_EQ(0x02_byte, res.at(2));
+    ASSERT_EQ(0x04_byte, res.at(3));
 
     ASSERT_EQ(4, d.size());
-    ASSERT_EQ(0x01_byte, d[0]);
-    ASSERT_EQ(0x02_byte, d[1]);
-    ASSERT_EQ(0x01_byte, d[2]);
-    ASSERT_EQ(0x02_byte, d[3]);
+    ASSERT_EQ(0x01_byte, d.at(0));
+    ASSERT_EQ(0x02_byte, d.at(1));
+    ASSERT_EQ(0x01_byte, d.at(2));
+    ASSERT_EQ(0x02_byte, d.at(3));
 }
 
 TEST(BytesData, MapToStrings) {
@@ -681,12 +681,12 @@ TEST(BytesData, InitializerVectors) {
         {0x1, 0x1, 0x1, 'b'}};
 
     ASSERT_EQ(8, d.size());
-    ASSERT_EQ(0x0, d[0]);
-    ASSERT_EQ(0x0, d[2]);
-    ASSERT_EQ('a', d[3]);
-    ASSERT_EQ(0x1, d[4]);
-    ASSERT_EQ(0x1, d[6]);
-    ASSERT_EQ('b', d[7]);
+    ASSERT_EQ(0x0, d.at(0));
+    ASSERT_EQ(0x0, d.at(2));
+    ASSERT_EQ('a', d.at(3));
+    ASSERT_EQ(0x1, d.at(4));
+    ASSERT_EQ(0x1, d.at(6));
+    ASSERT_EQ('b', d.at(7));
 }
 
 TEST(BytesData, Filter) {
@@ -697,19 +697,19 @@ TEST(BytesData, Filter) {
 
     d.filter(filter_no_zeroes);
     ASSERT_EQ(1, d.size());
-    ASSERT_EQ(0x1, d[0]);
+    ASSERT_EQ(0x1, d.at(0));
 
     bytes_data d2 = {0x1, 0x0, 0x1, 0x0};
     bytes_data res = d2.filter_c(filter_no_zeroes);
     ASSERT_EQ(4, d2.size());
-    ASSERT_EQ(0x1, d2[0]);
-    ASSERT_EQ(0x0, d2[1]);
-    ASSERT_EQ(0x1, d2[2]);
-    ASSERT_EQ(0x0, d2[3]);
+    ASSERT_EQ(0x1, d2.at(0));
+    ASSERT_EQ(0x0, d2.at(1));
+    ASSERT_EQ(0x1, d2.at(2));
+    ASSERT_EQ(0x0, d2.at(3));
 
     ASSERT_EQ(2, res.size());
-    ASSERT_EQ(0x1, res[0]);
-    ASSERT_EQ(0x1, res[1]);
+    ASSERT_EQ(0x1, res.at(0));
+    ASSERT_EQ(0x1, res.at(1));
 }
 
 TEST(BytesData, Base64Transform) {
@@ -741,9 +741,9 @@ TEST(BytesData, InputStream) {
     ss >> d;
 
     ASSERT_EQ(3, d.size());
-    ASSERT_EQ('a', d[0]);
-    ASSERT_EQ('b', d[1]);
-    ASSERT_EQ('c', d[2]);
+    ASSERT_EQ('a', d.at(0));
+    ASSERT_EQ('b', d.at(1));
+    ASSERT_EQ('c', d.at(2));
 }
 
 TEST(BytesData, ConverterToString) {
@@ -757,10 +757,10 @@ TEST(BytesData, FromUint8PointerArray) {
     bytes_data data(val, 4);
 
     ASSERT_EQ(4, data.size());
-    ASSERT_EQ('a', data[0]);
-    ASSERT_EQ('b', data[1]);
-    ASSERT_EQ('c', data[2]);
-    ASSERT_EQ('d', data[3]);
+    ASSERT_EQ('a', data.at(0));
+    ASSERT_EQ('b', data.at(1));
+    ASSERT_EQ('c', data.at(2));
+    ASSERT_EQ('d', data.at(3));
 }
 
 TEST(BytesData, FromCharPointerArray) {
@@ -768,10 +768,10 @@ TEST(BytesData, FromCharPointerArray) {
     bytes_data data = bytes_data::from_chars(val, sizeof(val));
 
     ASSERT_EQ(4, data.size());
-    ASSERT_EQ('a', data[0]);
-    ASSERT_EQ('b', data[1]);
-    ASSERT_EQ('c', data[2]);
-    ASSERT_EQ('d', data[3]);
+    ASSERT_EQ('a', data.at(0));
+    ASSERT_EQ('b', data.at(1));
+    ASSERT_EQ('c', data.at(2));
+    ASSERT_EQ('d', data.at(3));
 }
 
 TEST(BytesData, FromCharVector) {
@@ -779,22 +779,22 @@ TEST(BytesData, FromCharVector) {
     bytes_data data = bytes_data::from_chars(val);
 
     ASSERT_EQ(4, data.size());
-    ASSERT_EQ('a', data[0]);
-    ASSERT_EQ('b', data[1]);
-    ASSERT_EQ('c', data[2]);
-    ASSERT_EQ('d', data[3]);
+    ASSERT_EQ('a', data.at(0));
+    ASSERT_EQ('b', data.at(1));
+    ASSERT_EQ('c', data.at(2));
+    ASSERT_EQ('d', data.at(3));
 }
 
 TEST(BytesData, FromHexCString) {
     const char* hex = "aaaabbbbcccc";
     bytes_data d(hex);
     ASSERT_EQ(6, d.size());
-    ASSERT_EQ(0xAA, d[0]);
-    ASSERT_EQ(0xAA, d[1]);
-    ASSERT_EQ(0xBB, d[2]);
-    ASSERT_EQ(0xBB, d[3]);
-    ASSERT_EQ(0xCC, d[4]);
-    ASSERT_EQ(0xCC, d[5]);
+    ASSERT_EQ(0xAA, d.at(0));
+    ASSERT_EQ(0xAA, d.at(1));
+    ASSERT_EQ(0xBB, d.at(2));
+    ASSERT_EQ(0xBB, d.at(3));
+    ASSERT_EQ(0xCC, d.at(4));
+    ASSERT_EQ(0xCC, d.at(5));
 
     ASSERT_STREQ(hex, d.to_hex().c_str());
 }
@@ -803,12 +803,12 @@ TEST(BytesData, FromHexString) {
     const std::string hex = "aaaabbbbcccc";
     bytes_data d(hex);
     ASSERT_EQ(6, d.size());
-    ASSERT_EQ(0xAA, d[0]);
-    ASSERT_EQ(0xAA, d[1]);
-    ASSERT_EQ(0xBB, d[2]);
-    ASSERT_EQ(0xBB, d[3]);
-    ASSERT_EQ(0xCC, d[4]);
-    ASSERT_EQ(0xCC, d[5]);
+    ASSERT_EQ(0xAA, d.at(0));
+    ASSERT_EQ(0xAA, d.at(1));
+    ASSERT_EQ(0xBB, d.at(2));
+    ASSERT_EQ(0xBB, d.at(3));
+    ASSERT_EQ(0xCC, d.at(4));
+    ASSERT_EQ(0xCC, d.at(5));
 
     ASSERT_STREQ(hex.c_str(), d.to_hex().c_str());
 }
@@ -818,7 +818,7 @@ TEST(BytesData, WriteBackInt8) {
     d.write_back((uint8_t) 100);
 
     ASSERT_EQ(1, d.size());
-    ASSERT_EQ((uint8_t) 100, d[0]);
+    ASSERT_EQ((uint8_t) 100, d.at(0));
 }
 
 TEST(BytesData, WriteBackInt16) {
@@ -826,8 +826,8 @@ TEST(BytesData, WriteBackInt16) {
     d.write_back((uint16_t) 100);
 
     ASSERT_EQ(2, d.size());
-    ASSERT_EQ((uint8_t) 0, d[0]);
-    ASSERT_EQ((uint8_t) 100, d[1]);
+    ASSERT_EQ((uint8_t) 0, d.at(0));
+    ASSERT_EQ((uint8_t) 100, d.at(1));
 }
 
 TEST(BytesData, WriteBackInt32) {
@@ -851,11 +851,11 @@ TEST(BytesData, PushBackSingleChar) {
     d.push_back('w');
 
     ASSERT_EQ(1, d.size());
-    ASSERT_EQ('w', d[0]);
+    ASSERT_EQ('w', d.at(0));
 
     d.push_back('o');
     ASSERT_EQ(2, d.size());
-    ASSERT_EQ('o', d[1]);
+    ASSERT_EQ('o', d.at(1));
 }
 
 TEST(BytesData, PushBackInt16) {
@@ -863,8 +863,8 @@ TEST(BytesData, PushBackInt16) {
     d.push_back((uint16_t) 100);
 
     ASSERT_EQ(2, d.size());
-    ASSERT_EQ((uint8_t) 0, d[0]);
-    ASSERT_EQ((uint8_t) 100, d[1]);
+    ASSERT_EQ((uint8_t) 0, d.at(0));
+    ASSERT_EQ((uint8_t) 100, d.at(1));
 }
 
 TEST(BytesData, PushBackInt32) {
