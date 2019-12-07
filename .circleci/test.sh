@@ -3,6 +3,6 @@
 set -e
 
 mkdir _build && cd _build
-cmake .. -DCMAKE_BUILD_TYPE=Debug -DWITH_TEST=On
-cmake --build . --target toolboxtest
-./toolboxtest
+cmake .. -DCMAKE_BUILD_TYPE=Debug -DENABLE_TOOLBOX_TEST=On -DWITH_COVERAGE=On
+cmake --build . --target toolbox-test
+./toolbox-test

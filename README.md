@@ -75,8 +75,8 @@ cmake --build . --target install
 ```bash
 git clone https://github.com/edwardstock/toolbox.git toolbox && cd toolbox/build
 cmake .. -DCMAKE_BUILD_TYPE=Debug -DENABLE_TEST=On
-cmake --build . --target toolboxtest
-./bin/toolboxtest
+cmake --build . --target toolbox-test
+./toolbox-test
 ```
 
 ## Build with CLang on linux
