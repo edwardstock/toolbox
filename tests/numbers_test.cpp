@@ -1,15 +1,15 @@
 /*! 
- * toolboxpp. 2017
+ * toolbox. 2017
  * 
  * \author Eduard Maximovich <edward.vstock@gmail.com>
  * \link https://github.com/edwardstock
  */
 
 #include "gtest/gtest.h"
-#include "toolboxpp.hpp"
+#include <toolbox/strings/decimal_formatter.h>
 
 #ifdef HAVE_REGEX_H
-using namespace toolboxpp::numbers;
+using namespace toolbox::numbers;
 
 TEST(Numbers, IsReal) {
     std::string num1 = "256.464646958";
@@ -54,7 +54,7 @@ TEST(Numbers, IsInteger) {
 #endif
 
 TEST(Numbers, DecimalFormatter) {
-    toolboxpp::numbers::decimal_formatter form("1567948125.105");
+    toolbox::strings::decimal_formatter form("1567948125.105");
 
     form.set_delimiter('\'');
     form.set_min_fractions(4);
@@ -67,7 +67,7 @@ TEST(Numbers, DecimalFormatter) {
 }
 
 TEST(Numbers, DecimalFormatterFractions) {
-    toolboxpp::numbers::decimal_formatter form("1567948125.10203040506070809080706050");
+    toolbox::strings::decimal_formatter form("1567948125.10203040506070809080706050");
 
     form.set_delimiter('\'');
     form.set_min_fractions(4);
@@ -77,13 +77,13 @@ TEST(Numbers, DecimalFormatterFractions) {
 }
 
 TEST(Numbers, SimpleFormatter) {
-    ASSERT_STREQ("1 567 948 125.1050", toolboxpp::numbers::decimal_formatter()("1567948125.105").c_str());
+    ASSERT_STREQ("1 567 948 125.1050", toolbox::strings::decimal_formatter()("1567948125.105").c_str());
 }
 
 TEST(Numbers, SimpleFormatterMinFracts) {
-    ASSERT_STREQ("1 567 948 125.1000", toolboxpp::numbers::decimal_formatter()("1567948125.1").c_str());
+    ASSERT_STREQ("1 567 948 125.1000", toolbox::strings::decimal_formatter()("1567948125.1").c_str());
 }
 
 TEST(Numbers, SimpleFormatterNoFractions) {
-    ASSERT_STREQ("1 567 948 125.0000", toolboxpp::numbers::decimal_formatter()("1567948125").c_str());
+    ASSERT_STREQ("1 567 948 125.0000", toolbox::strings::decimal_formatter()("1567948125").c_str());
 }

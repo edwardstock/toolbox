@@ -1,6 +1,7 @@
 import os
 from conans import ConanFile, CMake, tools
 
+
 def get_version():
     with open(os.path.join(os.path.dirname(__file__), 'version'), 'r') as f:
         content = f.read()
@@ -10,25 +11,27 @@ def get_version():
             pass
         return content.strip()
 
-class ToolboxppConan(ConanFile):
-    name = "toolboxpp"
+
+class ToolboxConan(ConanFile):
+    name = "toolbox"
     version = get_version()
     license = "MIT"
     author = "Eduard Maximovich edward.vstock@gmail.com"
-    url = "https://github.com/edwardstock/toolboxpp"
+    url = "https://github.com/edwardstock/toolbox"
     description = "Lightweight everyday C++ helpers"
-    topics = ("cpp-helpers", "helpers", "header-only", "lightweight")
+    topics = ("cpp-helpers", "helpers")
     generators = "cmake"
     exports = "version"
     exports_sources = (
-        "cmakes/*",
+        "cfg/*",
+        "modules/*",
         "options.cmake",
         "include/*",
         "tests/*",
         "src/*",
         "CMakeLists.txt",
         "conanfile.py",
-        "LICENSE.md",
+        "LICENSE",
         "README.md"
     )
     build_requires = (
@@ -37,17 +40,31 @@ class ToolboxppConan(ConanFile):
 
     def source(self):
         if "CONAN_LOCAL" not in os.environ:
-            git = tools.Git(folder="toolboxpp")
-            git.clone("https://github.com/edwardstock/toolboxpp.git", "master")
+            git = tools.Git(folder="toolbox")
+            git.clone("https://github.com/edwardstock/toolbox.git", "master")
+
+    def build(self):
+        cmake = CMake(self)
+        cmake.configure(defs={'CMAKE_BUILD_TYPE': self.options["build_type"]})
+        cmake.build(target="toolbox")
 
     def package(self):
-        self.copy("*.hpp", dst="include", src="include")
+        self.copy("*", dst="include", src="include", keep_path=True)
+        self.copy("*.lib", dst="lib", keep_path=False)
+        self.copy("*.dll", dst="lib", keep_path=False)
+        self.copy("*.dll.a", dst="lib", keep_path=False)
+        self.copy("*.exp", dst="lib", keep_path=False)
+        self.copy("*.ilk", dst="lib", keep_path=False)
+        self.copy("*.pdb", dst="lib", keep_path=False)
+        self.copy("*.so", dst="lib", keep_path=False)
+        self.copy("*.dylib", dst="lib", keep_path=False)
+        self.copy("*.a", dst="lib", keep_path=False)
 
-    def package_id(self):
-        self.info.header_only()
+    def package_info(self):
+        self.cpp_info.libs = self.collect_libs(folder="lib")
 
     def test(self):
         cmake = CMake(self)
-        cmake.configure([], {'WITH_TEST': 'On'})
-        cmake.build([], None, "toolboxtest")
-        self.run("bin/toolboxtest")
+        cmake.configure([], {'ENABLE_TOOLBOX_TEST': 'On'})
+        cmake.build([], None, "toolbox-test")
+        self.run("bin/toolbox-test")

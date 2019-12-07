@@ -1,0 +1,20 @@
+/*!
+ * toolbox.
+ * toolbox_config.h
+ *
+ * \date 11/30/2019
+ * \author Eduard Maximovich (edward.vstock@gmail.com)
+ * \link   https://github.com/edwardstock
+ */
+
+#ifndef TOOLBOXPP_TOOLBOX_CONFIG_H
+#define TOOLBOXPP_TOOLBOX_CONFIG_H
+
+#cmakedefine HAVE_IOSFWD_H 1
+#cmakedefine HAVE_MUTEX_H 1
+#cmakedefine HAVE_REGEX_H 1
+#cmakedefine HAVE_EXCEPTION_H 1
+#cmakedefine HAVE_TERMIOS_H 1
+#cmakedefine HAVE_UNISTD_H 1
+
+#endif // TOOLBOXPP_TOOLBOX_CONFIG_H

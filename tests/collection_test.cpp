@@ -1,14 +1,14 @@
 /*! 
- * toolboxpp. 2017
+ * toolbox. 2017
  * 
  * \author Eduard Maximovich <edward.vstock@gmail.com>
  * \link https://github.com/edwardstock
  */
-#include <iostream>
 #include "gtest/gtest.h"
-#include "toolboxpp.hpp"
+#include <iostream>
+#include <toolbox/collections.h>
 
-using namespace toolboxpp::collection;
+using namespace toolbox::collections;
 
 TEST(Collections, MapToKeys) {
     std::map<int, int> m{
@@ -18,7 +18,7 @@ TEST(Collections, MapToKeys) {
     };
     std::vector<int> keys;
 
-    keys = mapKeysToVector(m);
+    keys = map_keys_to_vector(m);
 
     ASSERT_EQ(keys[0], 1);
     ASSERT_EQ(keys[1], 3);
@@ -33,7 +33,7 @@ TEST(Collections, UnorderedMapToKeys) {
     };
     std::vector<int> keys;
 
-    keys = mapKeysToVector(m);
+    keys = map_keys_to_vector(m);
 
     std::vector<int> keysMustExists{
         1, 3, 5
@@ -61,7 +61,7 @@ TEST(Collections, MultimapToKeys) {
     };
     std::vector<int> keys;
 
-    keys = mapKeysToVector(m);
+    keys = map_keys_to_vector(m);
 
     std::vector<int> keysMustExists{
         1, 3, 5
@@ -89,7 +89,7 @@ TEST(Collections, MapToValues) {
     };
     std::vector<int> values;
 
-    values = mapValuesToVector(m);
+    values = map_vals_to_vector(m);
 
     ASSERT_EQ(values[0], 2);
     ASSERT_EQ(values[1], 4);

@@ -12,7 +12,7 @@ jobs:
       - run: pip3 install conan
       - run: conan remote add edwardstock https://api.bintray.com/conan/edwardstock/conan-public
       - run: conan user -p $BINTRAY_API_KEY -r edwardstock edwardstock
-      - run: git clone --recursive https://github.com/edwardstock/toolboxpp .
+      - run: git clone --recursive https://github.com/edwardstock/toolbox .
       - run: $(which bash) .circleci/setup.sh
       - run: $(which bash) .circleci/test.sh
       - run: $(which bash) .circleci/deploy.sh

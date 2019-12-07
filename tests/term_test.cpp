@@ -1,25 +1,24 @@
 /*!
- * toolboxpp. 2017
+ * toolbox. 2017
  *
  * \author Eduard Maximovich <edward.vstock@gmail.com>
  * \link https://github.com/edwardstock
  */
 
-#include <string>
-#include <iostream>
 #include "gtest/gtest.h"
-#include "toolboxpp.hpp"
+#include <iostream>
+#include <string>
+#include <toolbox/term.h>
 
-using namespace toolboxpp::console;
+using namespace toolbox::term;
 
-TEST(ToolboxConsole, ConfirmAnwserNo) {
+TEST(Term, ConfirmAnwserNo) {
     std::istringstream input1("no");
     std::ostringstream output1;
 
     bool result1 = confirm(input1, output1, "Wanna pizza?", false);
     ASSERT_FALSE(result1);
     ASSERT_STREQ("Wanna pizza? (yes|no) [no]: ", output1.str().c_str());
-
 
     // empty value means default value
     std::istringstream input2("");
@@ -29,7 +28,7 @@ TEST(ToolboxConsole, ConfirmAnwserNo) {
     ASSERT_STREQ("Wanna pizza? (yes|no) [yes]: ", output2.str().c_str());
 }
 
-TEST(ToolboxConsole, ConfirmAnwserYes) {
+TEST(Term, ConfirmAnwserYes) {
     std::istringstream input("yes");
     std::ostringstream output;
 
@@ -39,12 +38,12 @@ TEST(ToolboxConsole, ConfirmAnwserYes) {
     ASSERT_STREQ("Wanna pizza? (yes|no) [no]: ", output.str().c_str());
 }
 
-TEST(ToolboxConsole, ConfirmAnwserNotAYesAndNotANo) {
+TEST(Term, ConfirmAnwserNotAYesAndNotANo) {
     // i have no idea, how to test it
     ASSERT_TRUE(true);
 }
 
-TEST(ToolboxConsole, PromptPizzaContains) {
+TEST(Term, PromptPizzaContains) {
 
     std::string defaultStuffing = "ok, i'll take with Pepperoni";
 

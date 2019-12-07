@@ -2,13 +2,17 @@
 // Created by edward on 13.11.2019.
 //
 
+#include <fstream>
 #include <gtest/gtest.h>
-#include "toolboxpp.hpp"
+#include <stack>
+#include <toolbox/data.hpp>
+#include <toolbox/data/literals.h>
+#include <toolbox/data/transformers.h>
 
-using namespace toolboxpp::data;
-using namespace toolboxpp::data::literals;
+using namespace toolbox::data;
+using namespace toolbox::data::literals;
 
-TEST(ByteData, Write) {
+TEST(BytesData, Write) {
     bytes_data d1;
     d1.write(0, (uint8_t) 0x05);
     ASSERT_EQ(1, d1.size());
@@ -40,6 +44,7 @@ TEST(ByteData, Write) {
     size_t n = d1.size();
     std::vector<uint8_t> tmp1{0x0, 0x01, 0x02, 0x03};
     d1.write(15, tmp1);
+
     ASSERT_EQ(n + tmp1.size(), d1.size());
     ASSERT_EQ(0x00u, d1[15]);
     ASSERT_EQ(0x01u, d1[16]);
@@ -47,12 +52,10 @@ TEST(ByteData, Write) {
     ASSERT_EQ(0x03u, d1[18]);
 
     // 19 items now
-//    size_t s2 = n + tmp1.size();
+    //    size_t s2 = n + tmp1.size();
 
     std::vector<uint8_t> tmp2(64);
-    std::for_each(tmp2.begin(), tmp2.end(), [](uint8_t &v) {
-      v = 0xFFu;
-    });
+    std::for_each(tmp2.begin(), tmp2.end(), [](uint8_t& v) { v = 0xFFu; });
 
     ASSERT_EQ(64, tmp2.size());
 
@@ -73,7 +76,7 @@ TEST(ByteData, Write) {
     // [ 0 - 18 old data ]
     // we're inserted into the 10 index 64 bytes, and now we have
     // [ 0 - 9 old data, 10 - 73 new 64 bytes data ]
-    // and size of ByteData was changed to 74
+    // and size of BytesData was changed to 74
 
     uint8_t t2[4] = {1, 2, 3, 4};
     d1.push_back(t2, 4);
@@ -91,13 +94,38 @@ TEST(ByteData, Write) {
     ASSERT_EQ(3, d1.at(76));
     ASSERT_EQ(4, d1.at(77));
 
-    bool threw = false;
-    try {
-        d1.write(150, t2, 4);
-    } catch (const std::out_of_range &e) {
-        threw = true;
+    const bytes_data d2 = d1;
+    d1.clear();
+    d1.resize(0);
+    d1.write(0, d2);
+    ASSERT_EQ(d1.size(), d2.size());
+    for (size_t i = 0; i < d1.size(); i++) {
+        ASSERT_EQ(d1[i], d2[i]);
     }
-    ASSERT_TRUE(threw);
+
+    d1.clear();
+    d1.resize(0);
+
+    // write over size, container automatically resize backend to new size
+    d1.write(150, t2, 4);
+
+    bytes_data d3 = d1;
+    d1.clear();
+    d1.resize(0);
+    d1.write(0, d3);
+    ASSERT_EQ(d1.size(), d3.size());
+    for (size_t i = 0; i < d1.size(); i++) {
+        ASSERT_EQ(d1[i], d3[i]);
+    }
+
+    bytes_data d4 = d1;
+    d1.clear();
+    d1.resize(0);
+    d1.write(0, std::move(d3));
+    ASSERT_EQ(d1.size(), d3.size());
+    for (size_t i = 0; i < d1.size(); i++) {
+        ASSERT_EQ(d1[i], d3[i]);
+    }
 }
 
 TEST(BytesData, Resize) {
@@ -108,7 +136,6 @@ TEST(BytesData, Resize) {
         } else {
             d.write(i, (uint8_t) 0xFF);
         }
-
     }
 
     bytes_data target(d.take_range_from(d.size() / 2));
@@ -119,7 +146,6 @@ TEST(BytesData, Resize) {
     ASSERT_EQ(0xFF_byte, target[15]);
     ASSERT_EQ(0x7F_byte, d[0]);
     ASSERT_EQ(0x7F_byte, d[15]);
-
 }
 
 TEST(BytesData, PopBackTo) {
@@ -130,7 +156,6 @@ TEST(BytesData, PopBackTo) {
         } else {
             d.write(i, (uint8_t) 0xFF);
         }
-
     }
     bytes_data target(16);
     d.pop_back_to(target);
@@ -153,10 +178,9 @@ TEST(BytesData, PopBackTo) {
     ASSERT_EQ(0x7F_byte, target3[0]);
     ASSERT_EQ(0x7F_byte, target3[7]);
     ASSERT_EQ(0x00_byte, target3[15]);
-
 }
 
-TEST(ByteData, InsertIterator) {
+TEST(BytesData, InsertIterator) {
     bytes_data d;
     std::vector<uint8_t> data{1, 2, 3, 4};
     size_t n = 0;
@@ -177,7 +201,63 @@ TEST(ByteData, InsertIterator) {
     ASSERT_EQ(32, d.size());
 }
 
-TEST(ByteData, Ranges) {
+TEST(BytesData, PushBackIterators) {
+    bytes_data d;
+    std::vector<uint8_t> src{5, 6, 7, 8};
+    d.clear();
+    d.resize(0);
+    d.push_back(src.begin(), src.end());
+    ASSERT_EQ(4, d.size());
+    ASSERT_EQ(5, d[0]);
+    ASSERT_EQ(6, d[1]);
+    ASSERT_EQ(7, d[2]);
+    ASSERT_EQ(8, d[3]);
+
+    const auto data3 = src;
+    d.clear();
+    d.resize(0);
+    d.push_back(data3.begin(), data3.end());
+    ASSERT_EQ(4, d.size());
+    ASSERT_EQ(5, d[0]);
+    ASSERT_EQ(6, d[1]);
+    ASSERT_EQ(7, d[2]);
+    ASSERT_EQ(8, d[3]);
+
+    bytes_data nd;
+    nd.push_back(d);
+
+    ASSERT_EQ(d.size(), nd.size());
+    ASSERT_EQ(d, nd);
+    ASSERT_TRUE(d == nd);
+
+    const bytes_data another("aaff");
+    d.clear();
+    d.resize(0);
+
+    d.push_back(another);
+    ASSERT_EQ(2, d.size());
+    ASSERT_EQ(0xAA, d[0]);
+    ASSERT_EQ(0xFF, d[1]);
+
+    const bytes_data another_move("aaff");
+    d.clear();
+    d.resize(0);
+
+    d.push_back(std::move(another));
+    ASSERT_EQ(2, d.size());
+    ASSERT_EQ(0xAA, d[0]);
+    ASSERT_EQ(0xFF, d[1]);
+}
+
+TEST(BytesData, WriteBatch) {
+    bytes_data d;
+    std::map<size_t, uint8_t> empty_data;
+
+    d.write_batch(std::move(empty_data));
+    ASSERT_EQ(0, d.size());
+}
+
+TEST(BytesData, Ranges) {
     bytes_data d;
     std::vector<uint8_t> tmp{1, 2, 3, 4};
     d.push_back(tmp);
@@ -218,7 +298,7 @@ TEST(ByteData, Ranges) {
     try {
         auto slice7 = d.take_range(5, 4);
         ASSERT_EQ(0, slice7.size());
-    } catch (const std::out_of_range &e) {
+    } catch (const std::out_of_range& e) {
         s7threw = true;
     }
     ASSERT_TRUE(s7threw);
@@ -227,7 +307,7 @@ TEST(ByteData, Ranges) {
     try {
         auto slice8 = d.take_range(5, 5);
         ASSERT_EQ(0, slice8.size());
-    } catch (const std::out_of_range &e) {
+    } catch (const std::out_of_range& e) {
         s8threw = true;
     }
     ASSERT_TRUE(s8threw);
@@ -236,13 +316,22 @@ TEST(ByteData, Ranges) {
     try {
         auto slice9 = d.take_range(0, 10);
         ASSERT_EQ(0, slice9.size());
-    } catch (const std::out_of_range &e) {
+    } catch (const std::out_of_range& e) {
         s9threw = true;
     }
     ASSERT_TRUE(s9threw);
+
+    bool s10threw = false;
+    try {
+        auto slice10 = d.take_range(500, 0);
+        ASSERT_EQ(0, slice10.size());
+    } catch (const std::out_of_range& e) {
+        s10threw = true;
+    }
+    ASSERT_TRUE(s10threw);
 }
 
-TEST(ByteData, push_back) {
+TEST(BytesData, push_back) {
     bytes_data d1;
     d1.push_back((uint8_t) 0x05);
     ASSERT_EQ(1, d1.size());
@@ -260,10 +349,9 @@ TEST(ByteData, push_back) {
     std::vector<uint8_t> tmp1{0x0, 0x01, 0x02, 0x03};
     d1.push_back(tmp1);
     ASSERT_EQ(n + tmp1.size(), d1.size());
-
 }
 
-TEST(ByteBuffer, PopFrontTo) {
+TEST(Buffer, PopFrontTo) {
     bytes_buffer buffer(256);
     ASSERT_EQ(256, buffer.size());
     std::fill(buffer.begin(), buffer.end(), 0xFFu);
@@ -281,7 +369,7 @@ TEST(ByteBuffer, PopFrontTo) {
     size_t written = 0;
 
     while (!buffer.empty()) {
-        //stack write
+        // stack write
         // getting from first
         // writing to end
         written += buffer.pop_front_to(rlen, exData.begin() + 10, exData);
@@ -289,7 +377,6 @@ TEST(ByteBuffer, PopFrontTo) {
         ASSERT_EQ(left, buffer.size());
         ASSERT_EQ(74, exData.size());
         seq++;
-
     }
 
     ASSERT_EQ(256, written);
@@ -297,7 +384,7 @@ TEST(ByteBuffer, PopFrontTo) {
     ASSERT_EQ(74, exData.size());
 }
 
-TEST(ByteBuffer, PopFrontLimit) {
+TEST(Buffer, PopFrontLimit) {
     bytes_data chunk(64);
     std::fill(chunk.begin(), chunk.end(), 0x80_byte);
 
@@ -328,7 +415,8 @@ TEST(ByteBuffer, PopFrontLimit) {
 
 TEST(BytesData, RealCase1) {
     bytes_data buffer(64);
-    //01 01 05 00 00 00 05 00 01 00 90 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    // 01 01 05 00 00 00 05 00 01 00 90 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    // 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
     buffer.write(0, 0x01_byte);
     buffer.write(1, 0x01_byte);
     buffer.write(2, 0x05_byte);
@@ -367,17 +455,16 @@ TEST(BytesData, RealCase1) {
 
     uint16_t statusCode = buffer.to_num<uint16_t>(10);
     ASSERT_EQ(0x9000_dbyte, statusCode);
-
 }
 
-TEST(ByteData, WriteReadNumber) {
+TEST(BytesData, WriteReadNumber) {
     bytes_data d(32);
     d.write(0, (uint16_t) 0x8080u);
 
     uint8_t buf[4] = {0xFFu, 0xFFu, 0xFFu, 0xFFu};
 
-    uint32_t num = (((uint32_t) buf[0]) << 24u) | (((uint32_t) buf[1]) << 16u) | (((uint32_t) buf[2]) << 8u)
-        | (((uint32_t) buf[3]));
+    uint32_t num = (((uint32_t) buf[0]) << 24u) | (((uint32_t) buf[1]) << 16u) | (((uint32_t) buf[2]) << 8u) |
+                   (((uint32_t) buf[3]));
     ASSERT_EQ(UINT32_MAX, num);
 
     ASSERT_EQ(32, d.size());
@@ -413,7 +500,6 @@ TEST(ByteData, WriteReadNumber) {
     d.write(0, (uint16_t) 257);
     ASSERT_EQ(2, d.size());
     ASSERT_EQ((uint16_t) 257, d.to_num<uint16_t>());
-
 }
 
 TEST(BytesData, ToNumAny) {
@@ -450,9 +536,8 @@ TEST(BytesData, ToNumAny) {
     auto r4 = d.to_num_any_size<uint32_t>(0);
     ASSERT_NE((uint32_t) 250, r4);
     // r4 case works, only if data container has only 1 byte size, but there already 8,
-    // so, if we would try to convert 0-4 indexes to uint32_t, we'll get little-endian encoding, toolbox does not support
-    // little endian.
-    // If you need to convert between values, set 2 types explicitly, like below
+    // so, if we would try to convert 0-4 indexes to uint32_t, we'll get little-endian encoding, toolbox does not
+    // support little endian. If you need to convert between values, set 2 types explicitly, like below
 
     auto r7 = d.to_num_any_size<uint8_t, uint32_t>(0);
     ASSERT_EQ((uint32_t) 250, r7);
@@ -460,4 +545,388 @@ TEST(BytesData, ToNumAny) {
     auto r8 = d.to_num_any(0, 8);
     // the same issue, use explicit types
     ASSERT_NE(250ull, r8);
+
+    d.clear();
+    d.resize(0);
+
+    d.write_back((uint8_t) 0xFF);
+    d.write_back((uint8_t) 0xFF);
+
+    uint64_t val = d.to_num_any(0, 2);
+    ASSERT_EQ(2, d.size());
+    ASSERT_EQ(0xFFFF, val);
+
+    uint64_t val_no_bounds = d.to_num_any();
+    ASSERT_EQ(0xFFFF, val_no_bounds);
+}
+
+TEST(BytesData, CopyCtor) {
+    std::stack<bytes_data> merge;
+    bytes_data d1;
+    d1.write_back((uint8_t) 1);
+    d1.write_back((uint8_t) 2);
+    d1.write_back((uint8_t) 3);
+
+    merge.push(d1);
+    std::cout << "Size of stack:" << merge.size() << "\n";
+    std::cout << "Top of stack: " << merge.top().size() << "\n";
+
+    const bytes_data a("ff00ff00");
+    bytes_data b(a);
+
+    ASSERT_EQ(4, a.size());
+    ASSERT_EQ(4, b.size());
+    ASSERT_EQ(a, b);
+    ASSERT_TRUE(a == b);
+}
+
+TEST(BytesData, Map) {
+    bytes_data d = {0x01_byte, 0x02_byte, 0x01_byte, 0x02_byte};
+
+    ASSERT_EQ(4, d.size());
+    ASSERT_EQ(0x01_byte, d[0]);
+    ASSERT_EQ(0x02_byte, d[d.size() - 1]);
+
+    d.map([](uint8_t val) { return (uint8_t)(val * 2); });
+
+    ASSERT_EQ(4, d.size());
+    ASSERT_EQ(0x02_byte, d[0]);
+    ASSERT_EQ(0x04_byte, d[d.size() - 1]);
+}
+
+TEST(BytesData, SwitchMap) {
+    bytes_data d = {0x01_byte, 0x02_byte, 0x01_byte, 0x02_byte};
+
+    ASSERT_EQ(4, d.size());
+    ASSERT_EQ(0x01_byte, d[0]);
+    ASSERT_EQ(0x02_byte, d[d.size() - 1]);
+
+    d.switch_map([](std::vector<uint8_t> old) {
+        std::vector<uint8_t> out;
+        out.resize(old.size());
+        std::transform(old.begin(), old.end(), out.begin(), [](uint8_t val) { return val * 4; });
+
+        return out;
+    });
+
+    ASSERT_EQ(4, d.size());
+    ASSERT_EQ(0x04_byte, d[0]);
+    ASSERT_EQ(0x08_byte, d[d.size() - 1]);
+}
+
+TEST(BytesData, SwitchMapReduce) {
+    bytes_data d = {0x01_byte, 0x02_byte, 0x01_byte, 0x02_byte};
+
+    ASSERT_EQ(4, d.size());
+    ASSERT_EQ(0x01_byte, d[0]);
+    ASSERT_EQ(0x02_byte, d[d.size() - 1]);
+
+    d.switch_map([](std::vector<uint8_t> old) {
+        std::vector<uint8_t> out;
+        out.resize(old.size() - 2);
+        std::transform(old.begin(), old.begin() + 2, out.begin(), [](uint8_t val) { return val * 4; });
+
+        return out;
+    });
+
+    ASSERT_EQ(2, d.size());
+    ASSERT_EQ(0x04_byte, d[0]);
+    ASSERT_EQ(0x08_byte, d[d.size() - 1]);
+}
+
+TEST(BytesData, SwitchMapCopy) {
+    bytes_data d = {0x01_byte, 0x02_byte, 0x01_byte, 0x02_byte};
+
+    ASSERT_EQ(4, d.size());
+    ASSERT_EQ(0x01_byte, d[0]);
+    ASSERT_EQ(0x02_byte, d[3]);
+
+    auto res = d.switch_map_c([](std::vector<uint8_t> old) {
+        std::vector<uint8_t> out(old.size());
+        std::transform(old.begin(), old.end(), out.begin(), [](uint8_t val) {
+            return (uint8_t)(val * 2);
+        });
+
+        return out;
+    });
+
+    ASSERT_EQ(4, res.size());
+    ASSERT_EQ(0x02_byte, res[0]);
+    ASSERT_EQ(0x04_byte, res[1]);
+    ASSERT_EQ(0x02_byte, res[2]);
+    ASSERT_EQ(0x04_byte, res[3]);
+
+    ASSERT_EQ(4, d.size());
+    ASSERT_EQ(0x01_byte, d[0]);
+    ASSERT_EQ(0x02_byte, d[1]);
+    ASSERT_EQ(0x01_byte, d[2]);
+    ASSERT_EQ(0x02_byte, d[3]);
+}
+
+TEST(BytesData, MapToStrings) {
+    bytes_data d = bytes_data::from_string_raw("hello map to");
+    auto string_d = d.map_to<char>([](uint8_t val) {
+        return (char) val;
+    });
+    ASSERT_EQ(d.size(), string_d.size());
+    std::string res = std::string(string_d.data(), string_d.data() + string_d.size());
+
+    ASSERT_STREQ("hello map to", res.c_str());
+    std::cout << res << std::endl;
+}
+
+TEST(BytesData, InitializerVectors) {
+    bytes_data d = {
+        {0x0, 0x0, 0x0, 'a'},
+        {0x1, 0x1, 0x1, 'b'}};
+
+    ASSERT_EQ(8, d.size());
+    ASSERT_EQ(0x0, d[0]);
+    ASSERT_EQ(0x0, d[2]);
+    ASSERT_EQ('a', d[3]);
+    ASSERT_EQ(0x1, d[4]);
+    ASSERT_EQ(0x1, d[6]);
+    ASSERT_EQ('b', d[7]);
+}
+
+TEST(BytesData, Filter) {
+    bytes_data d = {0x0, 0x0, 0x0, 0x1};
+    auto filter_no_zeroes = [](uint8_t v) {
+        return v != 0x0;
+    };
+
+    d.filter(filter_no_zeroes);
+    ASSERT_EQ(1, d.size());
+    ASSERT_EQ(0x1, d[0]);
+
+    bytes_data d2 = {0x1, 0x0, 0x1, 0x0};
+    bytes_data res = d2.filter_c(filter_no_zeroes);
+    ASSERT_EQ(4, d2.size());
+    ASSERT_EQ(0x1, d2[0]);
+    ASSERT_EQ(0x0, d2[1]);
+    ASSERT_EQ(0x1, d2[2]);
+    ASSERT_EQ(0x0, d2[3]);
+
+    ASSERT_EQ(2, res.size());
+    ASSERT_EQ(0x1, res[0]);
+    ASSERT_EQ(0x1, res[1]);
+}
+
+TEST(BytesData, Base64Transform) {
+    std::string target = "aGVsbG8gd29ybGQ=";
+    std::string source = "hello world";
+
+    bytes_data d = bytes_data::from_string_raw(source);
+    d.switch_map(to_base_64);
+    ASSERT_EQ(target.size(), d.size());
+    ASSERT_STREQ(target.c_str(), d.to_string().c_str());
+
+    d.switch_map(from_base_64);
+    ASSERT_EQ(source.size(), d.size());
+    ASSERT_STREQ(source.c_str(), d.to_string().c_str());
+}
+
+TEST(BytesData, OutputStream) {
+    bytes_data data = bytes_data::from_string_raw("hello streams");
+    std::stringstream ss;
+    ss << data;
+
+    ASSERT_STREQ("hello streams", ss.str().c_str());
+}
+
+TEST(BytesData, InputStream) {
+    std::stringstream ss;
+    ss << "abc";
+    bytes_data d;
+    ss >> d;
+
+    ASSERT_EQ(3, d.size());
+    ASSERT_EQ('a', d[0]);
+    ASSERT_EQ('b', d[1]);
+    ASSERT_EQ('c', d[2]);
+}
+
+TEST(BytesData, ConverterToString) {
+    bytes_data data = bytes_data::from_string_raw("hello streams");
+    // this works only on c++17, as it have type deduction
+    std::string result = data.convert(bytes_to_string());
+}
+
+TEST(BytesData, FromUint8PointerArray) {
+    const uint8_t val[4] = {'a', 'b', 'c', 'd'};
+    bytes_data data(val, 4);
+
+    ASSERT_EQ(4, data.size());
+    ASSERT_EQ('a', data[0]);
+    ASSERT_EQ('b', data[1]);
+    ASSERT_EQ('c', data[2]);
+    ASSERT_EQ('d', data[3]);
+}
+
+TEST(BytesData, FromCharPointerArray) {
+    const char val[4] = {'a', 'b', 'c', 'd'};
+    bytes_data data = bytes_data::from_chars(val, sizeof(val));
+
+    ASSERT_EQ(4, data.size());
+    ASSERT_EQ('a', data[0]);
+    ASSERT_EQ('b', data[1]);
+    ASSERT_EQ('c', data[2]);
+    ASSERT_EQ('d', data[3]);
+}
+
+TEST(BytesData, FromCharVector) {
+    const std::vector<char> val = {'a', 'b', 'c', 'd'};
+    bytes_data data = bytes_data::from_chars(val);
+
+    ASSERT_EQ(4, data.size());
+    ASSERT_EQ('a', data[0]);
+    ASSERT_EQ('b', data[1]);
+    ASSERT_EQ('c', data[2]);
+    ASSERT_EQ('d', data[3]);
+}
+
+TEST(BytesData, FromHexCString) {
+    const char* hex = "aaaabbbbcccc";
+    bytes_data d(hex);
+    ASSERT_EQ(6, d.size());
+    ASSERT_EQ(0xAA, d[0]);
+    ASSERT_EQ(0xAA, d[1]);
+    ASSERT_EQ(0xBB, d[2]);
+    ASSERT_EQ(0xBB, d[3]);
+    ASSERT_EQ(0xCC, d[4]);
+    ASSERT_EQ(0xCC, d[5]);
+
+    ASSERT_STREQ(hex, d.to_hex().c_str());
+}
+
+TEST(BytesData, FromHexString) {
+    const std::string hex = "aaaabbbbcccc";
+    bytes_data d(hex);
+    ASSERT_EQ(6, d.size());
+    ASSERT_EQ(0xAA, d[0]);
+    ASSERT_EQ(0xAA, d[1]);
+    ASSERT_EQ(0xBB, d[2]);
+    ASSERT_EQ(0xBB, d[3]);
+    ASSERT_EQ(0xCC, d[4]);
+    ASSERT_EQ(0xCC, d[5]);
+
+    ASSERT_STREQ(hex.c_str(), d.to_hex().c_str());
+}
+
+TEST(BytesData, WriteBackInt8) {
+    bytes_data d;
+    d.write_back((uint8_t) 100);
+
+    ASSERT_EQ(1, d.size());
+    ASSERT_EQ((uint8_t) 100, d[0]);
+}
+
+TEST(BytesData, WriteBackInt16) {
+    bytes_data d;
+    d.write_back((uint16_t) 100);
+
+    ASSERT_EQ(2, d.size());
+    ASSERT_EQ((uint8_t) 0, d[0]);
+    ASSERT_EQ((uint8_t) 100, d[1]);
+}
+
+TEST(BytesData, WriteBackInt32) {
+    bytes_data d;
+    d.write_back((uint32_t) 100);
+
+    ASSERT_EQ(4, d.size());
+    ASSERT_EQ((uint32_t) 100, d.to_num_any_size<uint32_t>(0, 4));
+}
+
+TEST(BytesData, WriteBackInt64) {
+    bytes_data d;
+    d.write_back((uint64_t) 100);
+
+    ASSERT_EQ(8, d.size());
+    ASSERT_EQ((uint32_t) 100, d.to_num_any_size<uint32_t>(0, 8));
+}
+
+TEST(BytesData, PushBackSingleChar) {
+    bytes_data d;
+    d.push_back('w');
+
+    ASSERT_EQ(1, d.size());
+    ASSERT_EQ('w', d[0]);
+
+    d.push_back('o');
+    ASSERT_EQ(2, d.size());
+    ASSERT_EQ('o', d[1]);
+}
+
+TEST(BytesData, PushBackInt16) {
+    bytes_data d;
+    d.push_back((uint16_t) 100);
+
+    ASSERT_EQ(2, d.size());
+    ASSERT_EQ((uint8_t) 0, d[0]);
+    ASSERT_EQ((uint8_t) 100, d[1]);
+}
+
+TEST(BytesData, PushBackInt32) {
+    bytes_data d;
+    d.push_back((uint32_t) 100);
+
+    ASSERT_EQ(4, d.size());
+    ASSERT_EQ((uint32_t) 100, d.to_num_any_size<uint32_t>(0, 4));
+}
+
+TEST(BytesData, PushBackInt64) {
+    bytes_data d;
+    d.push_back((uint64_t) 100);
+    d.push_back((uint64_t) 200);
+
+    ASSERT_EQ(16, d.size());
+    ASSERT_EQ((uint64_t) 100, d.to_num_any_size<uint32_t>(0, 8));
+    ASSERT_EQ((uint64_t) 200, d.to_num_any_size<uint32_t>(8, 16));
+
+    uint64_t any_val_a = d.to_num_any_size<uint64_t>(0);
+    uint64_t any_val_b = d.to_num_any_size<uint64_t>(8);
+    ASSERT_EQ((uint64_t) 100, any_val_a);
+    ASSERT_EQ((uint64_t) 200, any_val_b);
+}
+
+/// \brief to_num_any - exception-less, if data is empty, it will return 0
+TEST(BytesData, ToNumAnyOnEmpty) {
+    bytes_data d;
+    uint64_t val = d.to_num_any(0, 8);
+
+    ASSERT_EQ(0, d.size());
+    ASSERT_EQ(0, val);
+}
+
+TEST(BytesData, ToNumOperators) {
+    bytes_data d;
+
+    d.write_back((uint8_t) 0xFF);
+    ASSERT_EQ(1, d.size());
+    ASSERT_EQ((uint8_t) 0xFF, (uint8_t) d);
+
+    d.clear();
+    d.resize(0);
+    d.write_back((char) 'w');
+    ASSERT_EQ(1, d.size());
+    ASSERT_EQ('w', (char) d);
+
+    d.clear();
+    d.resize(0);
+    d.write_back((uint16_t) 0xFFFF);
+    ASSERT_EQ(2, d.size());
+    ASSERT_EQ((uint16_t) 0xFFFF, (uint16_t) d);
+
+    d.clear();
+    d.resize(0);
+    d.write_back((uint32_t) 0xFFFFFFFF);
+    ASSERT_EQ(4, d.size());
+    ASSERT_EQ((uint32_t) 0xFFFFFFFF, (uint32_t) d);
+
+    d.clear();
+    d.resize(0);
+    d.write_back((uint64_t) UINT64_MAX);
+    ASSERT_EQ(8, d.size());
+    ASSERT_EQ((uint64_t) UINT64_MAX, (uint64_t) d);
 }

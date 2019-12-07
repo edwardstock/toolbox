@@ -5,6 +5,8 @@ cmake-build-debug-*/
 !.gitkeep
 .idea/
 CMakeCache.txt
+.directory
+.editorconfig
 *.a
 *.dylib
 *.dll
@@ -15,5 +17,4 @@ main.cpp
 .vs
 *.junk
 CMakeSettings.json
-
-include/toolboxppconfig.h
+include/toolbox/toolbox_config.h

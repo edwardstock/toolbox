@@ -1,72 +1,65 @@
 cmake_minimum_required(VERSION 3.0)
-project(toolboxpp VERSION 2.3.5)
+project(toolbox VERSION 3.0.0)
+set(CMAKE_CXX_STANDARD 17)
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/modules)
 if (WIN32)
-	execute_process(
-		COMMAND cmd /C "echo ${CMAKE_PROJECT_VERSION} > ${CMAKE_CURRENT_SOURCE_DIR}/version"
-	)
+	execute_process(COMMAND cmd /C "echo ${CMAKE_PROJECT_VERSION} > ${CMAKE_CURRENT_SOURCE_DIR}/version")
 else ()
-	execute_process(
-		COMMAND bash -c "echo ${CMAKE_PROJECT_VERSION} > ${CMAKE_CURRENT_SOURCE_DIR}/version"
-	)
+	execute_process(COMMAND bash -c "echo ${CMAKE_PROJECT_VERSION} > ${CMAKE_CURRENT_SOURCE_DIR}/version")
 endif ()
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmakes)
+include(modules/compilers_flags.cmake)
+include(SystemDetector)
+include(options.cmake)
+add_definitions(/D_CRT_SECURE_NO_WARNINGS=1)
 
 if (ENABLE_TOOLBOX_CONAN)
 	include(ConanInit)
-endif ()
-include(SystemDetector)
-include(options.cmake)
-
-set(CMAKE_CXX_STANDARD 14)
-
-# linux clang
-if (NOT APPLE AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-elseif (APPLE AND CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-	set(CMAKE_CXX_FLAGS "-stdlib=libc++ ${CMAKE_CXX_FLAGS}")
-	set(CMAKE_CXX_LINKER_FLAGS "${CMAKE_CXX_LINKER_FLAGS} -std=c++11 -stdlib=libc++ -undefined dynamic_lookup")
-endif ()
-
-if (MSVC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W2 /std:c++14")
-	set(CMAKE_CXX_FLAGS_DEBUG "/DEBUG /Od")
-	set(CMAKE_CXX_FLAGS_RELEASE "/O2")
-	add_definitions(/D_CRT_SECURE_NO_WARNINGS=1)
-	string(REGEX REPLACE "\\/W3" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-else ()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fPIC -Wextra -pedantic -Wno-unused-parameter")
-	set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
-	set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+	conan_init()
 endif ()
 
 
-include_directories(include)
+set(MULTI_HEADERS
+    include/toolbox/toolbox_config.h
+    include/toolbox/data.hpp
+    include/toolbox/data/bytes_data.h
+    include/toolbox/data/bytes_buffer.h
+    include/toolbox/data/utils.h
+    include/toolbox/data/literals.h
+    include/toolbox/strings.hpp
+    include/toolbox/strings/regex.h
+    include/toolbox/term.h
+    include/toolbox/log.h
+    include/toolbox/io.h
+    include/toolbox/strings/decimal_formatter.h
+    include/toolbox/time_profiler.h
+    include/toolbox/collections.h
+    include/toolbox/data/base64.h
+    include/toolbox/data/basic_data.h)
 
-set(PUBLIC_HEADERS include/toolboxpp.hpp)
-set(SOURCE_FILES ${PUBLIC_HEADERS})
+set(MULTI_SOURCES
+    ${MULTI_HEADERS}
+    src/data/bytes_data.cpp
+    src/data/bytes_data.cpp
+    src/data/bytes_buffer.cpp
+    src/data/utils.cpp
+    src/strings.cpp
+    src/strings/regex.cpp
+    src/io.cpp
+    src/strings/decimal_formatter.cpp
+    src/term.cpp
+    src/log.cpp
+    src/time_profiler.cpp
+    src/data/base64.cpp
+    include/toolbox/data/transformers.h
+    src/data/chars_data.cpp)
+
+add_library(${PROJECT_NAME} ${MULTI_SOURCES})
+target_include_directories(${PROJECT_NAME} PUBLIC include)
 
 
-add_library(${PROJECT_NAME} INTERFACE)
-
-
-if (ENABLE_MULTIBYTE)
-	# DISABLED for now, it's not just working
-	#	add_definitions(-DTOOLBOX_ENABLE_MB=1)
-	#	if (MSVC)
-	#		add_definitions(/D_UNICODE=1 /D_MBCS=1)
-	#	endif ()
-endif ()
-
-
-if (PROJECT_DEV)
-	add_executable(dev main.cpp)
-	target_link_libraries(dev toolboxpp)
-endif ()
-
-
-if (WITH_TEST)
+if (ENABLE_TOOLBOX_TEST)
 	set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 	if (NOT ENABLE_TOOLBOX_CONAN)
 		add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/googletest)
@@ -81,29 +74,30 @@ if (WITH_TEST)
 	enable_testing()
 	add_definitions(-DTOOLBOX_TESTING=1)
 
-	add_executable(toolboxtest
+	add_executable(${PROJECT_NAME}-test
 	               tests/main.cpp
-	               tests/console_test.cpp
+	               tests/term_test.cpp
 	               tests/filesystem_test.cpp
 	               tests/numbers_test.cpp
 	               tests/collection_test.cpp
-	               tests/strings_test.cpp tests/data_test.cpp)
+	               tests/strings_test.cpp
+	               tests/data_test.cpp tests/bytes_benchmark.cpp)
 
 	if (ENABLE_PVS)
 		include(PVS-Studio)
 		pvs_studio_add_target(TARGET ${PROJECT_NAME}.analyze ALL
 		                      OUTPUT FORMAT errorfile
 		                      CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/pvs.cfg
-		                      ANALYZE toolboxtest
+		                      ANALYZE ${PROJECT_NAME}-test
 		                      SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/include
 		                      LOG target.err)
 	endif ()
 
 	if (NOT MSVC)
-		target_compile_options(toolboxtest PRIVATE -Wno-missing-field-initializers)
+		target_compile_options(${PROJECT_NAME}-test PRIVATE -Wno-missing-field-initializers)
 	endif ()
-	target_include_directories(toolboxtest INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include/toolboxpp.hpp)
-	target_link_libraries(toolboxtest CONAN_PKG::gtest)
+	target_link_libraries(${PROJECT_NAME}-test CONAN_PKG::gtest)
+	target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 
 	if (WITH_COVERAGE)
 		set(COVERAGE_LCOV_EXCLUDES
@@ -116,16 +110,16 @@ if (WITH_TEST)
 		    'v1'
 		    '4.9'
 		    )
-		include(cmakes/CodeCoverage.cmake)
+		include(modules/CodeCoverage.cmake)
 		append_coverage_compiler_flags()
 		setup_target_for_coverage_lcov(
-			NAME toolboxtest_coverage
-			EXECUTABLE toolboxtest
-			DEPENDENCIES toolboxtest
+			NAME ${PROJECT_NAME}-coverage
+			EXECUTABLE ${PROJECT_NAME}-test
+			DEPENDENCIES ${PROJECT_NAME}-test
 		)
 	endif ()
 
-	add_test(NAME test-all COMMAND ${CMAKE_CURRENT_BINARY_DIR}/toolboxtest)
+	add_test(NAME test-all COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-test)
 
 endif ()
 
