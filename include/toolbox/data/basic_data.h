@@ -45,7 +45,7 @@ public:
 
     template<typename Out>
     struct converter {
-        Out operator()(basic_data<T> source) {
+        Out operator()(basic_data<T>) {
         }
     };
 

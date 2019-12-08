@@ -20,6 +20,7 @@ class ToolboxConan(ConanFile):
     url = "https://github.com/edwardstock/toolbox"
     description = "Lightweight everyday C++ helpers"
     topics = ("cpp-helpers", "helpers")
+    settings = "os", "compiler", "build_type", "arch"
     generators = "cmake"
     exports = "version"
     exports_sources = (
