@@ -82,14 +82,16 @@ size_t bytes_data::write(size_t pos, uint32_t val) {
                         {pos + 3, (uint8_t)(val)}});
 }
 size_t bytes_data::write(size_t pos, uint64_t val) {
-    return write_batch({{pos + 0, (uint8_t)(val >> 56u)},
-                        {pos + 1, (uint8_t)(val >> 48u)},
-                        {pos + 2, (uint8_t)(val >> 40u)},
-                        {pos + 3, (uint8_t)(val >> 32u)},
-                        {pos + 4, (uint8_t)(val >> 24u)},
-                        {pos + 5, (uint8_t)(val >> 16u)},
-                        {pos + 6, (uint8_t)(val >> 8u)},
-                        {pos + 7, (uint8_t)(val)}});
+    return write_batch({
+        {pos + 0, (uint8_t)(val >> 56u)},
+        {pos + 1, (uint8_t)(val >> 48u)},
+        {pos + 2, (uint8_t)(val >> 40u)},
+        {pos + 3, (uint8_t)(val >> 32u)},
+        {pos + 4, (uint8_t)(val >> 24u)},
+        {pos + 5, (uint8_t)(val >> 16u)},
+        {pos + 6, (uint8_t)(val >> 8u)},
+        {pos + 7, (uint8_t)(val)},
+    });
 }
 
 size_t bytes_data::write_back(uint16_t val) {
@@ -189,7 +191,7 @@ bytes_data::operator uint64_t() const {
 }
 
 std::ostream& toolbox::data::operator<<(std::ostream& os, const bytes_data& data) {
-    os << (const char*) (data.data());
+    os << data.to_string();
     return os;
 }
 
@@ -199,13 +201,14 @@ std::istream& toolbox::data::operator>>(std::istream& input, bytes_data& data) {
     data.reserve(4096);
     data.clear();
 
-    size_t read_len = input.readsome((char*) data.data(), block_read);
+    input.read((char*) data.data(), block_read);
+    size_t read_len = input.gcount();
     size_t total_read = read_len;
     size_t size_to_read;
     bool overflow = false;
     while (read_len != 0) {
         // LCOV_EXCL_START
-        // don't cover edge cases, anyway, i don't know how to load data more than size_t value size
+        // don't cover edge case
         if (overflow) {
             throw std::runtime_error("Out of memory: can't resize buffer more than SIZE_MAX");
         }
@@ -221,7 +224,8 @@ std::istream& toolbox::data::operator>>(std::istream& input, bytes_data& data) {
             // LCOV_EXCL_STOP
         }
 
-        read_len = input.readsome(((char*) data.data()) + total_read, size_to_read);
+        input.read((char*) data.data() + total_read, size_to_read);
+        read_len = input.gcount();
         total_read += read_len;
     }
     data.resize(total_read);

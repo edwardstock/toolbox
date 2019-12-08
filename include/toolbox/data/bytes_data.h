@@ -31,7 +31,6 @@ public:
     static bytes_data from_string_raw(const std::string& data);
 
     bytes_data();
-    ~bytes_data() override = default;
     bytes_data(const basic_data<uint8_t>& other);
     bytes_data(basic_data<uint8_t>&& other);
     explicit bytes_data(std::size_t size);

@@ -67,11 +67,8 @@ std::vector<uint8_t> toolbox::data::to_bytes(const char* data, size_t len) {
 }
 
 std::vector<uint8_t> toolbox::data::to_bytes(std::string input) {
-    std::vector<uint8_t> out;
-    out.reserve(input.size());
-    std::for_each(input.begin(), input.end(), [&out](const char& val) {
-        out.push_back(static_cast<uint8_t>(val));
-    });
+    std::vector<uint8_t> out(input.size());
+    std::copy(input.begin(), input.end(), out.begin());
     input.clear();
 
     return out;

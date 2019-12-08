@@ -42,8 +42,8 @@ TEST(BytesData, Write) {
     ASSERT_EQ(40ULL & 0xFFu, d1.at(14));
 
     size_t n = d1.size();
-    std::vector<uint8_t> tmp1{0x0, 0x01, 0x02, 0x03};
-    d1.write(15, tmp1);
+    std::vector<uint8_t> tmp1 = {0x00, 0x01, 0x02, 0x03};
+    d1.write(n, tmp1);
 
     ASSERT_EQ(n + tmp1.size(), d1.size());
     ASSERT_EQ(0x00u, d1.at(15));
@@ -66,7 +66,7 @@ TEST(BytesData, Write) {
     ASSERT_EQ(0xFFu, d1.at(10));
     ASSERT_EQ(0xFFu, d1.at(73));
 
-    // now replace tail with new data
+    // now replace making new tail with new data starting at position=10
     d1.write_tail(10, tmp2);
     ASSERT_EQ(74, d1.size());
     ASSERT_EQ(0xFFu, d1.at(10));
@@ -182,13 +182,13 @@ TEST(BytesData, PopBackTo) {
 
 TEST(BytesData, InsertIterator) {
     bytes_data d;
-    std::vector<uint8_t> data{1, 2, 3, 4};
+    std::vector<uint8_t> data = {1, 2, 3, 4};
     size_t n = 0;
     n = d.write(d.begin(), data.begin(), data.end());
     ASSERT_EQ(4, d.size());
     ASSERT_EQ(4, n);
 
-    std::vector<uint8_t> data2{5, 6, 7, 8};
+    std::vector<uint8_t> data2 = {5, 6, 7, 8};
     n = d.write(2, data2.begin(), data2.end());
     ASSERT_EQ(6, d.size());
     ASSERT_EQ(4, n);
@@ -203,7 +203,7 @@ TEST(BytesData, InsertIterator) {
 
 TEST(BytesData, PushBackIterators) {
     bytes_data d;
-    std::vector<uint8_t> src{5, 6, 7, 8};
+    std::vector<uint8_t> src = {5, 6, 7, 8};
     d.clear();
     d.resize(0);
     d.push_back(src.begin(), src.end());
@@ -259,7 +259,7 @@ TEST(BytesData, WriteBatch) {
 
 TEST(BytesData, Ranges) {
     bytes_data d;
-    std::vector<uint8_t> tmp{1, 2, 3, 4};
+    std::vector<uint8_t> tmp = {1, 2, 3, 4};
     d.push_back(tmp);
 
     ASSERT_EQ(1, d.at(0));
@@ -346,7 +346,7 @@ TEST(BytesData, push_back) {
     ASSERT_EQ(3 + 4 + 8, d1.size());
 
     size_t n = d1.size();
-    std::vector<uint8_t> tmp1{0x0, 0x01, 0x02, 0x03};
+    std::vector<uint8_t> tmp1 = {0x0, 0x01, 0x02, 0x03};
     d1.push_back(tmp1);
     ASSERT_EQ(n + tmp1.size(), d1.size());
 }

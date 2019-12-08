@@ -363,8 +363,9 @@ public:
     }
 
     virtual void push_back(const T* data, size_t len) {
-        auto tmp = std::vector<T>(data, data + len);
-        m_data.insert(m_data.end(), tmp.begin(), tmp.end());
+        size_t alloc_size = sizeof(T) * len;
+        m_data.resize(size() + alloc_size);
+        memcpy(m_data.data() + size() - alloc_size, data, alloc_size);
     }
 
     virtual void push_back(const_iterator start, const_iterator end) {
@@ -436,11 +437,21 @@ public:
     }
 
     virtual size_type write(size_type pos, const T* data, size_t dataLen) {
-        std::vector<T> tmp(data, data + dataLen);
-        return write(pos, std::move(tmp));
+        size_t len = sizeof(T) * dataLen;
+        if (pos + len >= size()) {
+            size_t alloc = 0;
+            alloc = size() + (pos + len - size());
+            m_data.resize(alloc);
+        }
+
+        memcpy(m_data.data() + pos, data, len);
+        return dataLen;
     }
     /// \brief Write method overwrite existing data, and if input data.size() >
-    /// buffer.size(), it resizes current buffer \param pos \param data \return
+    /// buffer.size(), it resize current buffer
+    /// \param pos
+    /// \param data
+    /// \return
     virtual size_type write(size_type pos, const basic_data<T>& data) {
         return write(pos, data.get());
     }
