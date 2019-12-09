@@ -20,15 +20,15 @@ namespace toolbox {
 namespace term {
 
 #if defined(HAVE_TERMIOS_H) && defined(HAVE_UNISTD_H)
-ssize_t _password(const std::string& message, char** pw, size_t sz, int mask = 0, FILE* fp = stdin);
-std::string prompt_password(const std::string& message, size_t passSize = 32);
+TOOLBOX_API ssize_t _password(const std::string& message, char** pw, size_t sz, int mask = 0, FILE* fp = stdin);
+TOOLBOX_API std::string prompt_password(const std::string& message, size_t passSize = 32);
 #endif
 
-bool confirm(std::istream& in, std::ostream& out, const std::string& message, bool defValue = false);
-bool confirm(const std::string& message, bool defValue = false);
-std::string prompt(std::istream& in, std::ostream& out, const std::string& message, bool required = false,
-                   const std::string& defValue = "");
-std::string prompt(const std::string& message, bool required = false, const std::string& defValue = "");
+TOOLBOX_API bool confirm(std::istream& in, std::ostream& out, const std::string& message, bool defValue = false);
+TOOLBOX_API bool confirm(const std::string& message, bool defValue = false);
+TOOLBOX_API std::string prompt(std::istream& in, std::ostream& out, const std::string& message, bool required = false,
+                               const std::string& defValue = "");
+TOOLBOX_API std::string prompt(const std::string& message, bool required = false, const std::string& defValue = "");
 
 } // namespace term
 } // namespace toolbox

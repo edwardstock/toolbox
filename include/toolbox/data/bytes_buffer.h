@@ -11,11 +11,12 @@
 #define TOOLBOXPP_BYTES_BUFFER_H
 
 #include "bytes_data.h"
+#include "toolbox/toolbox_config.h"
 
 namespace toolbox {
 namespace data {
 
-class bytes_buffer : public bytes_data {
+class TOOLBOX_API bytes_buffer : public bytes_data {
 public:
     bytes_buffer();
     bytes_buffer(const basic_data& other);

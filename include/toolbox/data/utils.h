@@ -5,6 +5,8 @@
 #ifndef TOOLBOXPP_UTILS_H
 #define TOOLBOXPP_UTILS_H
 
+#include "toolbox/toolbox_config.h"
+
 #include <algorithm>
 #include <cassert>
 #include <string>
@@ -17,13 +19,13 @@ namespace data {
 /// \brief Convert hex string to unsigned byte vector
 /// \param hex
 /// \return
-std::vector<uint8_t> hex_to_bytes(const std::string& hex);
+TOOLBOX_API std::vector<uint8_t> hex_to_bytes(const std::string& hex);
 
 /// \brief Convert byte array to hex string
 /// \param data
 /// \param len
 /// \return output len will be len*2, as 1 byte in hex is a 2 chars
-std::string bytes_to_hex(const uint8_t* data, size_t len);
+TOOLBOX_API std::string bytes_to_hex(const uint8_t* data, size_t len);
 
 /// \brief Convert any integral type to byte array
 /// \tparam NumT any integral type, that can be asserted with std::is_integral
@@ -54,13 +56,13 @@ std::vector<uint8_t> num_to_bytes(NumT num, size_t outSize) {
     return out;
 }
 
-std::string to_ascii(const std::vector<char>& input);
-std::string to_ascii(const std::vector<uint8_t>& input);
+TOOLBOX_API std::string to_ascii(const std::vector<char>& input);
+TOOLBOX_API std::string to_ascii(const std::vector<uint8_t>& input);
 
-std::vector<char> to_chars(const std::vector<uint8_t>& input);
-std::vector<uint8_t> to_bytes(const std::vector<char>& input);
-std::vector<uint8_t> to_bytes(const char* data, size_t len);
-std::vector<uint8_t> to_bytes(std::string input);
+TOOLBOX_API std::vector<char> to_chars(const std::vector<uint8_t>& input);
+TOOLBOX_API std::vector<uint8_t> to_bytes(const std::vector<char>& input);
+TOOLBOX_API std::vector<uint8_t> to_bytes(const char* data, size_t len);
+TOOLBOX_API std::vector<uint8_t> to_bytes(std::string input);
 
 } // namespace data
 } // namespace toolbox

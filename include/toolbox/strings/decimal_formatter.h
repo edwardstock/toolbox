@@ -9,13 +9,14 @@
 
 #ifndef TOOLBOXPP_STRINGS_DECIMAL_FORMATTER_H
 #define TOOLBOXPP_STRINGS_DECIMAL_FORMATTER_H
+#include "toolbox/toolbox_config.h"
 
 #include <ostream>
 #include <string>
 namespace toolbox {
 namespace strings {
 
-class decimal_formatter {
+class TOOLBOX_API decimal_formatter {
 public:
     decimal_formatter() = default;
     explicit decimal_formatter(int num);
@@ -46,6 +47,6 @@ private:
 } // namespace strings
 } // namespace toolbox
 
-std::ostream& operator<<(std::ostream& os, const toolbox::strings::decimal_formatter& formatter);
+TOOLBOX_API std::ostream& operator<<(std::ostream& os, const toolbox::strings::decimal_formatter& formatter);
 
 #endif // TOOLBOXPP_STRINGS_DECIMAL_FORMATTER_H

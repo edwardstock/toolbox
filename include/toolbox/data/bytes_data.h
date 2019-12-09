@@ -11,6 +11,7 @@
 #define TOOLBOXPP_BYTES_DATA_H
 
 #include "basic_data.h"
+#include "toolbox/toolbox_config.h"
 
 #include <functional>
 #include <iostream>
@@ -24,7 +25,7 @@ namespace toolbox {
 namespace data {
 
 /// \brief Special class to help you handle bytes
-class bytes_data : public basic_data<uint8_t> {
+class TOOLBOX_API bytes_data : public basic_data<uint8_t> {
 public:
     static bytes_data from_chars(const std::vector<char>& data);
     static bytes_data from_chars(const char* data, size_t len);
@@ -229,14 +230,14 @@ public:
 /// \param os output stream
 /// \param data current container
 /// \return output stream chain
-std::ostream& operator<<(std::ostream& os, const toolbox::data::bytes_data& data);
+TOOLBOX_API std::ostream& operator<<(std::ostream& os, const toolbox::data::bytes_data& data);
 
 /// \brief This operator override ALL existing data, so use it only on empty container
 /// Use only raw char* for input data, all "hex" string or something like, will be interpreted as raw char*
 /// \param is input stream
 /// \param data current container
 /// \return input stream chain
-std::istream& operator>>(std::istream& is, bytes_data& data);
+TOOLBOX_API std::istream& operator>>(std::istream& is, bytes_data& data);
 
 } // namespace data
 } // namespace toolbox

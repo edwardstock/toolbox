@@ -7,11 +7,12 @@
 
 #include "gtest/gtest.h"
 #include <toolbox/strings/decimal_formatter.h>
+#include <toolbox/strings/regex.h>
 
 #ifdef HAVE_REGEX_H
-using namespace toolbox::numbers;
+using namespace toolbox::strings;
 
-TEST(Numbers, IsReal) {
+TEST(Numbers, NumIsReal) {
     std::string num1 = "256.464646958";
     std::string num2 = "1e-4";
     std::string num3 = "12E-4";
@@ -21,17 +22,17 @@ TEST(Numbers, IsReal) {
     std::string num7 = "111";
     std::string num8 = "192.168.1.1";
 
-    ASSERT_TRUE(isReal(num1));
-    ASSERT_TRUE(isReal(num2));
-    ASSERT_TRUE(isReal(num3));
-    ASSERT_FALSE(isReal(num4));
-    ASSERT_TRUE(isReal(num5));
-    ASSERT_FALSE(isReal(num6));
-    ASSERT_TRUE(isReal(num7)); // integer is real too
-    ASSERT_FALSE(isReal(num8));
+    ASSERT_TRUE(num_is_real(num1));
+    ASSERT_TRUE(num_is_real(num2));
+    ASSERT_TRUE(num_is_real(num3));
+    ASSERT_FALSE(num_is_real(num4));
+    ASSERT_TRUE(num_is_real(num5));
+    ASSERT_FALSE(num_is_real(num6));
+    ASSERT_TRUE(num_is_real(num7)); // integer is real too
+    ASSERT_FALSE(num_is_real(num8));
 }
 
-TEST(Numbers, IsInteger) {
+TEST(Numbers, NumIsInteger) {
     std::string num1 = "256.958";
     std::string num2 = "1e-4";
     std::string num3 = "12E-4";
@@ -41,14 +42,14 @@ TEST(Numbers, IsInteger) {
     std::string num7 = "111";
     std::string num8 = "1e+19";
 
-    ASSERT_FALSE(isInteger(num1));
-    ASSERT_FALSE(isInteger(num2));
-    ASSERT_FALSE(isInteger(num3));
-    ASSERT_TRUE(isInteger(num4));
-    ASSERT_FALSE(isInteger(num5));
-    ASSERT_FALSE(isInteger(num6));
-    ASSERT_TRUE(isInteger(num7));
-    ASSERT_TRUE(isInteger(num8));
+    ASSERT_FALSE(num_is_integer(num1));
+    ASSERT_FALSE(num_is_integer(num2));
+    ASSERT_FALSE(num_is_integer(num3));
+    ASSERT_TRUE(num_is_integer(num4));
+    ASSERT_FALSE(num_is_integer(num5));
+    ASSERT_FALSE(num_is_integer(num6));
+    ASSERT_TRUE(num_is_integer(num7));
+    ASSERT_TRUE(num_is_integer(num8));
 }
 
 #endif

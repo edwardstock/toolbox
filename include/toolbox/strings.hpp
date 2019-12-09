@@ -53,7 +53,7 @@ size_t compare(const T& str1, const T& str2, const std::locale& loc = std::local
  * @param substring
  * @return
  */
-bool has_substring_icase(const std::string& substring, const std::string& source);
+TOOLBOX_API bool has_substring_icase(const std::string& substring, const std::string& source);
 
 /**
  * Search substring in string
@@ -61,14 +61,14 @@ bool has_substring_icase(const std::string& substring, const std::string& source
  * @param substring
  * @return
  */
-bool has_substring(const std::string& substring, const std::string& source);
+TOOLBOX_API bool has_substring(const std::string& substring, const std::string& source);
 /**
  * Search character in string
  * @param source
  * @param substring
  * @return
  */
-bool has_substring(char substring, const std::string& source);
+TOOLBOX_API bool has_substring(char substring, const std::string& source);
 
 /**
  * Splits string by char delimiter to vector list
@@ -76,14 +76,14 @@ bool has_substring(char substring, const std::string& source);
  * @param delimiter
  * @return
  */
-std::vector<std::string> split(const std::string& source, const std::string& delimiter);
+TOOLBOX_API std::vector<std::string> split(const std::string& source, const std::string& delimiter);
 /**
  * Splits string by delimiter to vector list
  * @param source
  * @param delimiter
  * @return
  */
-std::vector<std::string> split(const std::string& source, const char& delimiter);
+TOOLBOX_API std::vector<std::string> split(const std::string& source, const char& delimiter);
 
 /**
  * \brief Split given string by max length. Example: abc, max len: 2, output
@@ -91,7 +91,7 @@ std::vector<std::string> split(const std::string& source, const char& delimiter)
  * max length \return separated string to vector. If src length less than
  * maximum, vector will contain 1 element with src
  */
-std::vector<std::string> split_by_len(const std::string& src, size_t max);
+TOOLBOX_API std::vector<std::string> split_by_len(const std::string& src, size_t max);
 
 /**
  * Splits string by char delimiter to pair
@@ -99,9 +99,9 @@ std::vector<std::string> split_by_len(const std::string& src, size_t max);
  * @param delimiter
  * @return
  */
-std::pair<std::string, std::string> split_pair(const std::string& source, const char& delimiter);
+TOOLBOX_API std::pair<std::string, std::string> split_pair(const std::string& source, const char& delimiter);
 
-std::pair<std::string, std::string> split_pair(const std::string& source, const std::string& delimiter);
+TOOLBOX_API std::pair<std::string, std::string> split_pair(const std::string& source, const std::string& delimiter);
 
 /**
  * Replaces first occurrence "search" and replaces with "replace" parameter in
@@ -111,7 +111,7 @@ std::pair<std::string, std::string> split_pair(const std::string& source, const 
  * @param source Immutable
  * @return If search string were not found, function will return source string.
  */
-std::string substr_replace_ret(const std::string& search, const std::string& replace, const std::string& source);
+TOOLBOX_API std::string substr_replace_ret(const std::string& search, const std::string& replace, const std::string& source);
 
 /**
  * Works like std::string substringReplace(const std::string &search, const
@@ -122,8 +122,8 @@ std::string substr_replace_ret(const std::string& search, const std::string& rep
  * @param source
  * @return
  */
-std::string substr_replace_all_ret(const std::string& search, const std::string& replace,
-                                   const std::string& source);
+TOOLBOX_API std::string substr_replace_all_ret(const std::string& search, const std::string& replace,
+                                               const std::string& source);
 
 /**
  * Replaces list search strings with replace list. Vectors size must be equals!
@@ -138,8 +138,8 @@ std::string substr_replace_all_ret(const std::string& search, const std::string&
  * @param source
  * @return
  */
-std::string substr_replace_all_ret(const std::vector<std::string>& search, const std::vector<std::string>& replace,
-                                   const std::string& source);
+TOOLBOX_API std::string substr_replace_all_ret(const std::vector<std::string>& search, const std::vector<std::string>& replace,
+                                               const std::string& source);
 
 /**
  * \brief Repeat input string N times
@@ -147,7 +147,7 @@ std::string substr_replace_all_ret(const std::vector<std::string>& search, const
  * \param n number of times to repeat
  * \return repeated string
  */
-std::string repeat(const std::string& in, size_t n = 1);
+TOOLBOX_API std::string repeat(const std::string& in, size_t n = 1);
 
 /*!
  * \brief Repeat input char N times
@@ -155,7 +155,7 @@ std::string repeat(const std::string& in, size_t n = 1);
  * \param n number of times to repeat
  * \return repeated string
  */
-std::string repeat(char in, size_t n = 1);
+TOOLBOX_API std::string repeat(char in, size_t n = 1);
 
 /*!
  * @see substringReplace(const std::string &search,
@@ -166,7 +166,7 @@ std::string repeat(char in, size_t n = 1);
  * @param source Mutable
  * @return
  */
-void replace(const std::string& search, const std::string& replace, std::string& source);
+TOOLBOX_API void replace(const std::string& search, const std::string& replace, std::string& source);
 
 /**
  * @see substring_replace_all(const std::string &search,
@@ -176,7 +176,7 @@ void replace(const std::string& search, const std::string& replace, std::string&
  * @param replace
  * @param source Mutable
  */
-void substr_replace_all(const std::string& search, const std::string& replace, std::string& source);
+TOOLBOX_API void substr_replace_all(const std::string& search, const std::string& replace, std::string& source);
 
 /*!
  *
@@ -184,21 +184,21 @@ void substr_replace_all(const std::string& search, const std::string& replace, s
  * @param replace Replace vector
  * @param source mutable string
  */
-void substr_replace_all(const std::vector<std::string>& search, const std::vector<std::string>& replace,
-                        std::string& source);
+TOOLBOX_API void substr_replace_all(const std::vector<std::string>& search, const std::vector<std::string>& replace,
+                                    std::string& source);
 
 /**
  * Find "removable" string in "source" and remove it
  * @param source Mutable value!
  * @param removable
  */
-void substr_remove(std::string& source, const std::string& removable);
+TOOLBOX_API void substr_remove(std::string& source, const std::string& removable);
 /**
  * Find all "removables" strings in "source" and remove it
  * @param source
  * @param removables
  */
-void substr_remove_all(std::string& source, std::vector<std::string> removables);
+TOOLBOX_API void substr_remove_all(std::string& source, std::vector<std::string> removables);
 
 /**
  * Getting substring from specified character
@@ -217,12 +217,12 @@ void substr_remove_all(std::string& source, std::vector<std::string> removables)
                 result: "def"
  * @return
  */
-std::string substr_inverse(const std::string& source, char whence);
-std::string substr_inverse(const std::string& source, const std::string& begin, const std::string& end,
-                           long offset = 0);
+TOOLBOX_API std::string substr_inverse(const std::string& source, char whence);
+TOOLBOX_API std::string substr_inverse(const std::string& source, const std::string& begin, const std::string& end,
+                                       long offset = 0);
 
-std::string substr_inverse(const std::string& source, char begin, char end, long offset = 0);
-std::string substr_inverse(const std::string& source, const std::string& begin);
+TOOLBOX_API std::string substr_inverse(const std::string& source, char begin, char end, long offset = 0);
+TOOLBOX_API std::string substr_inverse(const std::string& source, const std::string& begin);
 
 /**
  * How works:
@@ -243,8 +243,8 @@ std::string substr_inverse(const std::string& source, const std::string& begin);
  * @param icase case sensetivity
  * @return
  */
-std::string substr_clip(const std::string& source, const std::string& search, size_t width,
-                        bool icase = false);
+TOOLBOX_API std::string substr_clip(const std::string& source, const std::string& search, size_t width,
+                                    bool icase = false);
 
 /**
  * Concatenates strings by glue
@@ -252,28 +252,28 @@ std::string substr_clip(const std::string& source, const std::string& search, si
  * @param strings
  * @return
  */
-std::string glue(const std::string& glue, const std::vector<std::string>& strings);
+TOOLBOX_API std::string glue(const std::string& glue, const std::vector<std::string>& strings);
 
 /**
  * Input file stream to string
  * @param inputStream
  * @return
  */
-std::string to_string(std::ifstream& inputStream);
+TOOLBOX_API std::string to_string(std::ifstream& inputStream);
 
 /**
  * String to lower case
  * @param s
  * @return
  */
-std::string to_lower_case(const std::string& s);
+TOOLBOX_API std::string to_lower_case(const std::string& s);
 
 /**
  * String to upper case
  * @param s
  * @return
  */
-std::string to_upper_case(const std::string& s);
+TOOLBOX_API std::string to_upper_case(const std::string& s);
 
 /**
  *
@@ -281,7 +281,7 @@ std::string to_upper_case(const std::string& s);
  * @param s2
  * @return
  */
-bool equals_icase(const std::string& s1, const std::string& s2);
+TOOLBOX_API bool equals_icase(const std::string& s1, const std::string& s2);
 
 /**
  * Works like sprintf but with std::string and returns std::string

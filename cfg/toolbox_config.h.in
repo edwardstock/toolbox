@@ -17,4 +17,25 @@
 #cmakedefine HAVE_TERMIOS_H 1
 #cmakedefine HAVE_UNISTD_H 1
 
+#cmakedefine TOOLBOX_SHARED
+#cmakedefine TOOLBOX_EXPORTING
+
+#ifdef TOOLBOX_SHARED
+#ifdef TOOLBOX_EXPORTING
+#if _MSC_VER
+#define TOOLBOX_API __declspec(dllexport)
+#else
+#define TOOLBOX_API __attribute__((visibility("default")))
+#endif
+#else
+#if _MSC_VER
+#define TOOLBOX_API __declspec(dllimport)
+#else
+#define TOOLBOX_API
+#endif
+#endif
+#else
+#define TOOLBOX_API
+#endif // TOOLBOX_SHARED
+
 #endif // TOOLBOXPP_TOOLBOX_CONFIG_H

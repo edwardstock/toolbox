@@ -10,13 +10,16 @@
 #ifndef TOOLBOXPP_IO_H
 #define TOOLBOXPP_IO_H
 
+#include "toolbox/toolbox_config.h"
+
 #include <string>
+
 namespace toolbox {
 namespace io {
 
-std::string file_read_full(const std::string& path);
-bool file_write_string(const std::string& path, const std::string& data);
-bool file_exists(const std::string& path);
+TOOLBOX_API std::string file_read_full(const std::string& path);
+TOOLBOX_API bool file_write_string(const std::string& path, const std::string& data);
+TOOLBOX_API bool file_exists(const std::string& path);
 
 } // namespace io
 } // namespace toolbox

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(toolbox VERSION 3.0.0)
+project(toolbox VERSION 3.0.1)
 set(CMAKE_CXX_STANDARD 17)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/modules)
@@ -9,15 +9,22 @@ else ()
 	execute_process(COMMAND bash -c "echo ${CMAKE_PROJECT_VERSION} > ${CMAKE_CURRENT_SOURCE_DIR}/version")
 endif ()
 
-include(modules/compilers_flags.cmake)
-include(SystemDetector)
-include(options.cmake)
+
 add_definitions(/D_CRT_SECURE_NO_WARNINGS=1)
 
 if (ENABLE_TOOLBOX_CONAN)
 	include(ConanInit)
 	conan_init()
 endif ()
+
+set(TOOLBOX_EXPORTING 1)
+if (ENABLE_SHARED)
+	set(TOOLBOX_SHARED 1)
+endif ()
+
+include(modules/compilers_flags.cmake)
+include(SystemDetector)
+include(options.cmake)
 
 
 set(MULTI_HEADERS
@@ -53,9 +60,13 @@ set(MULTI_SOURCES
     src/time_profiler.cpp
     src/data/base64.cpp
     include/toolbox/data/transformers.h
-    src/data/chars_data.cpp)
+    )
 
-add_library(${PROJECT_NAME} ${MULTI_SOURCES})
+if (ENABLE_SHARED)
+	add_library(${PROJECT_NAME} SHARED ${MULTI_SOURCES})
+else ()
+	add_library(${PROJECT_NAME} STATIC ${MULTI_SOURCES})
+endif ()
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 
 

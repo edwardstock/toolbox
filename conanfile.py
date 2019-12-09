@@ -1,4 +1,5 @@
 import os
+
 from conans import ConanFile, CMake, tools
 
 
@@ -21,6 +22,10 @@ class ToolboxConan(ConanFile):
     description = "Lightweight everyday C++ helpers"
     topics = ("cpp-helpers", "helpers")
     settings = "os", "compiler", "build_type", "arch"
+    options = {"shared": [True, False]}
+    default_options = {
+        "shared": False
+    }
     generators = "cmake"
     exports = "version"
     exports_sources = (
@@ -46,7 +51,11 @@ class ToolboxConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(defs={'CMAKE_BUILD_TYPE': self.options["build_type"]})
+        opts = {
+            'CMAKE_BUILD_TYPE': self.options["build_type"],
+            'ENABLE_SHARED': self.options["shared"]
+        }
+        cmake.configure(defs=opts)
         cmake.build(target="toolbox")
 
     def package(self):

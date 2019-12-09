@@ -21,7 +21,7 @@
 
 namespace toolbox {
 
-class time_profiler {
+class TOOLBOX_API time_profiler {
 public:
     using hires_clock = std::chrono::high_resolution_clock;
     using hires_time_t = std::chrono::high_resolution_clock::time_point;

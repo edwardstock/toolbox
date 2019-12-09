@@ -34,7 +34,7 @@ constexpr const static level_t VERBOSITY_0 = LEVEL_CRITICAL | LEVEL_ERROR;
 constexpr const static level_t VERBOSITY_1 = VERBOSITY_0 | LEVEL_INFO;
 constexpr const static level_t VERBOSITY_2 = LEVEL_ALL;
 
-class tlog {
+class TOOLBOX_API tlog {
 public:
     tlog(const tlog& copy) = delete;
     tlog(tlog&& copy) = delete;
