@@ -53,8 +53,11 @@ class ToolboxConan(ConanFile):
         cmake = CMake(self)
         opts = {
             'CMAKE_BUILD_TYPE': self.options["build_type"],
-            'ENABLE_SHARED': self.options["shared"]
         }
+
+        if self.options["shared"]:
+            opts['ENABLE_SHARED'] = "On"
+
         cmake.configure(defs=opts)
         cmake.build(target="toolbox")
 
