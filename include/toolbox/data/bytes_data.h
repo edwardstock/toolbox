@@ -237,6 +237,11 @@ public:
     TOOLBOX_API friend std::istream& operator>>(std::istream& is, bytes_data& data);
 };
 
+#ifndef _MSC_VER
+TOOLBOX_API std::ostream& operator<<(std::ostream& os, const bytes_data& data);
+TOOLBOX_API std::istream& operator>>(std::istream& is, bytes_data& data);
+#endif
+
 } // namespace data
 } // namespace toolbox
 

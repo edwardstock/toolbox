@@ -14,6 +14,7 @@ add_definitions(/D_CRT_SECURE_NO_WARNINGS=1)
 include(modules/compilers_flags.cmake)
 
 option(ENABLE_TOOLBOX_CONAN On "Enable dependency manager")
+option(ENABLE_SHARED Off "Build shared library")
 
 set(TOOLBOX_EXPORTING 1)
 if (ENABLE_SHARED)

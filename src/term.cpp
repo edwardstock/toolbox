@@ -6,11 +6,13 @@
  * \author Eduard Maximovich (edward.vstock@gmail.com)
  * \link   https://github.com/edwardstock
  */
+#include "toolbox/toolbox_config.h"
+
 #ifdef HAVE_TERMIOS_H
 #include <termios.h>
 #endif
 
-#ifdef HAVE_UNITSTD_H
+#ifdef HAVE_UNISTD_H
 #include <unistd.h> /* for EINTR */
 #endif
 
