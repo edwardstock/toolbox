@@ -56,7 +56,7 @@ class ToolboxConan(ConanFile):
     def build(self):
         cmake = CMake(self)
         opts = {
-            'CMAKE_BUILD_TYPE': self.options["build_type"],
+            'CMAKE_BUILD_TYPE': self.settings.build_type,
             'ENABLE_SHARED': "Off",
         }
 
@@ -66,7 +66,7 @@ class ToolboxConan(ConanFile):
         cmake.configure(defs=opts)
 
         if self.settings.compiler == "Visual Studio":
-            cmake.build(target="toolbox", args=['--config', self.settings.get_safe("build_type")])
+            cmake.build(target="toolbox", args=['--config', self.settings.build_type])
         else:
             cmake.build(target="toolbox")
 
@@ -81,6 +81,8 @@ class ToolboxConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["toolbox"]
+        if self.options["build_type"] == "Debug":
+            self.cpp_info.cxxflags.append("-g -O0")
 
     def test(self):
         cmake = CMake(self)
