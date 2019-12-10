@@ -1,4 +1,24 @@
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+
 if (MSVC)
+	set(_RUNTIME_LINKAGE "MT")
+	if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
+		if (ENABLE_SHARED)
+			set(_RUNTIME_LINKAGE "MDd")
+		else ()
+			set(_RUNTIME_LINKAGE "MTd")
+		endif ()
+	else ()
+		if (ENABLE_SHARED)
+			set(_RUNTIME_LINKAGE "MD")
+		else ()
+			set(_RUNTIME_LINKAGE "MT")
+		endif ()
+	endif ()
+
+
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W2 /MP")
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /DEBUG /Od")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2")
@@ -8,32 +28,8 @@ if (MSVC)
 	add_compile_options(/wd4251)
 	add_compile_options(/wd4275)
 
-	if (NOT ENABLE_SHARED)
-		foreach (flag_var
-		         CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
-		         CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-			if (${flag_var} MATCHES "/MD")
-				string(REGEX REPLACE "MD" "MT" ${flag_var} "${${flag_var}}")
-			endif (${flag_var} MATCHES "/MD")
-		endforeach (flag_var)
-	endif ()
-
-	foreach (flag_var
-	         CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
-	         CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-		if (${flag_var} MATCHES "/MD")
-			string(REGEX REPLACE "MD" "MDd" ${flag_var} "${${flag_var}}")
-		endif (${flag_var} MATCHES "/MD")
-		if (${flag_var} MATCHES "/MT")
-			string(REGEX REPLACE "MT" "MTd" ${flag_var} "${${flag_var}}")
-		endif (${flag_var} MATCHES "/MT")
-	endforeach (flag_var)
-
-	message(STATUS ${CMAKE_CXX_FLAGS})
-	message(STATUS ${CMAKE_CXX_FLAGS_DEBUG})
-	message(STATUS ${CMAKE_CXX_FLAGS_RELEASE})
-	message(STATUS ${CMAKE_CXX_FLAGS_MINSIZEREL})
-	message(STATUS ${CMAKE_CXX_FLAGS_RELWITHDEBINFO})
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 elseif (MINGW)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -Wno-unknown-pragmas -Wno-shift-count-overflow")

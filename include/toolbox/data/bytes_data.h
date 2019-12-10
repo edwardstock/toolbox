@@ -222,22 +222,20 @@ public:
     T to_num(size_t readFrom) const {
         return to_num<T>(readFrom, readFrom + sizeof(T));
     }
-    friend std::ostream& operator<<(std::ostream& os, const bytes_data& data);
-    friend std::istream& operator>>(std::istream& is, bytes_data& data);
+
+    /// \brief Convert all data to char* and write it to output stream
+    /// \param os output stream
+    /// \param data current container
+    /// \return output stream chain
+    TOOLBOX_API friend std::ostream& operator<<(std::ostream& os, const bytes_data& data);
+
+    /// \brief This operator override ALL existing data, so use it only on empty container
+    /// Use only raw char* for input data, all "hex" string or something like, will be interpreted as raw char*
+    /// \param is input stream
+    /// \param data current container
+    /// \return input stream chain
+    TOOLBOX_API friend std::istream& operator>>(std::istream& is, bytes_data& data);
 };
-
-/// \brief Convert all data to char* and write it to output stream
-/// \param os output stream
-/// \param data current container
-/// \return output stream chain
-TOOLBOX_API std::ostream& operator<<(std::ostream& os, const toolbox::data::bytes_data& data);
-
-/// \brief This operator override ALL existing data, so use it only on empty container
-/// Use only raw char* for input data, all "hex" string or something like, will be interpreted as raw char*
-/// \param is input stream
-/// \param data current container
-/// \return input stream chain
-TOOLBOX_API std::istream& operator>>(std::istream& is, bytes_data& data);
 
 } // namespace data
 } // namespace toolbox

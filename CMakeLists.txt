@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(toolbox VERSION 3.0.1)
+project(toolbox VERSION 3.0.2)
 set(CMAKE_CXX_STANDARD 17)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/modules)
@@ -11,18 +11,16 @@ endif ()
 
 
 add_definitions(/D_CRT_SECURE_NO_WARNINGS=1)
+include(modules/compilers_flags.cmake)
 
-if (ENABLE_TOOLBOX_CONAN)
-	include(ConanInit)
-	conan_init()
-endif ()
+option(ENABLE_TOOLBOX_CONAN On "Enable dependency manager")
 
 set(TOOLBOX_EXPORTING 1)
 if (ENABLE_SHARED)
 	set(TOOLBOX_SHARED 1)
 endif ()
 
-include(modules/compilers_flags.cmake)
+
 include(SystemDetector)
 include(options.cmake)
 
@@ -63,19 +61,32 @@ set(MULTI_SOURCES
     )
 
 if (ENABLE_SHARED)
+	message(STATUS "Build shared library")
 	add_library(${PROJECT_NAME} SHARED ${MULTI_SOURCES})
+	set_property(TARGET ${PROJECT_NAME} PROPERTY
+	             MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 else ()
 	add_library(${PROJECT_NAME} STATIC ${MULTI_SOURCES})
+	set_property(TARGET ${PROJECT_NAME} PROPERTY
+	             MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif ()
+
+message(STATUS ${CMAKE_CXX_FLAGS})
+message(STATUS ${CMAKE_CXX_FLAGS_DEBUG})
+message(STATUS ${CMAKE_CXX_FLAGS_RELEASE})
+message(STATUS ${CMAKE_CXX_FLAGS_MINSIZEREL})
+message(STATUS ${CMAKE_CXX_FLAGS_RELWITHDEBINFO})
+
 target_include_directories(${PROJECT_NAME} PUBLIC include)
+
+if (ENABLE_TOOLBOX_CONAN)
+	include(ConanInit)
+	conan_init()
+endif ()
 
 
 if (ENABLE_TOOLBOX_TEST)
-	set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-	if (NOT ENABLE_TOOLBOX_CONAN)
-		add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/googletest)
-		add_library(CONAN_PKG::gtest ALIAS gtest)
-	endif ()
+	set(gtest_force_shared_crt ${ENABLE_SHARED} CACHE BOOL "" FORCE)
 
 	if (APPLE)
 		add_definitions(-DGTEST_USE_OWN_TR1_TUPLE)

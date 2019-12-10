@@ -156,12 +156,12 @@ void bytes_data::clear() {
 }
 
 uint64_t bytes_data::to_num_any() const {
-    return to_num_any(0, std::min(8UL, size()));
+    return to_num_any(0, std::min((size_t) 8, size()));
 }
 uint64_t bytes_data::to_num_any(size_t from, size_t to) const {
     std::vector<uint8_t> data;
     try {
-        data = take_range(from, std::min(from + 8UL, to));
+        data = take_range(from, std::min(from + 8, to));
     } catch (const std::exception& e) {
         return 0ULL;
     }
