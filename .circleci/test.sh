@@ -2,7 +2,13 @@
 
 set -e
 
-mkdir _build && cd _build
+mkdir -p _build && cd _build
 cmake .. -DCMAKE_BUILD_TYPE=Debug -DENABLE_TOOLBOX_TEST=On -DWITH_COVERAGE=Off
 cmake --build . --target toolbox-test
-./toolbox-test
+if [ -f "./toolbox-test" ]
+then
+	./toolbox-test
+elif [ -f "./bin/toolbox-test" ]
+then
+	./bin/toolbox-test
+fi

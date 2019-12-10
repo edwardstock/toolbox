@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(toolbox VERSION 3.0.2)
+project(toolbox VERSION 3.0.3)
 set(CMAKE_CXX_STANDARD 17)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/modules)
@@ -13,8 +13,8 @@ endif ()
 add_definitions(/D_CRT_SECURE_NO_WARNINGS=1)
 include(modules/compilers_flags.cmake)
 
-option(ENABLE_TOOLBOX_CONAN On "Enable dependency manager")
-option(ENABLE_SHARED Off "Build shared library")
+option(ENABLE_TOOLBOX_CONAN "Enable dependency manager" On)
+option(ENABLE_SHARED "Build shared library" Off)
 
 set(TOOLBOX_EXPORTING 1)
 if (ENABLE_SHARED)
@@ -84,6 +84,8 @@ if (ENABLE_TOOLBOX_CONAN)
 	include(ConanInit)
 	conan_init()
 endif ()
+
+message(STATUS "Enable conan: ${ENABLE_TOOLBOX_CONAN}")
 
 
 if (ENABLE_TOOLBOX_TEST)
