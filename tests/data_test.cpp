@@ -930,3 +930,19 @@ TEST(BytesData, ToNumOperators) {
     ASSERT_EQ(8, d.size());
     ASSERT_EQ((uint64_t) UINT64_MAX, (uint64_t) d);
 }
+
+TEST(BytesData, CopySwapCtor) {
+    bytes_data target(65);
+    bytes_data some_data;
+    for (size_t i = 0; i < 65; i++) {
+        some_data.write(i, (uint8_t) 0xFF);
+    }
+
+    ASSERT_NE(target, some_data);
+    ASSERT_EQ(target.size(), some_data.size());
+    target = some_data;
+    ASSERT_EQ(target, some_data);
+
+    target = std::move(some_data);
+    ASSERT_NE(target, some_data);
+}

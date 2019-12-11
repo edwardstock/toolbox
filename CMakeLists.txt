@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(toolbox VERSION 3.0.3)
+project(toolbox VERSION 3.0.4)
 set(CMAKE_CXX_STANDARD 17)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/modules)

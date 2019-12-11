@@ -94,13 +94,17 @@ public:
     bool operator==(const basic_data& other) const noexcept {
         if (m_data.empty() && other.m_data.empty()) {
             return true;
-        } else if (m_data.size() != other.m_data.size()) {
-            return false;
-        } else if ((m_data.at(0) != other.m_data.at(0)) && (m_data.at(size()) != other.m_data.at(other.size()))) {
+        }
+        if (m_data.size() != other.m_data.size()) {
             return false;
         }
+        if ((m_data.at(0) != other.m_data.at(0)) && (m_data.at(size() - 1) != other.m_data.at(other.size() - 1))) {
+            return false;
+        }
+
         return m_data == other.m_data;
     }
+
     bool operator!=(const basic_data& other) const noexcept {
         return !(operator==(other));
     }
