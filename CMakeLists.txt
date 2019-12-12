@@ -92,6 +92,14 @@ message(STATUS "Enable conan: ${ENABLE_TOOLBOX_CONAN}")
 
 
 if (ENABLE_TOOLBOX_TEST)
+	if (NOT ENABLE_TOOLBOX_CONAN)
+		include(conan_fallback)
+		conan_fallback(
+			NAME gtest
+			SUBDIR googletest
+			LOCAL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/gtest/googletest/include
+		)
+	endif ()
 	set(gtest_force_shared_crt ${ENABLE_SHARED} CACHE BOOL "" FORCE)
 
 	if (APPLE)
