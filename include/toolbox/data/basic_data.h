@@ -33,21 +33,32 @@ public:
     using const_reverse_iterator = typename std::vector<T>::const_reverse_iterator;
     using size_type = typename std::vector<T>::size_type;
 
-    using map_func_t = std::function<T(T)>;
+    using map_func_t = std::function<T(const T&)>;
     template<typename To>
-    using map_to_func_t = std::function<To(T)>;
-    using switch_map_func_t = std::function<std::vector<T>(std::vector<T>)>;
+    using map_to_func_t = std::function<To(const T&)>;
+    using switch_map_func_t = std::function<std::vector<T>(const std::vector<T>&)>;
     template<typename To>
-    using switch_map_to_func_t = std::function<std::vector<To>(std::vector<T>)>;
-    using predicate_func_t = std::function<bool(T)>;
+    using switch_map_to_func_t = std::function<std::vector<To>(const std::vector<T>&)>;
+    using predicate_func_t = std::function<bool(const T&)>;
     template<typename From, typename To>
-    using reduce_func_t = std::function<To(std::vector<From>)>;
+    using reduce_func_t = std::function<To(const std::vector<From>&)>;
 
     template<typename Out>
     struct converter {
-        Out operator()(basic_data<T>) {
+        Out operator()(const basic_data<T>&) {
         }
     };
+
+    template<typename Out>
+    struct converter_vec {
+        Out operator()(const std::vector<T>&) {
+        }
+    };
+
+    template<typename To>
+    using converter_func = std::function<To(const basic_data<T>&)>;
+    template<typename To>
+    using converter_vec_func = std::function<To(const std::vector<T>&)>;
 
     basic_data() = default;
     virtual ~basic_data() = default;
@@ -168,7 +179,8 @@ public:
     void resize(size_type sz) {
         m_data.resize(sz);
     }
-    bool empty() const {
+
+    [[nodiscard]] bool empty() const {
         return m_data.empty();
     }
 
@@ -180,7 +192,7 @@ public:
         return m_data.capacity();
     }
 
-    virtual void clear() {
+    void clear() {
         m_data.clear();
     }
 
@@ -233,6 +245,21 @@ public:
         return conv(*this);
     }
 
+    template<typename To>
+    To convert_v(converter_vec<To> conv) {
+        return conv(get());
+    }
+
+    template<typename To>
+    To convert(converter_func<To> conv) {
+        return conv(*this);
+    }
+
+    template<typename To>
+    To convert_v(converter_vec_func<To> conv) {
+        return conv(get());
+    }
+
     virtual basic_data<T>& filter(const predicate_func_t& filter) {
         switch_map([&filter](std::vector<T> source) {
             std::vector<T> out;
@@ -259,7 +286,7 @@ public:
     basic_data<T> take_first_c(size_t n) const {
         return basic_data<T>(take_first(n));
     }
-    basic_data<T>& take_first_m(size_t n) {
+    virtual basic_data<T>& take_first_m(size_t n) {
         auto cp = take_first(n);
         clear();
         m_data = std::move(cp);
@@ -274,7 +301,7 @@ public:
     basic_data<T> take_last_c(size_t n) const {
         return basic_data<T>(take_last(n));
     }
-    basic_data<T>& take_last_m(size_t n) {
+    virtual basic_data<T>& take_last_m(size_t n) {
         auto cp = take_last(n);
         clear();
         m_data = std::move(cp);
@@ -287,7 +314,7 @@ public:
     basic_data<T> take_range_from_c(size_t from) const {
         return basic_data<T>(take_range_from(from));
     }
-    basic_data<T>& take_range_from_m(size_t from) {
+    virtual basic_data<T>& take_range_from_m(size_t from) {
         auto cp = take_range_from(from);
         clear();
         m_data = std::move(cp);
@@ -300,7 +327,7 @@ public:
     basic_data<T> take_range_to_c(size_t to) const {
         return basic_data<T>(take_range_to(to));
     }
-    basic_data<T>& take_range_to_m(size_t to) {
+    virtual basic_data<T>& take_range_to_m(size_t to) {
         auto cp = take_range_to(to);
         clear();
         m_data = std::move(cp);
@@ -324,7 +351,7 @@ public:
     basic_data<T> take_range_c(size_t from, size_t to) const {
         return basic_data<T>(take_range(from, to));
     }
-    basic_data<T>& take_range_m(size_t from, size_t to) {
+    virtual basic_data<T>& take_range_m(size_t from, size_t to) {
         auto cp = take_range(from, to);
         clear();
         m_data = cp;

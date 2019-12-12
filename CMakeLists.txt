@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(toolbox VERSION 3.0.4)
+project(toolbox VERSION 3.1.0)
 set(CMAKE_CXX_STANDARD 17)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/modules)
@@ -42,7 +42,9 @@ set(MULTI_HEADERS
     include/toolbox/time_profiler.h
     include/toolbox/collections.h
     include/toolbox/data/base64.h
-    include/toolbox/data/basic_data.h)
+    include/toolbox/data/basic_data.h
+    include/toolbox/data/bytes_array.h
+    )
 
 set(MULTI_SOURCES
     ${MULTI_HEADERS}

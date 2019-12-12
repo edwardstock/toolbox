@@ -28,7 +28,7 @@ static std::vector<uint8_t> from_base_64(const std::vector<uint8_t>& source) {
 template<>
 template<>
 struct basic_data<uint8_t>::converter<std::string> {
-    std::string operator()(basic_data<uint8_t> source) {
+    std::string operator()(const basic_data<uint8_t>& source) {
         return std::string(source.begin(), source.end());
     }
 };
@@ -37,11 +37,11 @@ using bytes_to_string = basic_data<uint8_t>::converter<std::string>;
 template<>
 template<>
 struct basic_data<uint8_t>::converter<basic_data<char>> {
-    basic_data<char> operator()(basic_data<uint8_t> source) {
+    basic_data<char> operator()(const basic_data<uint8_t>& source) {
         return std::vector<char>(source.begin(), source.end());
     }
 };
-using bytes_to_chars = basic_data<uint8_t>::converter<std::string>;
+using bytes_to_chars = basic_data<uint8_t>::converter<basic_data<char>>;
 
 } // namespace toolbox::data
 

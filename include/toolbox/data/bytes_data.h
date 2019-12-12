@@ -44,7 +44,7 @@ public:
 
     virtual std::string to_hex() const;
     virtual std::string to_string() const;
-    void clear() override;
+    void clear();
 
     explicit operator uint8_t() const;
     explicit operator char() const;
@@ -73,10 +73,10 @@ public:
         return write_batch(std::move(tmp));
     }
 
-    size_t write(size_t pos, uint16_t val);
-    size_t write(size_t pos, int32_t val);
-    size_t write(size_t pos, uint32_t val);
-    size_t write(size_t pos, uint64_t val);
+    virtual size_t write(size_t pos, uint16_t val);
+    virtual size_t write(size_t pos, int32_t val);
+    virtual size_t write(size_t pos, uint32_t val);
+    virtual size_t write(size_t pos, uint64_t val);
 
     size_type write(basic_data::size_type pos, const uint8_t* data, size_t dataLen) override {
         return basic_data::write(pos, data, dataLen);

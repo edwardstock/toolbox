@@ -285,22 +285,36 @@ TOOLBOX_API bool equals_icase(const std::string& s1, const std::string& s2);
 
 /**
  * Works like sprintf but with std::string and returns std::string
+ * @tparam BufSize - ensure that buffer size enough for output result, default: buff size is 255
  * @tparam Args any type
  * @param format format string
  * @param args
  * @return
  */
-template<typename... Args>
+template<size_t BufSize = 255, typename... Args>
 std::string format(const std::string& format, Args... args) {
-    char* tmp = new char[format.length()];
-
-    size_t written = sprintf(tmp, format.c_str(), args...);
-
-    std::string out = std::string(tmp + written);
-    delete[] tmp;
+    std::vector<char> tmp(BufSize);
+    size_t written = sprintf(tmp.data(), format.c_str(), args...);
+    std::string out = std::string(tmp.data(), tmp.data() + written);
 
     return out;
 }
+
+/// \brief Alternative format, ability to pass dynamic buffer size
+/// \tparam Args Args any type
+/// \param bufsize size of result buffer
+/// \param format
+/// \param args
+/// \return
+template<typename... Args>
+std::string format(size_t bufsize, const std::string& format, Args... args) {
+    std::vector<char> tmp(bufsize);
+    size_t written = sprintf(tmp.data(), format.c_str(), args...);
+    std::string out = std::string(tmp.data(), tmp.data() + written);
+
+    return out;
+}
+
 } // namespace strings
 } // namespace toolbox
 

@@ -459,3 +459,10 @@ TEST(Strings, SplitByLen) {
     ASSERT_STREQ("Hello my", res[0].c_str());
     ASSERT_STREQ(" beautiful world", res[1].c_str());
 }
+
+TEST(Strings, Format) {
+    std::string expected = "hello 225 world with dog";
+    std::string res1 = toolbox::strings::format("hello %llu world with %s", 225, "dog");
+
+    ASSERT_STREQ(expected.c_str(), res1.c_str());
+}

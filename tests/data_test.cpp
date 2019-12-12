@@ -594,6 +594,47 @@ TEST(BytesData, Map) {
     ASSERT_EQ(0x04_byte, d.at(d.size() - 1));
 }
 
+static std::vector<uint8_t> switch_01(std::vector<uint8_t> source) {
+    return source;
+}
+
+static std::vector<uint8_t> switch_02(const std::vector<uint8_t>& source) {
+    return source;
+}
+
+inline std::vector<uint8_t> switch_03(const std::vector<uint8_t>& source) {
+    return source;
+}
+
+std::vector<uint8_t> switch_04(const std::vector<uint8_t>& source) {
+    return source;
+}
+
+namespace example {
+namespace utils {
+
+std::vector<uint8_t> switch_05(const std::vector<uint8_t>& source) {
+    return source;
+}
+
+} // namespace utils
+} // namespace example
+
+TEST(BytesData, SwitchMapFuncVar) {
+    bytes_data d = {0x01_byte, 0x02_byte, 0x01_byte, 0x02_byte};
+    d.switch_map(&switch_01);
+    d.switch_map(switch_01);
+    d.switch_map(&switch_02);
+    d.switch_map(switch_02);
+    d.switch_map(switch_03);
+    d.switch_map(switch_04);
+    d.switch_map(example::utils::switch_05);
+
+    ASSERT_EQ(4, d.size());
+    ASSERT_EQ(0x01_byte, d.at(0));
+    ASSERT_EQ(0x02_byte, d.at(3));
+}
+
 TEST(BytesData, SwitchMap) {
     bytes_data d = {0x01_byte, 0x02_byte, 0x01_byte, 0x02_byte};
 
@@ -750,6 +791,35 @@ TEST(BytesData, ConverterToString) {
     bytes_data data = bytes_data::from_string_raw("hello streams");
     // this works only on c++17, as it have type deduction
     std::string result = data.convert(bytes_to_string());
+}
+
+template<size_t N>
+struct conv_get_n {
+    char operator()(const bytes_data& source) {
+        return (char) source.at(N);
+    }
+
+    template<size_t N2>
+    static char get(const bytes_data& source) {
+        return (char) source.at(N2);
+    }
+};
+
+static char get_s(const bytes_data& source) {
+    return source.at(0);
+}
+
+TEST(BytesData, CustomConverter) {
+    bytes_data data = bytes_data::from_string_raw("hello streams");
+    char res = data.convert<char>(std::bind(conv_get_n<0>::get<0>, std::placeholders::_1));
+    char res2 = data.convert<char>(&conv_get_n<1>::get<1>);
+    char res3 = data.convert<char>(conv_get_n<2>());
+    char res4 = data.convert<char>(get_s);
+
+    ASSERT_EQ('h', res);
+    ASSERT_EQ('e', res2);
+    ASSERT_EQ('l', res3);
+    ASSERT_EQ('h', res4);
 }
 
 TEST(BytesData, FromUint8PointerArray) {
@@ -945,4 +1015,177 @@ TEST(BytesData, CopySwapCtor) {
 
     target = std::move(some_data);
     ASSERT_NE(target, some_data);
+}
+
+TEST(BytesArray, OutOfRangeError) {
+    bytes_array<32> d;
+
+    ASSERT_EQ(32, d.size());
+
+    bool t1 = false;
+    try {
+        d.write(64, 0xFF);
+    } catch (const std::out_of_range& e) {
+        t1 = true;
+    }
+    ASSERT_TRUE(t1);
+
+    bool t2 = false;
+    try {
+        d.write(32, 0xFF);
+    } catch (const std::out_of_range& e) {
+        t2 = true;
+    }
+    ASSERT_TRUE(t2);
+
+    bool t3 = false;
+    try {
+        d.write(31, 0xFF);
+    } catch (const std::out_of_range& e) {
+        t1 = true;
+    }
+    ASSERT_FALSE(t3);
+}
+
+TEST(BytesArray, Write) {
+    bytes_array<10> d;
+    std::vector<uint8_t> ex(12);
+    std::fill(ex.begin(), ex.end(), (uint8_t) 0xFF);
+
+    d.write(0, ex);
+    ASSERT_EQ(10, d.size());
+    ASSERT_EQ(0xFF, d.at(0));
+    ASSERT_EQ(0xFF, d.at(d.size() - 1));
+
+    d.clear();
+    d.write(2, ex);
+    ASSERT_EQ(10, d.size());
+    ASSERT_EQ(0, d.at(0));
+    ASSERT_EQ(0xFF, d.at(2));
+    ASSERT_EQ(0xFF, d.at(d.size() - 1));
+
+    d.clear();
+    bool t = false;
+    try {
+        d.write(20, ex);
+    } catch (const std::out_of_range& e) {
+        t = true;
+    }
+    ASSERT_TRUE(t);
+
+    ASSERT_EQ(10, d.size());
+    ASSERT_EQ(0, d.at(0));
+    ASSERT_EQ(0, d.at(2));
+    ASSERT_EQ(0, d.at(d.size() - 1));
+
+    d = ex;
+    ASSERT_EQ(10, d.size());
+    ASSERT_EQ(0xFF, d.at(0));
+    ASSERT_EQ(0xFF, d.at(d.size() - 1));
+
+    d.clear();
+    ex = std::vector<uint8_t>(8);
+    std::fill(ex.begin(), ex.end(), (uint8_t) 0xFF);
+    d = ex;
+    ASSERT_EQ(10, d.size());
+    ASSERT_EQ(0xFF, d.at(0));
+    ASSERT_EQ(0xFF, d.at(7));
+    ASSERT_EQ(0x00, d.at(8));
+    ASSERT_EQ(0x00, d.at(d.size() - 1));
+
+    //uint8
+    d.clear();
+    t = false;
+    try {
+        d.write(10, (uint8_t) 10);
+    } catch (const std::out_of_range& e) {
+        t = true;
+    }
+    ASSERT_TRUE(t);
+
+    //uint16
+    d.clear();
+    t = false;
+    try {
+        d.write(9, (uint16_t) 10);
+    } catch (const std::out_of_range& e) {
+        t = true;
+    }
+    ASSERT_TRUE(t);
+
+    //uint32
+    d.clear();
+    t = false;
+    try {
+        d.write(8, (uint32_t) 10);
+    } catch (const std::out_of_range& e) {
+        t = true;
+    }
+    ASSERT_TRUE(t);
+
+    //uint64 - ok
+    d.clear();
+    t = false;
+    try {
+        d.write(2, (uint64_t) 10);
+    } catch (const std::out_of_range& e) {
+        t = true;
+    }
+    ASSERT_FALSE(t);
+
+    //uint64 - ok
+    d.clear();
+    t = false;
+    try {
+        d.write(0, (uint64_t) 10);
+    } catch (const std::out_of_range& e) {
+        t = true;
+    }
+    ASSERT_FALSE(t);
+
+    //uint64 - fail
+    d.clear();
+    t = false;
+    try {
+        d.write(3, (uint64_t) 10);
+    } catch (const std::out_of_range& e) {
+        t = true;
+    }
+    ASSERT_TRUE(t);
+
+    //write basic_data - fail
+    d.clear();
+    t = false;
+    try {
+        bytes_data tmp = ex;
+        d.write(20, tmp);
+    } catch (const std::out_of_range& e) {
+        t = true;
+    }
+    ASSERT_TRUE(t);
+
+    //write basic_data - ok
+    d.clear();
+    t = false;
+    try {
+        // ex.size() = 8
+        bytes_data tmp = ex;
+        d.write(2, tmp);
+    } catch (const std::out_of_range& e) {
+        t = true;
+    }
+    ASSERT_FALSE(t);
+
+    //write basic_data - ok, silently strip data, write to position from input start
+    d.clear();
+    t = false;
+    try {
+        // ex.size() = 8
+        bytes_data tmp = ex;
+        d.write(3, tmp);
+    } catch (const std::out_of_range& e) {
+        t = true;
+    }
+    ASSERT_FALSE(t);
+    ASSERT_EQ(0xFF, ex.at(3));
 }
