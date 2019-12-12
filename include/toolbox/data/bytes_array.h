@@ -11,8 +11,6 @@
 
 #include "bytes_data.h"
 
-#include <toolbox/strings.hpp>
-
 namespace toolbox {
 namespace data {
 

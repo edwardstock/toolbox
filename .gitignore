@@ -1,7 +1,6 @@
 build/**
 _build/**
-cmake-build-debug
-cmake-build-debug-*/
+cmake-build-*
 !.gitkeep
 .idea/
 CMakeCache.txt
@@ -15,6 +14,8 @@ CMakeCache.txt
 *.c.o
 main.cpp
 .vs
+.vscode
 *.junk
 CMakeSettings.json
 include/toolbox/toolbox_config.h
+out
