@@ -1,8 +1,12 @@
 function (conan_fallback)
 	set(options)
 	set(single NAME LOCAL_INCLUDE_DIR SUBDIR SYSTEM_INCLUDE_DIR TARGET_NAME LOCAL_LIBS_PREFIX)
-	set(multi)
+	set(multi PROPERTIES)
 	cmake_parse_arguments("FF" "${options}" "${single}" "${multi}" ${ARGN})
+
+	if (TARGET CONAN_PKG::${FF_NAME})
+		return()
+	endif ()
 
 	set(LOCAL_LIBS_PREFIX "libs")
 	if (FF_LOCAL_LIBS_PREFIX)
@@ -31,8 +35,20 @@ function (conan_fallback)
 
 	#	If not found, trying to add subdirectory
 	if (NOT FF_FIND_LIB_${FF_NAME})
+		list(LENGTH FF_PROPERTIES OLD_PROPS_SZ)
+		math(EXPR OLD_PROPS_SZ "(${OLD_PROPS_SZ} / 2) - 1")
+
+		foreach (idx RANGE 0 ${OLD_PROPS_SZ})
+			math(EXPR _next_idx "${idx} + 1")
+			list(GET FF_PROPERTIES ${idx} _PKEY)
+			list(GET FF_PROPERTIES ${_next_idx} _PVALUE)
+			list(APPEND PRINT_PROPS "-D${_PKEY}=${_PVALUE} ")
+			set(${_PKEY} ${_PVALUE})
+		endforeach ()
+
 		add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/${LOCAL_LIBS_PREFIX}/${LOCAL_SUBDIR_${FF_NAME}})
-		#		if set local path where includes stored, adding it to global includes
+
+		# if set local path where includes stored, adding it to global includes
 		if (FF_LOCAL_INCLUDE_DIR)
 			set(${FF_NAME}_INCLUDE_DIR ${FF_LOCAL_INCLUDE_DIR})
 		else ()
@@ -42,9 +58,10 @@ function (conan_fallback)
 		add_library(CONAN_PKG::${FF_NAME} ALIAS ${LOCAL_TARGET_NAME})
 
 		message(STATUS "off-conan: ${FF_NAME} not found.
-		Fallback to libs directory ${CMAKE_CURRENT_SOURCE_DIR}/${LOCAL_LIBS_PREFIX}/${FF_NAME};
-		target: ${FF_NAME}
-		include: ${${FF_NAME}_INCLUDE_DIR}")
+		Using directory: ${CMAKE_CURRENT_SOURCE_DIR}/${LOCAL_LIBS_PREFIX}/${LOCAL_SUBDIR_${FF_NAME}}
+		Target:          ${FF_NAME}
+		Include:         ${${FF_NAME}_INCLUDE_DIR}
+		Properties:      ${PRINT_PROPS}")
 	else ()
 		set(${FF_NAME}_LIBRARIES "")
 		set(${FF_NAME}_LIBRARIES ${FF_FIND_LIB_${FF_NAME}})
@@ -68,6 +85,7 @@ function (conan_fallback)
 		message(STATUS "off-conan: ${FF_NAME} found ${FF_FIND_LIB_${FF_NAME}}.
 		libs: ${${FF_NAME}_LIBRARIES}
 		include: ${${FF_NAME}_INCLUDE_DIR}")
+
 		add_library(CONAN_PKG::${FF_NAME} STATIC IMPORTED)
 		set_target_properties(CONAN_PKG::${FF_NAME} PROPERTIES IMPORTED_LOCATION ${FF_FIND_LIB_${FF_NAME}})
 	endif ()
