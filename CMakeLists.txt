@@ -13,8 +13,9 @@ endif ()
 add_definitions(/D_CRT_SECURE_NO_WARNINGS=1)
 include(modules/compilers_flags.cmake)
 
-option(ENABLE_TOOLBOX_CONAN "Enable dependency manager" On)
+option(ENABLE_CONAN "Enable dependency manager" On)
 option(ENABLE_SHARED "Build shared library" Off)
+option(ENABLE_TEST "Build test target" Off)
 
 set(TOOLBOX_EXPORTING 1)
 if (ENABLE_SHARED)
@@ -83,16 +84,16 @@ message(STATUS "CXX_RELDBG_FLAGS:  ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 
-if (ENABLE_TOOLBOX_CONAN)
+if (ENABLE_CONAN)
 	include(ConanInit)
 	conan_init()
 endif ()
 
-message(STATUS "Enable conan: ${ENABLE_TOOLBOX_CONAN}")
+message(STATUS "Enable conan: ${ENABLE_CONAN}")
 
 
-if (ENABLE_TOOLBOX_TEST)
-	if (NOT ENABLE_TOOLBOX_CONAN)
+if (ENABLE_TEST)
+	if (NOT ENABLE_CONAN)
 		include(conan_fallback)
 		conan_fallback(
 			NAME gtest

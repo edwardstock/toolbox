@@ -86,6 +86,6 @@ class ToolboxConan(ConanFile):
 
     def test(self):
         cmake = CMake(self)
-        cmake.configure([], {'ENABLE_TOOLBOX_TEST': 'On'})
+        cmake.configure([], {'ENABLE_TEST': 'On'})
         cmake.build([], None, "toolbox-test")
         self.run("bin/toolbox-test")
