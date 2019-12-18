@@ -64,11 +64,7 @@ class ToolboxConan(ConanFile):
             opts['ENABLE_SHARED'] = "On"
 
         cmake.configure(defs=opts)
-
-        if self.settings.compiler == "Visual Studio":
-            cmake.build(target="toolbox", args=['--config', self.settings.build_type])
-        else:
-            cmake.build(target="toolbox")
+        cmake.build(target="toolbox")
 
     def package(self):
         self.copy("*", dst="include", src="include", keep_path=True)

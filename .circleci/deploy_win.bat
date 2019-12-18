@@ -11,4 +11,5 @@ conan create . edwardstock/latest -s build_type=Release --build=missing
 conan create . edwardstock/latest -s build_type=Debug --build=missing -o shared=True
 conan create . edwardstock/latest -s build_type=Release --build=missing -o shared=True
 
-rem conan upload toolbox/%VERS%@edwardstock/latest --all -r=edwardstock
+@rem
+conan upload toolbox/%VERS%@edwardstock/latest --all -r=edwardstock
