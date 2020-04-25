@@ -16,7 +16,7 @@
 Namespace for all things is toolbox.
 
 What helpers contained:
-* **toolbox::strings** - strings helpers like bool hasNum = matches_pattern("[0-9]", "my194string"")
+* **toolbox::strings** - strings helpers like bool hasNum = matches_pattern("\[0-9\]", "my194string"")
 * **toolbox::io** - filesystem helpers
 * **toolbox::collections** - collections helpers
 * **toolbox::data** - bytes buffer helpers
@@ -33,13 +33,13 @@ conan remote add edwardstock https://api.bintray.com/conan/edwardstock/conan-pub
 ```
 
 ```bash
-conan install <path/to/your/project> toolbox/3.0.0@edwardstock/latest
+conan install <path/to/your/project> toolbox/3.1.1@edwardstock/latest
 ```
 
 or using `conanfile.txt`
 ```ini
 [requires]
-toolbox/3.0.0@edwardstock/latest
+toolbox/3.1.1@edwardstock/latest
 
 [generators]
 cmake

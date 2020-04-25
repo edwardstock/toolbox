@@ -19,3 +19,4 @@ main.cpp
 CMakeSettings.json
 include/toolbox/toolbox_config.h
 out
+venv
