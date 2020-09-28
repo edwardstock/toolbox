@@ -12,8 +12,6 @@
 
 #include <cstdint>
 
-#ifdef HAVE_MUTEX_H
-
 toolbox::time_profiler::~time_profiler() {
     timings.clear();
 }
@@ -52,5 +50,3 @@ void toolbox::time_profiler::end(std::string tag, double* result) {
         L_DEBUG_F(tag, "Profiling time: %lf ms", time_span.count());
     }
 }
-
-#endif

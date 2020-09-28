@@ -13,8 +13,6 @@
 
 #include <iomanip>
 
-#ifdef HAVE_MUTEX_H
-
 toolbox::tlog::tlog()
     : out_stream(&std::cout), err_stream(&std::cerr) {
 }
@@ -75,9 +73,7 @@ void toolbox::tlog::clear() {
     logs.clear();
 }
 void toolbox::tlog::flush() {
-#ifndef TOOLBOXPP_LOGGER_NO_MUTEX
-    std::lock_guard<mutex_t> locker(logLock);
-#endif
+    std::lock_guard<mutex_t> locker(log_mutex);
     for (auto& levels : logs) {
         while (!levels.second.empty()) {
             if (levels.first > LEVEL_INFO) {
@@ -97,9 +93,7 @@ void toolbox::tlog::log(toolbox::level_t level, const std::string& tag, const st
     if (!can_log(level)) {
         return;
     }
-#ifndef TOOLBOXPP_LOGGER_NO_MUTEX
-    std::lock_guard<mutex_t> locker(logLock);
-#endif
+    std::lock_guard<mutex_t> locker(log_mutex);
     std::string out = tag + ": " + message;
     logs[level].push(out);
 #ifndef TOOLBOXPP_LOGGER_NO_AUTOFLUSH
@@ -133,10 +127,7 @@ void toolbox::tlog::log(toolbox::level_t level, const std::string& file, int lin
     } else {
         out << tag << ": " << message << "\n\t" << file << ":" << line;
     }
-
-#ifndef TOOLBOXPP_LOGGER_NO_MUTEX
-    std::lock_guard<mutex_t> locker(logLock);
-#endif
+    std::lock_guard<mutex_t> locker(log_mutex);
     logs[level].push(out.str());
 
 #ifndef TOOLBOXPP_LOGGER_NO_AUTOFLUSH
@@ -204,4 +195,4 @@ void toolbox::tlog::d(const char* tag, const char* message) {
     d(std::string(tag), std::string(message));
 }
 
-#endif
+//#endif

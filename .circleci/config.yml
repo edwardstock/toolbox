@@ -16,3 +16,4 @@ jobs:
       - run: $(which bash) .circleci/setup.sh
       - run: $(which bash) .circleci/test.sh
       - run: $(which bash) .circleci/deploy.sh
+      - run: $(which bash) .cfg/make_package.sh archive upload github

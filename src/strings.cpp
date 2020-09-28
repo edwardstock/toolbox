@@ -8,9 +8,11 @@
  */
 #include "toolbox/strings.hpp"
 
+#include <exception>
 #include <fstream>
 #include <istream>
 #include <sstream>
+#include <stdexcept>
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__) || defined(__MINGW32__) || \
     defined(__MINGW64__)
@@ -187,6 +189,19 @@ std::string toolbox::strings::repeat(char in, size_t n) {
 
     return ss.str();
 }
+
+std::string toolbox::strings::trim(const std::string& in) {
+    std::string out = in;
+    trim_ref(out);
+    return out;
+}
+void toolbox::strings::trim_ref(std::string& in) {
+    const std::vector<std::string> search{
+        "\t", "\n", "\r", "\x0B"};
+    const std::vector<std::string> replace{""};
+    substr_replace_all(search, replace, in);
+}
+
 void toolbox::strings::replace(const std::string& search, const std::string& replace, std::string& source) {
     source = substr_replace_ret(search, replace, source);
 }

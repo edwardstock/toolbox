@@ -17,8 +17,6 @@
 #include <string>
 #include <unordered_map>
 
-#ifdef HAVE_MUTEX_H
-
 namespace toolbox {
 
 class TOOLBOX_API time_profiler {
@@ -48,5 +46,4 @@ public:
 
 } // namespace toolbox
 
-#endif // #ifdef HAVE_MUTEX_H
 #endif // TOOLBOXPP_TIME_PROFILER_H

@@ -15,7 +15,8 @@
 
 #include <string>
 
-namespace toolbox::data {
+namespace toolbox {
+namespace data {
 
 static std::vector<uint8_t> to_base_64(const std::vector<uint8_t>& source) {
     return base64_encode_bytes(source);
@@ -43,6 +44,7 @@ struct basic_data<uint8_t>::converter<basic_data<char>> {
 };
 using bytes_to_chars = basic_data<uint8_t>::converter<basic_data<char>>;
 
-} // namespace toolbox::data
+} // namespace data
+} // namespace toolbox
 
 #endif // TOOLBOX_TRANSFORMERS_H

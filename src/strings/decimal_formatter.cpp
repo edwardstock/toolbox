@@ -12,6 +12,7 @@
 
 #include <sstream>
 #include <stack>
+#include <stdexcept>
 #include <string>
 #include <utility>
 toolbox::strings::decimal_formatter::decimal_formatter(int num) {

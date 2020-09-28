@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
-project(toolbox VERSION 3.1.1)
+project(toolbox
+        VERSION 3.1.2
+        DESCRIPTION "Toolbox - C++ helpers, especially for string and bytes handling")
 set(CMAKE_CXX_STANDARD 17)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/modules)
@@ -65,6 +67,7 @@ set(MULTI_HEADERS
     include/toolbox/data/base64.h
     include/toolbox/data/basic_data.h
     include/toolbox/data/bytes_array.h
+    include/toolbox/data/transformers.h
     )
 
 set(MULTI_SOURCES
@@ -81,7 +84,6 @@ set(MULTI_SOURCES
     src/log.cpp
     src/time_profiler.cpp
     src/data/base64.cpp
-    include/toolbox/data/transformers.h
     )
 
 if (ENABLE_SHARED)
@@ -138,7 +140,8 @@ if (ENABLE_TEST)
 	               tests/numbers_test.cpp
 	               tests/collection_test.cpp
 	               tests/strings_test.cpp
-	               tests/data_test.cpp tests/bytes_benchmark.cpp)
+	               tests/data_test.cpp
+	               tests/bytes_benchmark.cpp)
 
 	if (ENABLE_PVS)
 		include(PVS-Studio)
@@ -180,14 +183,4 @@ if (ENABLE_TEST)
 
 endif ()
 
-install(
-	TARGETS ${PROJECT_NAME}
-	RUNTIME DESTINATION bin
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-)
-
-install(
-	DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/toolbox
-	DESTINATION include
-)
+include(package)

@@ -293,6 +293,18 @@ TEST(Strings, Split) {
     ASSERT_EQ(0, result4.size());
 }
 
+TEST(Strings, Trim) {
+    std::string test1 = "hello world!\n\taa\n\tbbb\n\tccc";
+    std::string res = trim(test1);
+    ASSERT_STREQ("hello world!aabbbccc", res.c_str());
+}
+
+TEST(Strings, TrimRef) {
+    std::string test1 = "hello world!\n\taa\n\tbbb\n\tccc";
+    trim_ref(test1);
+    ASSERT_STREQ("hello world!aabbbccc", test1.c_str());
+}
+
 TEST(Strings, Replace) {
     std::string test1 = "hello world!";
     replace("hello", "hell or", test1);

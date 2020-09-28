@@ -158,6 +158,19 @@ TOOLBOX_API std::string repeat(const std::string& in, size_t n = 1);
 TOOLBOX_API std::string repeat(char in, size_t n = 1);
 
 /*!
+ * \brief Remove from string symbols: \t\n\r\x0B
+ * \param in any string
+ * \return string without special symbols
+ */
+TOOLBOX_API std::string trim(const std::string& in);
+
+/*!
+ * \brief Remove from string symbols: \t\n\r\x0B
+ * \param in any string reference
+ */
+TOOLBOX_API void trim_ref(std::string& in);
+
+/*!
  * @see substringReplace(const std::string &search,
                                                                         const
  std::string &replace, const std::string &source) but mutable behavior

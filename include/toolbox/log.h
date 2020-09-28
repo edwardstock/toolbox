@@ -12,8 +12,6 @@
 
 #include "toolbox/toolbox_config.h"
 
-#ifdef HAVE_MUTEX_H
-
 #include <iostream>
 #include <mutex>
 #include <queue>
@@ -50,8 +48,7 @@ private:
 
     std::ostream* out_stream;
     std::ostream* err_stream;
-
-    mutex_t logLock;
+    mutex_t log_mutex;
 
     std::unordered_map<level_t, std::queue<std::string>> logs;
     std::unordered_map<level_t, std::string> levelMap = {
@@ -180,5 +177,4 @@ public:
 
 #define L_FLUSH() toolbox::tlog::get().flush()
 
-#endif // #ifdef HAVE_MUTEX_H
 #endif // TOOLBOXPP_LOG_H
