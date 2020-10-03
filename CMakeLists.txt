@@ -129,6 +129,11 @@ message(STATUS "CXX_RELDBG_FLAGS:  ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 
 if (ENABLE_CONAN)
+
+	if (NOT HAVE_STD_REGEX)
+		set(ENV{TOOLBOX_USE_CONAN_BOOST} 1)
+	endif ()
+
 	include(ConanInit)
 	conan_init()
 endif ()
