@@ -21,6 +21,7 @@ jobs:
       - image: conanio/gcc5
         environment:
           CONAN_CPU_COUNT: 4
+          TOOLBOX_USE_CONAN_BOOST: 1
     steps:
       - do_all
   gcc-6:
