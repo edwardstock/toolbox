@@ -142,10 +142,10 @@ TEST(BytesData, Resize) {
     ASSERT_EQ(16, target.size());
     d.resize(16);
     ASSERT_EQ(16, d.size());
-    ASSERT_EQ(0xFF_byte, target.at(0));
-    ASSERT_EQ(0xFF_byte, target.at(15));
-    ASSERT_EQ(0x7F_byte, d.at(0));
-    ASSERT_EQ(0x7F_byte, d.at(15));
+    ASSERT_EQ((uint8_t) 0xFF, target.at(0));
+    ASSERT_EQ((uint8_t) 0xFF, target.at(15));
+    ASSERT_EQ((uint8_t) 0x7F, d.at(0));
+    ASSERT_EQ((uint8_t) 0x7F, d.at(15));
 }
 
 TEST(BytesData, PopBackTo) {
@@ -161,10 +161,10 @@ TEST(BytesData, PopBackTo) {
     d.pop_back_to(target);
     ASSERT_EQ(16, target.size());
     ASSERT_EQ(16, d.size());
-    ASSERT_EQ(0xFF_byte, target.at(0));
-    ASSERT_EQ(0xFF_byte, target.at(15));
-    ASSERT_EQ(0x7F_byte, d.at(0));
-    ASSERT_EQ(0x7F_byte, d.at(15));
+    ASSERT_EQ((uint8_t) 0xFF, target.at(0));
+    ASSERT_EQ((uint8_t) 0xFF, target.at(15));
+    ASSERT_EQ((uint8_t) 0x7F, d.at(0));
+    ASSERT_EQ((uint8_t) 0x7F, d.at(15));
 
     bytes_data target2(8);
     d.pop_back_to(8, target2);
@@ -175,9 +175,9 @@ TEST(BytesData, PopBackTo) {
     d.pop_back_to(target3);
     ASSERT_EQ(0, d.size());
     ASSERT_EQ(16, target3.size());
-    ASSERT_EQ(0x7F_byte, target3.at(0));
-    ASSERT_EQ(0x7F_byte, target3.at(7));
-    ASSERT_EQ(0x00_byte, target3.at(15));
+    ASSERT_EQ((uint8_t) 0x7F, target3.at(0));
+    ASSERT_EQ((uint8_t) 0x7F, target3.at(7));
+    ASSERT_EQ((uint8_t) 0x00, target3.at(15));
 }
 
 TEST(BytesData, InsertIterator) {
@@ -195,7 +195,7 @@ TEST(BytesData, InsertIterator) {
 
     d.clear();
     d.resize(32);
-    std::fill(d.begin(), d.end(), 0x80_byte);
+    std::fill(d.begin(), d.end(), (uint8_t) 0x80);
     n = d.write(4, data2.begin(), data2.end());
     ASSERT_EQ(4, n);
     ASSERT_EQ(32, d.size());
@@ -386,10 +386,10 @@ TEST(Buffer, PopFrontTo) {
 
 TEST(Buffer, PopFrontLimit) {
     bytes_data chunk(64);
-    std::fill(chunk.begin(), chunk.end(), 0x80_byte);
+    std::fill(chunk.begin(), chunk.end(), (uint8_t) 0x80);
 
     bytes_buffer buffer(256);
-    std::fill(buffer.begin(), buffer.end(), 0xFF_byte);
+    std::fill(buffer.begin(), buffer.end(), (uint8_t) 0xFF);
 
     uint16_t seq = 0;
 
@@ -417,20 +417,20 @@ TEST(BytesData, RealCase1) {
     bytes_data buffer(64);
     // 01 01 05 00 00 00 05 00 01 00 90 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
     // 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-    buffer.write(0, 0x01_byte);
-    buffer.write(1, 0x01_byte);
-    buffer.write(2, 0x05_byte);
-    buffer.write(3, 0x00_byte);
-    buffer.write(4, 0x00_byte);
-    buffer.write(5, 0x00_byte);
-    buffer.write(6, 0x05_byte);
-    buffer.write(7, 0x00_byte);
-    buffer.write(8, 0x01_byte);
-    buffer.write(9, 0x00_byte);
-    buffer.write(10, 0x90_byte);
-    buffer.write(11, 0x00_byte);
+    buffer.write(0, (uint8_t) 0x01);
+    buffer.write(1, (uint8_t) 0x01);
+    buffer.write(2, (uint8_t) 0x05);
+    buffer.write(3, (uint8_t) 0x00);
+    buffer.write(4, (uint8_t) 0x00);
+    buffer.write(5, (uint8_t) 0x00);
+    buffer.write(6, (uint8_t) 0x05);
+    buffer.write(7, (uint8_t) 0x00);
+    buffer.write(8, (uint8_t) 0x01);
+    buffer.write(9, (uint8_t) 0x00);
+    buffer.write(10, (uint8_t) 0x90);
+    buffer.write(11, (uint8_t) 0x00);
     for (int i = 12; i < 64; i++) {
-        buffer.write(i, 0x0_byte);
+        buffer.write(i, (uint8_t) 0x0);
     }
 
     // parse header 5 bytes
@@ -441,20 +441,20 @@ TEST(BytesData, RealCase1) {
     // 2 bytes
     auto cseq = buffer.to_num<uint16_t>(3);
 
-    ASSERT_EQ(0x0101_dbyte, channelId);
-    ASSERT_EQ(0x05_dbyte, commandTag);
+    ASSERT_EQ((uint16_t) 0x0101, channelId);
+    ASSERT_EQ((uint16_t) 0x05, commandTag);
     ASSERT_EQ(0x00, cseq);
 
     // data len
-    ASSERT_EQ(0x05_dbyte, buffer.at(6));
+    ASSERT_EQ((uint16_t) 0x05, buffer.at(6));
 
     // version
     ASSERT_EQ(0x00, buffer.at(7));
-    ASSERT_EQ(0x01_dbyte, buffer.at(8));
+    ASSERT_EQ((uint16_t) 0x01, buffer.at(8));
     ASSERT_EQ(0x00, buffer.at(9));
 
     uint16_t statusCode = buffer.to_num<uint16_t>(10);
-    ASSERT_EQ(0x9000_dbyte, statusCode);
+    ASSERT_EQ((uint16_t) 0x9000, statusCode);
 }
 
 TEST(BytesData, WriteReadNumber) {
@@ -510,16 +510,16 @@ TEST(BytesData, ToNumAny) {
     ASSERT_EQ(UINT64_MAX, r1);
 
     d.clear();
-    d.write(0, 0xFF_byte);
+    d.write(0, (uint8_t) 0xFF);
 
     auto r2 = d.to_num_any_size<uint8_t>(0, 0 + 1);
-    ASSERT_EQ(0xFF_byte, r2);
+    ASSERT_EQ((uint8_t) 0xFF, r2);
 
     d.clear();
     d.write(0, 250);
 
     auto r3 = d.to_num_any_size<uint32_t>(0);
-    ASSERT_EQ(250_byte, r3);
+    ASSERT_EQ((uint8_t) 250, r3);
 
     d.clear();
     d.write(0, (uint32_t) UINT16_MAX);
@@ -532,7 +532,7 @@ TEST(BytesData, ToNumAny) {
     ASSERT_EQ(UINT16_MAX, r6);
 
     d.clear();
-    d.write(0, 250_byte);
+    d.write(0, (uint8_t) 250);
     auto r4 = d.to_num_any_size<uint32_t>(0);
     ASSERT_NE((uint32_t) 250, r4);
     // r4 case works, only if data container has only 1 byte size, but there already 8,
@@ -581,17 +581,17 @@ TEST(BytesData, CopyCtor) {
 }
 
 TEST(BytesData, Map) {
-    bytes_data d = {0x01_byte, 0x02_byte, 0x01_byte, 0x02_byte};
+    bytes_data d = {(uint8_t) 0x01, (uint8_t) 0x02, (uint8_t) 0x01, (uint8_t) 0x02};
 
     ASSERT_EQ(4, d.size());
-    ASSERT_EQ(0x01_byte, d.at(0));
-    ASSERT_EQ(0x02_byte, d.at(d.size() - 1));
+    ASSERT_EQ((uint8_t) 0x01, d.at(0));
+    ASSERT_EQ((uint8_t) 0x02, d.at(d.size() - 1));
 
     d.map([](uint8_t val) { return (uint8_t)(val * 2); });
 
     ASSERT_EQ(4, d.size());
-    ASSERT_EQ(0x02_byte, d.at(0));
-    ASSERT_EQ(0x04_byte, d.at(d.size() - 1));
+    ASSERT_EQ((uint8_t) 0x02, d.at(0));
+    ASSERT_EQ((uint8_t) 0x04, d.at(d.size() - 1));
 }
 
 static std::vector<uint8_t> switch_01(std::vector<uint8_t> source) {
@@ -621,7 +621,7 @@ std::vector<uint8_t> switch_05(const std::vector<uint8_t>& source) {
 } // namespace example
 
 TEST(BytesData, SwitchMapFuncVar) {
-    bytes_data d = {0x01_byte, 0x02_byte, 0x01_byte, 0x02_byte};
+    bytes_data d = {(uint8_t) 0x01, (uint8_t) 0x02, (uint8_t) 0x01, (uint8_t) 0x02};
     d.switch_map(&switch_01);
     d.switch_map(switch_01);
     d.switch_map(&switch_02);
@@ -631,16 +631,16 @@ TEST(BytesData, SwitchMapFuncVar) {
     d.switch_map(example::utils::switch_05);
 
     ASSERT_EQ(4, d.size());
-    ASSERT_EQ(0x01_byte, d.at(0));
-    ASSERT_EQ(0x02_byte, d.at(3));
+    ASSERT_EQ((uint8_t) 0x01, d.at(0));
+    ASSERT_EQ((uint8_t) 0x02, d.at(3));
 }
 
 TEST(BytesData, SwitchMap) {
-    bytes_data d = {0x01_byte, 0x02_byte, 0x01_byte, 0x02_byte};
+    bytes_data d = {(uint8_t) 0x01, (uint8_t) 0x02, (uint8_t) 0x01, (uint8_t) 0x02};
 
     ASSERT_EQ(4, d.size());
-    ASSERT_EQ(0x01_byte, d.at(0));
-    ASSERT_EQ(0x02_byte, d.at(d.size() - 1));
+    ASSERT_EQ((uint8_t) 0x01, d.at(0));
+    ASSERT_EQ((uint8_t) 0x02, d.at(d.size() - 1));
 
     d.switch_map([](std::vector<uint8_t> old) {
         std::vector<uint8_t> out;
@@ -651,16 +651,16 @@ TEST(BytesData, SwitchMap) {
     });
 
     ASSERT_EQ(4, d.size());
-    ASSERT_EQ(0x04_byte, d.at(0));
-    ASSERT_EQ(0x08_byte, d.at(d.size() - 1));
+    ASSERT_EQ((uint8_t) 0x04, d.at(0));
+    ASSERT_EQ((uint8_t) 0x08, d.at(d.size() - 1));
 }
 
 TEST(BytesData, SwitchMapReduce) {
-    bytes_data d = {0x01_byte, 0x02_byte, 0x01_byte, 0x02_byte};
+    bytes_data d = {(uint8_t) 0x01, (uint8_t) 0x02, (uint8_t) 0x01, (uint8_t) 0x02};
 
     ASSERT_EQ(4, d.size());
-    ASSERT_EQ(0x01_byte, d.at(0));
-    ASSERT_EQ(0x02_byte, d.at(d.size() - 1));
+    ASSERT_EQ((uint8_t) 0x01, d.at(0));
+    ASSERT_EQ((uint8_t) 0x02, d.at(d.size() - 1));
 
     d.switch_map([](std::vector<uint8_t> old) {
         std::vector<uint8_t> out;
@@ -671,16 +671,16 @@ TEST(BytesData, SwitchMapReduce) {
     });
 
     ASSERT_EQ(2, d.size());
-    ASSERT_EQ(0x04_byte, d.at(0));
-    ASSERT_EQ(0x08_byte, d.at(d.size() - 1));
+    ASSERT_EQ((uint8_t) 0x04, d.at(0));
+    ASSERT_EQ((uint8_t) 0x08, d.at(d.size() - 1));
 }
 
 TEST(BytesData, SwitchMapCopy) {
-    bytes_data d = {0x01_byte, 0x02_byte, 0x01_byte, 0x02_byte};
+    bytes_data d = {(uint8_t) 0x01, (uint8_t) 0x02, (uint8_t) 0x01, (uint8_t) 0x02};
 
     ASSERT_EQ(4, d.size());
-    ASSERT_EQ(0x01_byte, d.at(0));
-    ASSERT_EQ(0x02_byte, d.at(3));
+    ASSERT_EQ((uint8_t) 0x01, d.at(0));
+    ASSERT_EQ((uint8_t) 0x02, d.at(3));
 
     auto res = d.switch_map_c([](std::vector<uint8_t> old) {
         std::vector<uint8_t> out(old.size());
@@ -692,16 +692,16 @@ TEST(BytesData, SwitchMapCopy) {
     });
 
     ASSERT_EQ(4, res.size());
-    ASSERT_EQ(0x02_byte, res.at(0));
-    ASSERT_EQ(0x04_byte, res.at(1));
-    ASSERT_EQ(0x02_byte, res.at(2));
-    ASSERT_EQ(0x04_byte, res.at(3));
+    ASSERT_EQ((uint8_t) 0x02, res.at(0));
+    ASSERT_EQ((uint8_t) 0x04, res.at(1));
+    ASSERT_EQ((uint8_t) 0x02, res.at(2));
+    ASSERT_EQ((uint8_t) 0x04, res.at(3));
 
     ASSERT_EQ(4, d.size());
-    ASSERT_EQ(0x01_byte, d.at(0));
-    ASSERT_EQ(0x02_byte, d.at(1));
-    ASSERT_EQ(0x01_byte, d.at(2));
-    ASSERT_EQ(0x02_byte, d.at(3));
+    ASSERT_EQ((uint8_t) 0x01, d.at(0));
+    ASSERT_EQ((uint8_t) 0x02, d.at(1));
+    ASSERT_EQ((uint8_t) 0x01, d.at(2));
+    ASSERT_EQ((uint8_t) 0x02, d.at(3));
 }
 
 TEST(BytesData, MapToStrings) {

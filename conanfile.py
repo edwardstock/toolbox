@@ -1,4 +1,5 @@
 import os
+import sys
 
 from conans import ConanFile, CMake, tools
 
@@ -52,6 +53,10 @@ class ToolboxConan(ConanFile):
     def configure(self):
         if self.settings.compiler == "Visual Studio":
             del self.settings.compiler.runtime
+
+        if float(self.settings.compiler.version.value) < 5:
+            self.requires.add("boost/1.72.0")
+            print("WARN: adding boost to requirements")
 
     def build(self):
         cmake = CMake(self)

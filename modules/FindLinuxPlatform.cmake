@@ -7,7 +7,6 @@
 # $OS_NAME debian | ubuntu | fedora | centos
 #
 
-message(STATUS "CMAKE_SYSTEM_PROCE: ${CMAKE_SYSTEM_PROCESSOR}")
 if (NOT WINDOWS)
 	if (${CMAKE_SYSTEM_PROCESSOR} MATCHES i386|i586|i686)
 		set(BIT_MODE "32")
@@ -15,6 +14,9 @@ if (NOT WINDOWS)
 		set(BIT_MODE "64")
 	endif ()
 	set(OS_ARCH ${CMAKE_SYSTEM_PROCESSOR})
+	if (BIT_MODE STREQUAL "64")
+		set(OS_ARCH "amd64")
+	endif ()
 
 	if (EXISTS "/etc/debian_version")
 		set(IS_DEBIAN ON)
@@ -24,10 +26,6 @@ if (NOT WINDOWS)
 			OUTPUT_VARIABLE DEB_DIST_NAME
 		)
 		string(REGEX REPLACE "\n$" "" DEB_DIST_NAME "${DEB_DIST_NAME}")
-
-		if (BIT_MODE STREQUAL "64")
-			set(OS_ARCH "amd64")
-		endif ()
 	endif (EXISTS "/etc/debian_version")
 
 	if (EXISTS "/etc/redhat-release")

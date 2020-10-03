@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 project(toolbox
-        VERSION 3.1.2
+        VERSION 3.2.0
         DESCRIPTION "Toolbox - C++ helpers, especially for string and bytes handling")
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/modules)
 if (WIN32)
@@ -48,6 +48,28 @@ endif ()
 include(SystemDetector)
 include(options.cmake)
 
+if (NOT HAVE_REGEX_H)
+	message(STATUS "Trying to use Boost.Regex as your compiler does not support it")
+	if (ENABLE_CONAN)
+		set(HAVE_REGEX_H 1)
+		set(HAVE_BOOST_REGEX 1)
+	else ()
+		set(Boost_DEBUG OFF)
+		set(Boost_USE_MULTITHREADED ON)
+
+		if (WIN32)
+			find_package(Boost)
+		else ()
+			find_package(Boost COMPONENTS regex)
+		endif ()
+
+		if (Boost_FOUND)
+			set(HAVE_REGEX_H 1)
+			set(HAVE_BOOST_REGEX 1)
+		endif ()
+	endif ()
+endif ()
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cfg/toolbox_config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/toolbox/toolbox_config.h)
 
 set(MULTI_HEADERS
     include/toolbox/toolbox_config.h
@@ -113,6 +135,16 @@ endif ()
 
 message(STATUS "Enable conan: ${ENABLE_CONAN}")
 
+if (NOT HAVE_STD_REGEX)
+	message(STATUS "Using Boost.Regex as your compiler does not support it")
+	if (ENABLE_CONAN)
+		target_link_libraries(${PROJECT_NAME} CONAN_PKG::boost)
+	elseif (Boost_FOUND)
+		target_link_libraries(${PROJECT_NAME} Boost::regex)
+	else ()
+		message(WARNING "Boost not found on your system. Disabled \"regex\"-based functionality")
+	endif ()
+endif ()
 
 if (ENABLE_TEST)
 	if (NOT ENABLE_CONAN)

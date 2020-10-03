@@ -43,16 +43,30 @@ TEST(Strings, HasSubstringChar) {
 }
 
 #ifdef HAVE_REGEX_H
-TEST(Strings, matches_pattern) {
+
+TEST(Strings, RegexFindAllPatternEnvironmentVariables) {
+    const std::string source = "cp $HOME/value.txt $PWD/new_value.txt";
+    const std::string pattern = R"(\$[A-Z0-9_]+)";
+
+    ASSERT_TRUE(matches_pattern(pattern, source));
+
+    auto res_all = find_all_pattern(pattern, source);
+
+    ASSERT_EQ(2, res_all.size());
+    ASSERT_STREQ("$HOME", res_all[0][0].c_str());
+    ASSERT_STREQ("$PWD", res_all[1][0].c_str());
+}
+
+TEST(Strings, RegexMatchesPattern) {
     ASSERT_TRUE(matches_pattern("[0-9]", "abc123"));
-    ASSERT_TRUE(matches_pattern(std::regex("[a-z0-9]"), "abc123"));
+    ASSERT_TRUE(matches_pattern(rxns::regex("[a-z0-9]"), "abc123"));
     ASSERT_TRUE(matches_pattern("HTTP", "HTTP/1.1 400 Bad Request"));
     ASSERT_FALSE(matches_pattern("[!@#$]", "abc123"));
     ASSERT_TRUE(matches_pattern("[а-я]", "привет"));
     ASSERT_FALSE(matches_pattern("[а-я]", "hello"));
 }
 
-TEST(Strings, MatchAllRegex) {
+TEST(Strings, RegexMatchAll) {
     auto result = find_all_pattern(R"((\[[a-z]+\]))", "[abc]\n\n[def]gagag[ghi]rg45w5[jkl]");
     std::vector<std::string> mustBeFounded{
         "[abc]",
@@ -60,7 +74,7 @@ TEST(Strings, MatchAllRegex) {
         "[ghi]",
         "[jkl]"};
     size_t found = 0;
-    for (auto &matches: result) {
+    for (auto& matches : result) {
         ASSERT_EQ(2UL, matches.size());
         const std::string match = matches[1];
         for (auto &f: mustBeFounded) {
@@ -73,7 +87,7 @@ TEST(Strings, MatchAllRegex) {
 
     ASSERT_EQ(mustBeFounded.size(), found);
 
-    auto result2 = find_all_pattern(std::regex(R"((\[[a-z]+\]))"), "[abc]\n\n[def]gagag[ghi]rg45w5[jkl]");
+    auto result2 = find_all_pattern(rxns::regex(R"((\[[a-z]+\]))"), "[abc]\n\n[def]gagag[ghi]rg45w5[jkl]");
     size_t found2 = 0;
     for (auto &matches: result2) {
         ASSERT_EQ(2UL, matches.size());
@@ -89,18 +103,18 @@ TEST(Strings, MatchAllRegex) {
     ASSERT_EQ(mustBeFounded.size(), found2);
 }
 
-TEST(Strings, find_pattern_first) {
+TEST(Strings, RegexFindPatternFirst) {
     auto result1 = find_pattern_first(R"((\[[a-z]+\]))", "[abc]\n\n[def]gagag[ghi]rg45w5[jkl]");
     std::string mustBeFounded = "[abc]";
 
     ASSERT_STREQ(result1.c_str(), mustBeFounded.c_str());
 
-    auto result2 = find_pattern_first(std::regex(R"((\[[a-z]+\]))"), "[abc]\n\n[def]gagag[ghi]rg45w5[jkl]");
+    auto result2 = find_pattern_first(rxns::regex(R"((\[[a-z]+\]))"), "[abc]\n\n[def]gagag[ghi]rg45w5[jkl]");
 
     ASSERT_STREQ(result2.c_str(), mustBeFounded.c_str());
 }
 
-TEST(Strings, find_pattern) {
+TEST(Strings, RegexFindPattern) {
     const char* mustBeFounded = "[abc]";
 
     auto result1 = find_pattern(R"((\[[a-z]+\]))", "[abc]\n\n[def]gagag[ghi]rg45w5[jkl]");
@@ -108,7 +122,7 @@ TEST(Strings, find_pattern) {
     ASSERT_FALSE(result1.empty());
     ASSERT_STREQ(result1[1].c_str(), mustBeFounded);
 
-    auto result2 = find_pattern(std::regex(R"((\[[a-z]+\]))"), "[abc]\n\n[def]gagag[ghi]rg45w5[jkl]");
+    auto result2 = find_pattern(rxns::regex(R"((\[[a-z]+\]))"), "[abc]\n\n[def]gagag[ghi]rg45w5[jkl]");
     ASSERT_EQ(2UL, result2.size());
     ASSERT_FALSE(result2.empty());
     ASSERT_STREQ(result2[1].c_str(), mustBeFounded);
@@ -119,92 +133,9 @@ TEST(Strings, find_pattern) {
     ASSERT_STREQ(result3[2].c_str(), "Bad Request");
 }
 
-TEST(Strings, MatchEmptyStrangeSmatchBehavior) {
-//    const std::string urlParseRegex =
-    //        R"(([a-zA-Z]+)\:\/\/([a-zA-Z0-9\.\-_]+):?([0-9]{1,5})?(\/[a-zA-Z0-9\/\+\-\.\%\/_]*)\??([a-zA-Z0-9\-_\+\=\&\%\.]*))";
-    //    auto res = toolbox::strings::matches_pattern(urlParseRegex, "http://wtf");
-    //
-    //    ASSERT_EQ(6, res.size());
-//    ASSERT_STREQ("", res[0].c_str()); // full match
-//    ASSERT_STREQ("", res[1].c_str()); // proto
-//    ASSERT_STREQ("", res[2].c_str()); // host
-//    ASSERT_STREQ("", res[3].c_str()); // port
-//    ASSERT_STREQ("", res[4].c_str()); // path
-//    ASSERT_STREQ("", res[5].c_str()); // query
-//
-//    auto res1 = toolbox::strings::matches_pattern(urlParseRegex, "https://vk.com:443/login?u=2&to=ZmF2ZQ--");
-//
-//    ASSERT_EQ(6, res1.size());
-//    ASSERT_STREQ("https://vk.com:443/login?u=2&to=ZmF2ZQ--", res1[0].c_str());
-//    ASSERT_STREQ("https", res1[1].c_str());
-//    ASSERT_STREQ("vk.com", res1[2].c_str());
-//    ASSERT_STREQ("443", res1[3].c_str());
-//    ASSERT_STREQ("/login", res1[4].c_str());
-//    ASSERT_STREQ("u=2&to=ZmF2ZQ--", res1[5].c_str());
-}
-
-TEST(Strings, MatchEmptyString) {
-    //    const std::string emptyOrOneCharNoGroup = "[a-z]*";
-    //    auto res1 = toolbox::strings::matches_pattern(emptyOrOneCharNoGroup, "agent");
-    //    ASSERT_EQ(1, res1.size());
-    //    ASSERT_STREQ("agent", res1[0].c_str());
-//
-    //    const std::string emptyOrOneCharGroup = "([a-z]*)";
-    //    auto res2 = toolbox::strings::matches_pattern(emptyOrOneCharNoGroup, "agent");
-    //    // res2[1] = group 0: "agent"
-    //    ASSERT_EQ(1, res2.size());
-//    ASSERT_STREQ("agent", res2[0].c_str());
-//
-    //    const std::string oneOrMoreNoGroup = "[a-z]+";
-    //    auto res3 = toolbox::strings::matches_pattern(oneOrMoreNoGroup, "");
-    ////    ASSERT_EQ(1, res3.size());
-    ////    ASSERT_EQ(0, res3.size());
-////    ASSERT_STREQ("", res3[0].c_str());
-    //
-    //    ASSERT_FALSE(toolbox::strings::matches_pattern(oneOrMoreNoGroup, ""));
-    //
-    //    // if single group or no group, result is a single
-    //    const std::string oneOrMoreGroup = "([a-z]+)";
-    //    auto res4 = toolbox::strings::matches_pattern(oneOrMoreNoGroup, "");
-    //    // res4[1] = group 0: ""
-    //    ASSERT_EQ(1, res4.size());
-//    ASSERT_STREQ("", res4[0].c_str());
-//
-    //    const std::string multigroup = R"(([a-z]*)\s+([0-9]*))";
-    //    auto res5 = toolbox::strings::matches_pattern(multigroup, "agent 47");
-    //    // if groups > 1, not found results will be empty string + full match at 0 index
-    //    ASSERT_EQ(3, res5.size());
-//    ASSERT_STREQ("agent 47", res5[0].c_str());
-//    ASSERT_STREQ("agent", res5[1].c_str());
-//    ASSERT_STREQ("47", res5[2].c_str());
-    //
-    //    auto res6 = toolbox::strings::find_pattern(multigroup, "agent");
-    //    // if groups > 1, not found results will be empty string + full match at 0 index
-    //    ASSERT_EQ(3, res6.size());
-//    ASSERT_STREQ("", res6[0].c_str());
-//    ASSERT_STREQ("", res6[1].c_str());
-//    ASSERT_STREQ("", res6[2].c_str());
-//
-    //    const std::string multigroupWithZeroOrMultipleTimes = R"(([a-z]*)\s*([0-9]*))";
-    //    auto res7 = toolbox::strings::find_pattern(multigroupWithZeroOrMultipleTimes, "agent");
-    //    // if groups > 1, not found results will be empty string + full match at 0 index
-    //    ASSERT_EQ(3, res7.size());
-//    ASSERT_STREQ("agent", res7[0].c_str());
-//    ASSERT_STREQ("agent", res7[1].c_str());
-//    ASSERT_STREQ("", res7[2].c_str());
-//
-    //    const std::string multigroupWithOptional = R"(([a-z]*)\s*?([0-9]*))";
-    //    auto res8 = toolbox::strings::matches_pattern(multigroupWithOptional, "agent");
-    //    // if groups > 1, not found results will be empty string + full match at 0 index
-    //    ASSERT_EQ(3, res8.size());
-    //    ASSERT_STREQ("agent", res8[0].c_str());
-    //    ASSERT_STREQ("agent", res8[1].c_str());
-    //    ASSERT_STREQ("", res8[2].c_str());
-}
-
 #endif
 
-TEST(Strings, split_pair) {
+TEST(Strings, SplitPair) {
     auto result1 = split_pair("abc,def", ",");
     ASSERT_STREQ("abc", result1.first.c_str());
     ASSERT_STREQ("def", result1.second.c_str());

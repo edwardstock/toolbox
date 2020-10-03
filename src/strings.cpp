@@ -124,6 +124,51 @@ std::pair<std::string, std::string> toolbox::strings::split_pair(const std::stri
     }
     return split_pair(source, delimiter.c_str()[0]);
 }
+
+std::string toolbox::strings::repeat(const std::string& in, size_t n) {
+    std::stringstream ss;
+    for (size_t i = 0; i < n; i++) {
+        ss << in;
+    }
+
+    return ss.str();
+}
+std::string toolbox::strings::repeat(char in, size_t n) {
+    std::stringstream ss;
+    for (size_t i = 0; i < n; i++) {
+        ss << in;
+    }
+
+    return ss.str();
+}
+
+std::string toolbox::strings::trim(const std::string& in) {
+    std::string out = in;
+    trim_ref(out);
+    return out;
+}
+void toolbox::strings::trim_ref(std::string& in) {
+    const std::vector<std::string> search{
+        "\t", "\n", "\r", "\x0B"};
+    const std::vector<std::string> replace{""};
+    substr_replace_all(search, replace, in);
+}
+
+void toolbox::strings::replace(const std::string& search, const std::string& replace, std::string& source) {
+    source = substr_replace_ret(search, replace, source);
+}
+void toolbox::strings::substr_replace_all(const std::string& search, const std::string& replace, std::string& source) {
+    source = substr_replace_all_ret(search, replace, source);
+}
+void toolbox::strings::substr_replace_all(const std::vector<std::string>& search, const std::vector<std::string>& replace,
+                                          std::string& source) {
+    source = substr_replace_all_ret(search, replace, source);
+}
+
+void toolbox::strings::substr_replace_all(const std::vector<std::string>& search, const std::string& replace, std::string& source) {
+    substr_replace_all(search, std::vector<std::string>{replace}, source);
+}
+
 std::string toolbox::strings::substr_replace_ret(const std::string& search, const std::string& replace,
                                                  const std::string& source) {
     if (source.empty() || source.length() < search.length()) {
@@ -173,45 +218,11 @@ std::string toolbox::strings::substr_replace_all_ret(const std::vector<std::stri
 
     return result;
 }
-std::string toolbox::strings::repeat(const std::string& in, size_t n) {
-    std::stringstream ss;
-    for (size_t i = 0; i < n; i++) {
-        ss << in;
-    }
 
-    return ss.str();
-}
-std::string toolbox::strings::repeat(char in, size_t n) {
-    std::stringstream ss;
-    for (size_t i = 0; i < n; i++) {
-        ss << in;
-    }
-
-    return ss.str();
+std::string toolbox::strings::substr_replace_all_ret(const std::vector<std::string>& search, const std::string& replace, const std::string& source) {
+    return substr_replace_all_ret(search, std::vector<std::string>{replace}, source);
 }
 
-std::string toolbox::strings::trim(const std::string& in) {
-    std::string out = in;
-    trim_ref(out);
-    return out;
-}
-void toolbox::strings::trim_ref(std::string& in) {
-    const std::vector<std::string> search{
-        "\t", "\n", "\r", "\x0B"};
-    const std::vector<std::string> replace{""};
-    substr_replace_all(search, replace, in);
-}
-
-void toolbox::strings::replace(const std::string& search, const std::string& replace, std::string& source) {
-    source = substr_replace_ret(search, replace, source);
-}
-void toolbox::strings::substr_replace_all(const std::string& search, const std::string& replace, std::string& source) {
-    source = substr_replace_all_ret(search, replace, source);
-}
-void toolbox::strings::substr_replace_all(const std::vector<std::string>& search, const std::vector<std::string>& replace,
-                                          std::string& source) {
-    source = substr_replace_all_ret(search, replace, source);
-}
 void toolbox::strings::substr_remove(std::string& source, const std::string& removable) {
     size_t n = removable.length();
 

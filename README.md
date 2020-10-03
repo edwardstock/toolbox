@@ -33,13 +33,13 @@ conan remote add edwardstock https://api.bintray.com/conan/edwardstock/conan-pub
 ```
 
 ```bash
-conan install <path/to/your/project> toolbox/3.1.1@edwardstock/latest
+conan install <path/to/your/project> toolbox/3.2.0@edwardstock/latest
 ```
 
 or using `conanfile.txt`
 ```ini
 [requires]
-toolbox/3.1.1@edwardstock/latest
+toolbox/3.2.0@edwardstock/latest
 
 [generators]
 cmake

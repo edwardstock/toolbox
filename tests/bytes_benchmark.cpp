@@ -22,7 +22,7 @@ TEST(BenchmarkBytesData, PushBack) {
 
     toolbox::time_profiler::get().begin(tag);
 
-    for (size_t i = 0; i < 100'000'000; i++) {
+    for (size_t i = 0; i < 100000000; i++) {
         data.push_back(val);
     }
 
@@ -37,7 +37,7 @@ TEST(BenchmarkBytesData, WriteBack) {
     const uint8_t val = (uint8_t) 0xFF;
     tp::get().begin(tag);
 
-    for (size_t i = 0; i < 100'000; i++) {
+    for (size_t i = 0; i < 100000; i++) {
         data.write_back(val);
     }
 
@@ -51,7 +51,7 @@ TEST(BenchmarkBytesData, WriteBytePosition) {
     const uint8_t val = (uint8_t) 0xFF;
     toolbox::time_profiler::get().begin(tag);
 
-    for (size_t i = 0; i < 100'000; i++) {
+    for (size_t i = 0; i < 100000; i++) {
         data.write(i, val);
     }
 
@@ -59,14 +59,14 @@ TEST(BenchmarkBytesData, WriteBytePosition) {
 }
 
 TEST(BenchmarkBytesData, AllocatedWriteBytePosition) {
-    bytes_data data(100'000);
+    bytes_data data(100000);
 
     using tp = toolbox::time_profiler;
     const std::string tag = "Write 100m elements";
     const uint8_t val = (uint8_t) 0xFF;
     tp::get().begin(tag);
 
-    for (size_t i = 0; i < 100'000; i++) {
+    for (size_t i = 0; i < 100000; i++) {
         data.write(i, val);
     }
 
@@ -75,13 +75,13 @@ TEST(BenchmarkBytesData, AllocatedWriteBytePosition) {
 
 TEST(BenchmarkBytesData, WriteReservedBytePosition) {
     bytes_data data;
-    data.get().reserve(100'000);
+    data.get().reserve(100000);
 
     const std::string tag = "Write 100m elements";
     const uint8_t val = (uint8_t) 0xFF;
     toolbox::time_profiler::get().begin(tag);
 
-    for (size_t i = 0; i < 100'000; i++) {
+    for (size_t i = 0; i < 100000; i++) {
         data.write(i, val);
     }
 

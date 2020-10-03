@@ -12,6 +12,8 @@
 
 #cmakedefine HAVE_IOSFWD_H 1
 #cmakedefine HAVE_REGEX_H 1
+#cmakedefine HAVE_STD_REGEX 1
+#cmakedefine HAVE_BOOST_REGEX 1
 #cmakedefine HAVE_EXCEPTION_H 1
 #cmakedefine HAVE_TERMIOS_H 1
 #cmakedefine HAVE_UNISTD_H 1

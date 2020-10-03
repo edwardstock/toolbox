@@ -180,7 +180,7 @@ public:
         m_data.resize(sz);
     }
 
-    [[nodiscard]] bool empty() const {
+    bool empty() const {
         return m_data.empty();
     }
 
@@ -416,6 +416,13 @@ public:
 
     /// \brief batch reduces allocations
     /// \param vals map of positions -> values
+    /// \example write_bach(std::map<size_t, std::vector<uint8_t>> {
+    ///     {0, 0x00},
+    ///     {1, 0x01},
+    ///     {3, 0x03},
+    ///     {2, 0x02},
+    /// })
+    /// If some position will not set, it will be initialized by default, so don't forget to set all positions before using
     /// \return written values count
     virtual size_type write_batch(std::map<size_type, T>&& vals) {
         if (vals.empty()) {
@@ -467,17 +474,17 @@ public:
         return write_batch(std::move(tmp));
     }
 
-    virtual size_type write(size_type pos, const T* data, size_t dataLen) {
-        size_t len = sizeof(T) * dataLen;
+    virtual size_type write(size_type pos, const T* data, size_t length) {
+        size_t len = sizeof(T) * length;
         if (pos + len >= size()) {
-            size_t alloc = 0;
-            alloc = size() + (pos + len - size());
+            size_t alloc = size() + (pos + len - size());
             m_data.resize(alloc);
         }
 
         memcpy(m_data.data() + pos, data, len);
-        return dataLen;
+        return length;
     }
+
     /// \brief Write method overwrite existing data, and if input data.size() >
     /// buffer.size(), it resize current buffer
     /// \param pos
