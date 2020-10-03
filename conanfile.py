@@ -54,7 +54,7 @@ class ToolboxConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             del self.settings.compiler.runtime
 
-        if float(self.settings.compiler.version.value) < 6:
+        if self.settings.compiler == "gcc" and float(self.settings.compiler.version.value) < 6:
             self.requires.add("boost/1.72.0")
             print("WARN: adding boost to requirements")
 
