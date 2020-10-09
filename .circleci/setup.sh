@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-if [ ! -d "/tmp/pkgs" ]; then
-  mkdir -p /tmp/pkgs
-fi
+mkdir -p /tmp/pkgs
 
 if [ ! -f "/usr/bin/cmake" ] && [ ! -f "/usr/local/bin/cmake" ]; then
   # fetching cmake

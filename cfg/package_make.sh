@@ -50,7 +50,7 @@ while (("$#")); do
     fi
     ;;
   -o | --options)
-    if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+    if [ -n "$2" ]; then
       CMAKE_OPTS=$2
       shift 2
     else

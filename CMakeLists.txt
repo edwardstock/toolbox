@@ -1,8 +1,12 @@
 cmake_minimum_required(VERSION 3.0)
 project(toolbox
-        VERSION 3.2.0
+        VERSION 3.2.1
         DESCRIPTION "Toolbox - C++ helpers, especially for string and bytes handling")
 set(CMAKE_CXX_STANDARD 11)
+
+if (NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE Release)
+endif ()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/modules)
 if (WIN32)
@@ -126,7 +130,10 @@ message(STATUS "CXX_REL_FLAGS:     ${CMAKE_CXX_FLAGS_RELEASE}")
 message(STATUS "CXX_MINSIZE_FLAGS: ${CMAKE_CXX_FLAGS_MINSIZEREL}")
 message(STATUS "CXX_RELDBG_FLAGS:  ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
 
-target_include_directories(${PROJECT_NAME} PUBLIC include)
+target_include_directories(${PROJECT_NAME} PUBLIC
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                           $<INSTALL_INTERFACE:include>
+                           )
 
 if (ENABLE_CONAN)
 	include(ConanInit)
@@ -142,6 +149,9 @@ if (NOT HAVE_STD_REGEX)
 	elseif (Boost_FOUND)
 		target_link_libraries(${PROJECT_NAME} Boost::regex)
 	else ()
+		if (TOOLBOX_PACKAGING)
+			message(FATAL_ERROR "To build full package version of toolbox you must install Boost.Regex to your system")
+		endif ()
 		message(WARNING "Boost not found on your system. Disabled \"regex\"-based functionality")
 	endif ()
 endif ()
