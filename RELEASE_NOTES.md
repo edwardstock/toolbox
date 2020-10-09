@@ -2,7 +2,7 @@
 - Cmake-style install targets, now supports `find_package(Toolbox)`, linking: `target_link_libraries(my_lib toolbox::toolbox)`
 
 ## 3.2.0
-- Now boost is required always if cmake can't find <regex>
+- Now boost is required always if cmake can't find `<regex>`
 
 ## 3.1.3
 - Added support for compiling on gcc 4.8.5
