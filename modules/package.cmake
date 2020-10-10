@@ -7,7 +7,9 @@ set(INSTALL_LIB_DIR lib/${PROJECT_NAME}-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSI
 set(INSTALL_CMAKE_DIR ${INSTALL_LIB_DIR}/cmake)
 set(INSTALL_INCLUDE_DIR include)
 
-list(APPEND target_dependencies "Boost")
+if (NOT HAVE_REGEX_H)
+	list(APPEND target_dependencies "Boost")
+endif ()
 
 configure_package_config_file(
 	${CMAKE_CURRENT_SOURCE_DIR}/cfg/${PROJECT_NAME}-config.cmake.in
