@@ -7,6 +7,7 @@ set(INSTALL_LIB_DIR lib/${PROJECT_NAME}-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSI
 set(INSTALL_CMAKE_DIR ${INSTALL_LIB_DIR}/cmake)
 set(INSTALL_INCLUDE_DIR include)
 
+list(APPEND target_dependencies "Boost")
 
 configure_package_config_file(
 	${CMAKE_CURRENT_SOURCE_DIR}/cfg/${PROJECT_NAME}-config.cmake.in
@@ -54,7 +55,7 @@ install(EXPORT ${PROJECT_NAME}-targets
         DESTINATION ${INSTALL_CMAKE_DIR}
         )
 
-set(PACKAGE_RELEASE 0)
+set(PACKAGE_RELEASE 1)
 set(CPACK_PACKAGE_NAME toolboxpp)
 set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
 set(CPACK_PACKAGE_VENDOR "Eduard Maximovich")

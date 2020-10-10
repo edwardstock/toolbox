@@ -8,7 +8,7 @@ commands:
   build_and_package:
     steps:
       - run: bash cfg/package_make.sh -t package -o "-DTOOLBOX_PACKAGING=On"
-      - run: bash _build/package_upload.sh -t bintray --dry-run
+      - run: bash _build/package_upload.sh -t bintray
 
   make_project:
     steps:
