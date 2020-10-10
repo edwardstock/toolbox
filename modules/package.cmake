@@ -7,8 +7,19 @@ set(INSTALL_LIB_DIR lib/${PROJECT_NAME}-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSI
 set(INSTALL_CMAKE_DIR ${INSTALL_LIB_DIR}/cmake)
 set(INSTALL_INCLUDE_DIR include)
 
+set(target_deps "")
+
 if (Boost_FOUND)
-	list(APPEND target_dependencies "Boost")
+	if (WIN32)
+		list(APPEND target_deps "find_dependency(Boost REQUIRED)")
+	else ()
+		list(APPEND target_deps "find_dependency(Boost COMPONENTS regex REQUIRED)")
+	endif ()
+
+	list(JOIN target_deps "\n" targets_deps_joined)
+endif ()
+if (target_deps)
+	set(HAS_TARGET_DEPS 1)
 endif ()
 
 configure_package_config_file(
@@ -57,7 +68,7 @@ install(EXPORT ${PROJECT_NAME}-targets
         DESTINATION ${INSTALL_CMAKE_DIR}
         )
 
-set(PACKAGE_RELEASE 2)
+set(PACKAGE_RELEASE 3)
 set(CPACK_PACKAGE_NAME toolboxpp)
 set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
 set(CPACK_PACKAGE_VENDOR "Eduard Maximovich")
