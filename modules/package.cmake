@@ -7,7 +7,7 @@ set(INSTALL_LIB_DIR lib/${PROJECT_NAME}-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSI
 set(INSTALL_CMAKE_DIR ${INSTALL_LIB_DIR}/cmake)
 set(INSTALL_INCLUDE_DIR include)
 
-if (NOT HAVE_REGEX_H)
+if (Boost_FOUND)
 	list(APPEND target_dependencies "Boost")
 endif ()
 
@@ -57,7 +57,7 @@ install(EXPORT ${PROJECT_NAME}-targets
         DESTINATION ${INSTALL_CMAKE_DIR}
         )
 
-set(PACKAGE_RELEASE 1)
+set(PACKAGE_RELEASE 2)
 set(CPACK_PACKAGE_NAME toolboxpp)
 set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
 set(CPACK_PACKAGE_VENDOR "Eduard Maximovich")
