@@ -82,8 +82,8 @@ class ToolboxConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["toolbox"]
-        if self.options["build_type"] == "Debug":
-            self.cpp_info.cxxflags.append("-g -O0")
+        if self.settings.build_type == "Debug":
+            self.cpp_info.cxxflags.append("-g")
 
     def test(self):
         cmake = CMake(self)

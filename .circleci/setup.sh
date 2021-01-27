@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
 mkdir -p /tmp/pkgs
+cmake_bin=$(which cmake)
 
-if [ ! -f "/usr/bin/cmake" ] && [ ! -f "/usr/local/bin/cmake" ]; then
+if [ "${cmake_bin}" == "" ] && [ ! -f "/usr/bin/cmake" ] && [ ! -f "/usr/local/bin/cmake" ]; then
   # fetching cmake
   CMAKE_MAJOR="3.12"
   CMAKE_PATCH="4"

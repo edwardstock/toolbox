@@ -1,3 +1,6 @@
+## 3.2.2
+- Fixed conanfile package_info
+
 ## 3.2.1
 - Cmake-style install targets, now supports `find_package(Toolbox)`, linking: `target_link_libraries(my_lib toolbox::toolbox)`
 

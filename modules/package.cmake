@@ -15,10 +15,9 @@ if (Boost_FOUND)
 	else ()
 		list(APPEND target_deps "find_dependency(Boost COMPONENTS regex REQUIRED)")
 	endif ()
-
-	list(JOIN target_deps "\n" targets_deps_joined)
 endif ()
 if (target_deps)
+	list(JOIN target_deps "\n" targets_deps_joined)
 	set(HAS_TARGET_DEPS 1)
 endif ()
 

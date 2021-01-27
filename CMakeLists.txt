@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 project(toolbox
-        VERSION 3.2.1
+        VERSION 3.2.2
         DESCRIPTION "Toolbox - C++ helpers, especially for string and bytes handling")
 set(CMAKE_CXX_STANDARD 11)
 
@@ -158,12 +158,8 @@ endif ()
 
 if (ENABLE_TEST)
 	if (NOT ENABLE_CONAN)
-		include(conan_fallback)
-		conan_fallback(
-			NAME gtest
-			SUBDIR googletest
-			LOCAL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/gtest/googletest/include
-		)
+		add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/googletest)
+		add_library(CONAN_PKG::gtest ALIAS gtest)
 	endif ()
 	set(gtest_force_shared_crt ${ENABLE_SHARED} CACHE BOOL "" FORCE)
 
@@ -221,7 +217,7 @@ if (ENABLE_TEST)
 		)
 	endif ()
 
-	add_test(NAME test-all COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-test)
+	add_test(NAME test-all COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/${PROJECT_NAME}-test)
 
 endif ()
 
