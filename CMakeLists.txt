@@ -193,6 +193,7 @@ if (ENABLE_TEST)
 
 	if (NOT MSVC)
 		target_compile_options(${PROJECT_NAME}-test PRIVATE -Wno-missing-field-initializers)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-maybe-uninitialized")
 	endif ()
 	target_link_libraries(${PROJECT_NAME}-test CONAN_PKG::gtest)
 	target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
