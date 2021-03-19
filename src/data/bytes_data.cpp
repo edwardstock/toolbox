@@ -14,6 +14,7 @@
 #include <atomic>
 #include <cstring>
 #include <map>
+#include <limits>
 
 using namespace toolbox::data;
 

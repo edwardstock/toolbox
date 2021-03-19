@@ -3,7 +3,7 @@ commands:
   test:
     steps:
       - run: rm -rf _build
-      - run: sh .circleci/test.sh
+      - run: bash .circleci/test.sh
 
   build_and_package:
     steps:
@@ -54,6 +54,7 @@ jobs:
     env:
       BINTRAY_USER: edwardstock
       BINTRAY_API_KEY: $ENV
+      CXXFLAGS: "-Wno-maybe-uninitialized"
     steps:
       - make_project
 
