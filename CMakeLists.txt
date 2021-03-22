@@ -3,6 +3,7 @@ project(toolbox
         VERSION 3.2.2
         DESCRIPTION "Toolbox - C++ helpers, especially for string and bytes handling")
 set(CMAKE_CXX_STANDARD 11)
+cmake_policy(SET CMP0074 NEW)
 
 if (NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release)
@@ -162,7 +163,6 @@ if (ENABLE_TEST)
 		add_library(CONAN_PKG::gtest ALIAS gtest)
 	endif ()
 	set(gtest_force_shared_crt ${ENABLE_SHARED} CACHE BOOL "" FORCE)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-maybe-uninitialized")
 
 	if (APPLE)
 		add_definitions(-DGTEST_USE_OWN_TR1_TUPLE)
