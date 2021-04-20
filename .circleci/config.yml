@@ -10,15 +10,12 @@ commands:
       - run: $(which bash) .circleci/deploy.sh
 
 jobs:
-  gcc-4_8_5:
-    docker:
-      - image: docker.edwardstock.com/gcc_dev_el7
-    steps:
-      - do_all
-
   gcc-5:
     docker:
       - image: conanio/gcc5
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_TOKEN
         environment:
           CONAN_CPU_COUNT: 4
     steps:
@@ -26,6 +23,9 @@ jobs:
   gcc-6:
     docker:
       - image: conanio/gcc6
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_TOKEN
         environment:
           CONAN_CPU_COUNT: 4
     steps:
@@ -33,6 +33,9 @@ jobs:
   gcc-7:
     docker:
       - image: conanio/gcc7
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_TOKEN
         environment:
           CONAN_CPU_COUNT: 4
     steps:
@@ -40,6 +43,9 @@ jobs:
   gcc-8:
     docker:
       - image: conanio/gcc8
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_TOKEN
         environment:
           CONAN_CPU_COUNT: 4
     steps:
@@ -47,6 +53,9 @@ jobs:
   gcc-9:
     docker:
       - image: conanio/gcc9
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_TOKEN
         environment:
           CONAN_CPU_COUNT: 4
     steps:
@@ -63,10 +72,21 @@ workflows:
   version: 2.1
   build_and_test:
     jobs:
-      - gcc-4_8_5
-      - gcc-5
-      - gcc-6
-      - gcc-7
-      - gcc-8
-      - gcc-9
-      - gcc-10
+      - gcc-5:
+          context:
+            - remote_tokens
+      - gcc-6:
+          context:
+            - remote_tokens
+      - gcc-7:
+          context:
+            - remote_tokens
+      - gcc-8:
+          context:
+            - remote_tokens
+      - gcc-9:
+          context:
+            - remote_tokens
+      - gcc-10:
+          context:
+            - remote_tokens
