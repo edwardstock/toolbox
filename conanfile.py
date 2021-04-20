@@ -42,7 +42,7 @@ class ToolboxConan(ConanFile):
         "README.md"
     )
     build_requires = (
-        "gtest/1.8.1@bincrafters/stable"
+        "gtest/1.10.0"
     )
 
     def source(self):

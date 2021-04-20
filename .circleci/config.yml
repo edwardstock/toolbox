@@ -2,8 +2,8 @@ version: 2.1
 commands:
   do_all:
     steps:
-      - run: conan remote add -f edwardstock https://api.bintray.com/conan/edwardstock/conan-public
-      - run: conan user -p $BINTRAY_API_KEY -r edwardstock edwardstock
+      - run: conan remote add -f edwardstock https://edwardstock.jfrog.io/artifactory/api/conan/conan
+      - run: conan user -p $ARTIFACTORY_API_KEY -r edwardstock info@edwardstock.com
       - run: git clone --recursive https://github.com/edwardstock/toolbox .
       - run: $(which bash) .circleci/setup.sh
       - run: $(which bash) .circleci/test.sh

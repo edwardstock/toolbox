@@ -29,17 +29,17 @@ What helpers contained:
 
 Add remote:
 ```bash
-conan remote add edwardstock https://api.bintray.com/conan/edwardstock/conan-public
+conan remote add -f edwardstock https://edwardstock.jfrog.io/artifactory/api/conan/conan
 ```
 
 ```bash
-conan install <path/to/your/project> toolbox/3.2.0@edwardstock/latest
+conan install <path/to/your/project> toolbox/3.2.2@edwardstock/latest
 ```
 
 or using `conanfile.txt`
 ```ini
 [requires]
-toolbox/3.2.0@edwardstock/latest
+toolbox/3.2.2@edwardstock/latest
 
 [generators]
 cmake
