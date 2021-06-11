@@ -58,8 +58,8 @@ TEST(Numbers, DecimalFormatter) {
     toolbox::strings::decimal_formatter form("1567948125.105");
 
     form.set_delimiter('\'');
-    form.set_min_fractions(4);
-    form.set_max_fractions(18);
+    form.set_min_precision(4);
+    form.set_max_precision(18);
 
     ASSERT_STREQ("1'567'948'125.1050", form.format().c_str());
 
@@ -71,10 +71,22 @@ TEST(Numbers, DecimalFormatterFractions) {
     toolbox::strings::decimal_formatter form("1567948125.10203040506070809080706050");
 
     form.set_delimiter('\'');
-    form.set_min_fractions(4);
-    form.set_max_fractions(18);
+    form.set_min_precision(4);
+    form.set_max_precision(18);
 
     ASSERT_STREQ("1'567'948'125.102030405060708090", form.format().c_str());
+}
+
+TEST(Numbers, DecimalFormatterMaxFrations) {
+    toolbox::strings::decimal_formatter f1("7621.303804564358533662");
+    f1.set_min_precision(2);
+    f1.set_max_precision(8);
+    ASSERT_STREQ("7 621.30380456", f1.format().c_str());
+
+    toolbox::strings::decimal_formatter f2("7621.000000000000000000");
+    f2.set_min_precision(2);
+    f2.set_max_precision(8);
+    ASSERT_STREQ("7 621.00", f2.format().c_str());
 }
 
 TEST(Numbers, SimpleFormatter) {

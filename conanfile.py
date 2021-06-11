@@ -1,5 +1,4 @@
 import os
-import sys
 
 from conans import ConanFile, CMake, tools
 
@@ -55,7 +54,7 @@ class ToolboxConan(ConanFile):
             del self.settings.compiler.runtime
 
         if self.settings.compiler == "gcc" and float(self.settings.compiler.version.value) < 6:
-            self.requires.add("boost/1.72.0")
+            self.requires.add("boost/1.76.0")
             print("WARN: adding boost to requirements")
 
     def build(self):
@@ -82,8 +81,6 @@ class ToolboxConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["toolbox"]
-        if self.settings.build_type == "Debug":
-            self.cpp_info.cxxflags.append("-g")
 
     def test(self):
         cmake = CMake(self)

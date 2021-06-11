@@ -54,14 +54,36 @@ toolbox::strings::decimal_formatter& toolbox::strings::decimal_formatter::set_de
     m_decimals = num;
     return *this;
 }
+toolbox::strings::decimal_formatter& toolbox::strings::decimal_formatter::set_max_precision(size_t max_precision) {
+    m_max_precision = max_precision;
+    return *this;
+}
+toolbox::strings::decimal_formatter& toolbox::strings::decimal_formatter::set_min_precision(size_t min_precision) {
+    m_min_precision = min_precision;
+    return *this;
+}
 toolbox::strings::decimal_formatter& toolbox::strings::decimal_formatter::set_max_fractions(size_t max_fractions) {
-    m_max_fractions = max_fractions;
+    m_max_precision = max_fractions;
     return *this;
 }
 toolbox::strings::decimal_formatter& toolbox::strings::decimal_formatter::set_min_fractions(size_t min_fractions) {
-    m_min_fractions = min_fractions;
+    m_min_precision = min_fractions;
     return *this;
 }
+
+static size_t count_real_precision(const std::string& fraction) {
+    size_t n = fraction.size();
+    for (size_t i = fraction.size(); i > 0; i--) {
+        const char& v = fraction[i - 1];
+        if (v != '0') {
+            break;
+        } else {
+            n--;
+        }
+    }
+    return n;
+}
+
 std::string toolbox::strings::decimal_formatter::format() const {
     if (m_num.empty()) {
         throw std::runtime_error("Empty number passed to decimal formatter");
@@ -70,16 +92,15 @@ std::string toolbox::strings::decimal_formatter::format() const {
 
     std::stringstream out;
     std::stack<std::string> parts;
-
-    if (m_min_fractions > 0) {
-        size_t fr_size = lr.second.size();
-        // if fractial size less than min required fractions, adding zeroes to end
-        if (fr_size < m_min_fractions) {
-            parts.push(toolbox::strings::repeat('0', m_min_fractions - fr_size));
-            parts.push(lr.second);
-        } else if (fr_size >= m_min_fractions) {
-            if (fr_size > m_max_fractions) {
-                parts.push(lr.second.substr(0, m_max_fractions));
+    size_t fr_size_real = count_real_precision(lr.second);
+    if (m_min_precision > 0) {
+        // if fractial size less than min required fractions, add trailing zeroes
+        if (fr_size_real < m_min_precision) {
+            parts.push(toolbox::strings::repeat('0', m_min_precision - fr_size_real));
+            parts.push(lr.second.substr(0, fr_size_real));
+        } else if (fr_size_real >= m_min_precision) {
+            if (fr_size_real > m_max_precision) {
+                parts.push(lr.second.substr(0, m_max_precision));
             } else {
                 parts.push(lr.second);
             }

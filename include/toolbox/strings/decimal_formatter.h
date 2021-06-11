@@ -30,8 +30,12 @@ public:
     decimal_formatter& set_delimiter(const std::string& delimiter);
     decimal_formatter& set_delimiter(char delimiter);
     decimal_formatter& set_decimals_group(size_t num);
-    decimal_formatter& set_max_fractions(size_t max_fractions);
-    decimal_formatter& set_min_fractions(size_t min_fractions);
+
+    decimal_formatter& set_min_precision(size_t min_precision);
+    decimal_formatter& set_max_precision(size_t max_precision);
+
+    [[deprecated("Use set_max_precision(size_t)")]] decimal_formatter& set_max_fractions(size_t max_fractions);
+    [[deprecated("Use set_min_precision(size_t)")]] decimal_formatter& set_min_fractions(size_t min_fractions);
 
     std::string format() const;
     friend std::ostream& operator<<(std::ostream& os, const decimal_formatter& formatter);
@@ -39,8 +43,8 @@ public:
 private:
     std::string m_num;
     size_t m_decimals = 3;
-    size_t m_max_fractions = 18;
-    size_t m_min_fractions = 4;
+    size_t m_max_precision = 18;
+    size_t m_min_precision = 4;
     std::string m_delimiter = " ";
 };
 

@@ -1,20 +1,18 @@
 cmake_minimum_required(VERSION 3.0)
 project(toolbox
-        VERSION 3.2.2
+        VERSION 3.2.3
+        LANGUAGES CXX
         DESCRIPTION "Toolbox - C++ helpers, especially for string and bytes handling")
 set(CMAKE_CXX_STANDARD 11)
 cmake_policy(SET CMP0074 NEW)
+cmake_policy(SET CMP0091 NEW)
 
 if (NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release)
 endif ()
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cfg/version.in ${CMAKE_CURRENT_SOURCE_DIR}/version @ONLY NEWLINE_STYLE UNIX)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/modules)
-if (WIN32)
-	execute_process(COMMAND cmd /C "echo ${CMAKE_PROJECT_VERSION} > ${CMAKE_CURRENT_SOURCE_DIR}/version")
-else ()
-	execute_process(COMMAND bash -c "echo ${CMAKE_PROJECT_VERSION} > ${CMAKE_CURRENT_SOURCE_DIR}/version")
-endif ()
 
 
 add_definitions(/D_CRT_SECURE_NO_WARNINGS=1)
@@ -23,26 +21,6 @@ include(modules/compilers_flags.cmake)
 option(ENABLE_CONAN "Enable dependency manager" On)
 option(ENABLE_SHARED "Build shared library" Off)
 option(ENABLE_TEST "Build test target" Off)
-
-if (MSVC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W2 /MP")
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /DEBUG /Od")
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2")
-	string(REGEX REPLACE "\\/W3" " " CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-	add_compile_options(/wd4068)
-	add_compile_options(/wd4319)
-	add_compile_options(/wd4251)
-	add_compile_options(/wd4275)
-elseif (MINGW)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fPIC -Wno-unknown-pragmas -Wno-shift-count-overflow")
-	set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
-	set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-else ()
-	#-fvisibility=hidden
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fPIC -Wextra -pedantic -Wno-unknown-pragmas -Wno-unused-parameter")
-	set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
-	set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-endif ()
 
 set(TOOLBOX_EXPORTING 1)
 if (ENABLE_SHARED)
@@ -159,10 +137,10 @@ endif ()
 
 if (ENABLE_TEST)
 	if (NOT ENABLE_CONAN)
+		set(gtest_force_shared_crt ${ENABLE_SHARED} CACHE BOOL "" FORCE)
 		add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/googletest)
 		add_library(CONAN_PKG::gtest ALIAS gtest)
 	endif ()
-	set(gtest_force_shared_crt ${ENABLE_SHARED} CACHE BOOL "" FORCE)
 
 	if (APPLE)
 		add_definitions(-DGTEST_USE_OWN_TR1_TUPLE)
