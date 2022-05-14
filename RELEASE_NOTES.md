@@ -1,3 +1,8 @@
+## 3.2.4
+
+- Fixed `basic_data.push_back(basic_data<T>&&)` behaviour, as it hadn't actually pushed data except first element
+- Renamed `version` file to `version.info` as it have been conflicting with some windows headers
+
 ## 3.2.3
 
 - Added calculating real precision for decimal_formatter to format more accurate result

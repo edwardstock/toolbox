@@ -411,8 +411,9 @@ public:
         m_data.insert(m_data.end(), data.begin(), data.end());
     }
 
-    virtual void push_back(basic_data&& data) {
-        m_data.push_back(std::move(data));
+    virtual void push_back(basic_data<T>&& data) {
+        m_data.insert(m_data.end(), data.begin(), data.end());
+        data.clear();
     }
 
     /// \brief batch reduces allocations

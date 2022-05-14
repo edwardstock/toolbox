@@ -249,6 +249,35 @@ TEST(BytesData, PushBackIterators) {
     ASSERT_EQ(0xFF, d.at(1));
 }
 
+TEST(BytesData, PushBackAnotherBytesData) {
+    bytes_data d;
+    bytes_data src = {5, 6, 7, 8};
+    d.push_back((uint8_t) 4);
+    ASSERT_EQ(1, d.size());
+    ASSERT_EQ((uint8_t) 4, d[0]);
+
+    d.push_back(std::move(src));
+    ASSERT_EQ(5, d.size());
+    ASSERT_EQ((uint8_t) 5, d[1]);
+    ASSERT_EQ((uint8_t) 6, d[2]);
+    ASSERT_EQ((uint8_t) 7, d[3]);
+    ASSERT_EQ((uint8_t) 8, d[4]);
+
+    d.clear();
+    d.resize(0);
+    bytes_data src2 = {5, 6, 7, 8};
+    d.push_back((uint8_t) 4);
+    ASSERT_EQ(1, d.size());
+    ASSERT_EQ((uint8_t) 4, d[0]);
+
+    d.push_back(src2);
+    ASSERT_EQ(5, d.size());
+    ASSERT_EQ((uint8_t) 5, d[1]);
+    ASSERT_EQ((uint8_t) 6, d[2]);
+    ASSERT_EQ((uint8_t) 7, d[3]);
+    ASSERT_EQ((uint8_t) 8, d[4]);
+}
+
 TEST(BytesData, WriteBatch) {
     bytes_data d;
     std::map<size_t, uint8_t> empty_data;
