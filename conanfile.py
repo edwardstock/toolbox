@@ -27,7 +27,7 @@ class ToolboxConan(ConanFile):
         "shared": False
     }
     generators = "cmake"
-    exports = "version"
+    exports = "version.info"
     exports_sources = (
         "cfg/*",
         "modules/*",
