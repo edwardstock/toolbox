@@ -1,7 +1,7 @@
 @echo off
 set CONAN_LOCAL=1
 
-for /f %%i in ('type ..\version') do set VERS=%%i
+for /f %%i in ('type ..\version.info') do set VERS=%%i
 
 @rem default config
 conan create . edwardstock/latest -s build_type=Debug --build=missing

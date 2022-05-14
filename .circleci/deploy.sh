@@ -10,12 +10,12 @@ BUILD_OPTIONS=(shared)
 
 ###### END PROJECT CONFIG ##############
 
-if [ -f "version" ]; then
-  VERS=$(cat version | tr -d "\n")
+if [ -f "version.info" ]; then
+  VERS=$(cat version.info | tr -d "\n")
 fi
 
-if [ -f "../version" ]; then
-  VERS=$(cat ../version | tr -d "\n")
+if [ -f "../version.info" ]; then
+  VERS=$(cat ../version.info | tr -d "\n")
 fi
 
 if [ "${1}" != "" ]; then
