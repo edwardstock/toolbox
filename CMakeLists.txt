@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 project(toolbox
-        VERSION 3.2.4
+        VERSION 3.2.5
         LANGUAGES CXX
         DESCRIPTION "Toolbox - C++ helpers, especially for string and bytes handling")
 set(CMAKE_CXX_STANDARD 11)
@@ -117,6 +117,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 if (ENABLE_CONAN)
 	include(ConanInit)
 	conan_init()
+else ()
+	include(FetchContent)
 endif ()
 
 message(STATUS "Enable conan: ${ENABLE_CONAN}")
@@ -136,10 +138,16 @@ if (NOT HAVE_STD_REGEX)
 endif ()
 
 if (ENABLE_TEST)
-	if (NOT ENABLE_CONAN)
+	if (NOT ENABLE_CONAN AND NOT gtest_POPULATED AND NOT TARGET gtest)
+		fetchcontent_declare(
+			gtest
+			GIT_REPOSITORY https://github.com/google/googletest.git
+			GIT_TAG release-1.11.0
+		)
 		set(gtest_force_shared_crt ${ENABLE_SHARED} CACHE BOOL "" FORCE)
-		add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/googletest)
+		fetchcontent_makeavailable(gtest)
 		add_library(CONAN_PKG::gtest ALIAS gtest)
+
 	endif ()
 
 	if (APPLE)

@@ -33,13 +33,13 @@ conan remote add -f edwardstock https://edwardstock.jfrog.io/artifactory/api/con
 ```
 
 ```bash
-conan install <path/to/your/project> toolbox/3.2.4@edwardstock/latest
+conan install <path/to/your/project> toolbox/3.2.5@edwardstock/latest
 ```
 
 or using `conanfile.txt`
 ```ini
 [requires]
-toolbox/3.2.4@edwardstock/latest
+toolbox/3.2.5@edwardstock/latest
 
 [generators]
 cmake
