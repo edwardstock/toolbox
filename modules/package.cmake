@@ -33,7 +33,7 @@ write_basic_package_version_file(
 	VERSION ${PROJECT_VERSION}
 	COMPATIBILITY SameMajorVersion)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cfg/toolbox.pc.in ${CMAKE_BINARY_DIR}/pkgconfig/toolbox.pc @ONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cfg/toolbox.pc.in ${CMAKE_CURRENT_BINARY_DIR}/pkgconfig/toolbox.pc @ONLY)
 
 install(
 	FILES
@@ -57,7 +57,7 @@ install(
 )
 
 install(
-	DIRECTORY ${CMAKE_BINARY_DIR}/pkgconfig
+	DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/pkgconfig
 	DESTINATION lib/pkgconfig
 )
 
@@ -117,7 +117,7 @@ if ((IS_REDHAT OR IS_DEBIAN) AND NOT PACKAGE_ARCHIVE)
 		set(REPO_NAME rh)
 		set(TARGET_PATH "${OS_NAME}/${RH_MAJOR_VERSION}/${CMAKE_SYSTEM_PROCESSOR}/")
 		set(UPLOAD_FILE_NAME ${CPACK_PACKAGE_FILE_NAME}.rpm)
-		configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cfg/package_upload.sh ${CMAKE_BINARY_DIR}/package_upload.sh @ONLY)
+		configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cfg/package_upload.sh ${CMAKE_CURRENT_BINARY_DIR}/package_upload.sh @ONLY)
 	else ()
 		get_target_property(target_type ${PROJECT_NAME} TYPE)
 		if (target_type STREQUAL "EXECUTABLE")
@@ -142,7 +142,7 @@ if ((IS_REDHAT OR IS_DEBIAN) AND NOT PACKAGE_ARCHIVE)
 		set(REPO_NAME ${OS_NAME})
 		set(TARGET_PATH "dists/${DEB_DIST_NAME}/main/")
 		set(UPLOAD_FILE_NAME ${CPACK_DEBIAN_FILE_NAME})
-		configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cfg/package_upload.sh ${CMAKE_BINARY_DIR}/package_upload.sh @ONLY)
+		configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cfg/package_upload.sh ${CMAKE_CURRENT_BINARY_DIR}/package_upload.sh @ONLY)
 	endif ()
 
 else ()
@@ -151,6 +151,6 @@ else ()
 	set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
 	set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CMAKE_PROJECT_VERSION}-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
 	set(UPLOAD_FILE_NAME ${CPACK_PACKAGE_FILE_NAME}.sh)
-	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cfg/package_upload.sh ${CMAKE_BINARY_DIR}/package_upload.sh @ONLY)
+	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cfg/package_upload.sh ${CMAKE_CURRENT_BINARY_DIR}/package_upload.sh @ONLY)
 endif ()
 include(CPack)

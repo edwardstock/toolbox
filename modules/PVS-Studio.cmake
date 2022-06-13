@@ -227,7 +227,7 @@ function (pvs_studio_analyze_target TARGET DIR)
 	set(PVS_STUDIO_TARGET_C_FLAGS "")
 
 	get_target_property(PROPERTY "${TARGET}" SOURCES)
-	pvs_studio_relative_path(BINARY_DIR "${CMAKE_SOURCE_DIR}" "${DIR}")
+	pvs_studio_relative_path(BINARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}" "${DIR}")
 	if ("${BINARY_DIR}" MATCHES "^/.*$")
 		pvs_studio_join_path(BINARY_DIR "${CMAKE_BINARY_DIR}" "PVS-Studio/__${BINARY_DIR}")
 	else ()
@@ -281,7 +281,7 @@ option(PVS_STUDIO_DEBUG OFF "Add debug info")
 #
 # Output options:
 # OUTPUT                        prints report to stdout
-# LOG path                      path to report (default: ${CMAKE_CURRENT_BINARY_DIR}/PVS-Studio.log)
+# LOG path                      path to report (default: ${CMAKE_BINARY_DIR}/PVS-Studio.log)
 # FORMAT format                 format of report
 # MODE mode                     analyzers/levels filter (default: GA:1,2)
 # HIDE_HELP                     do not print help message
@@ -467,7 +467,7 @@ function (pvs_studio_add_target)
 	set(PVS_STUDIO_TARGET_CXX_FLAGS "")
 	set(PVS_STUDIO_TARGET_C_FLAGS "")
 	foreach (SOURCE ${PVS_STUDIO_SOURCES})
-		pvs_studio_analyze_file("${SOURCE}" "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
+		pvs_studio_analyze_file("${SOURCE}" "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_BINARY_DIR}")
 	endforeach ()
 
 	if (PVS_STUDIO_COMPILE_COMMANDS)

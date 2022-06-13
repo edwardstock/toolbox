@@ -74,7 +74,7 @@ include(CMakeParseArguments)
 find_program(GCOV_PATH gcov)
 find_program(LCOV_PATH NAMES lcov lcov.bat lcov.exe lcov.perl)
 find_program(GENHTML_PATH NAMES genhtml genhtml.perl genhtml.bat)
-find_program(GCOVR_PATH gcovr PATHS ${CMAKE_SOURCE_DIR}/scripts/test)
+find_program(GCOVR_PATH gcovr PATHS ${CMAKE_CURRENT_SOURCE_DIR}/scripts/test)
 find_package(Python COMPONENTS Interpreter)
 
 if (NOT GCOV_PATH)
@@ -226,7 +226,7 @@ function (setup_target_for_coverage_gcovr_xml)
 
 	                  # Running gcovr
 	                  COMMAND ${GCOVR_PATH} --xml
-	                  -r ${PROJECT_SOURCE_DIR} ${GCOVR_EXCLUDES}
+	                  -r ${CMAKE_CURRENT_SOURCE_DIR} ${GCOVR_EXCLUDES}
 	                  --object-directory=${PROJECT_BINARY_DIR}
 	                  -o ${Coverage_NAME}.xml
 	                  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
@@ -284,7 +284,7 @@ function (setup_target_for_coverage_gcovr_html)
 
 	                  # Running gcovr
 	                  COMMAND ${Python_EXECUTABLE} ${GCOVR_PATH} --html --html-details
-	                  -r ${PROJECT_SOURCE_DIR} ${GCOVR_EXCLUDES}
+	                  -r ${CMAKE_CURRENT_SOURCE_DIR} ${GCOVR_EXCLUDES}
 	                  --object-directory=${PROJECT_BINARY_DIR}
 	                  -o ${Coverage_NAME}/index.html
 	                  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}

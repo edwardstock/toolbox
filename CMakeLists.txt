@@ -1,6 +1,11 @@
+# options
+# ENABLE_CONAN "Enable dependency manager" On
+# ENABLE_SHARED "Build shared library" Off
+# ENABLE_TEST "Build test target" Off
+
 cmake_minimum_required(VERSION 3.0)
 project(toolbox
-        VERSION 3.2.5
+        VERSION 3.2.6
         LANGUAGES CXX
         DESCRIPTION "Toolbox - C++ helpers, especially for string and bytes handling")
 set(CMAKE_CXX_STANDARD 11)
@@ -12,15 +17,10 @@ if (NOT CMAKE_BUILD_TYPE)
 endif ()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cfg/version.in ${CMAKE_CURRENT_SOURCE_DIR}/version.info @ONLY NEWLINE_STYLE UNIX)
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/modules)
-
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/modules)
 
 add_definitions(/D_CRT_SECURE_NO_WARNINGS=1)
 include(modules/compilers_flags.cmake)
-
-option(ENABLE_CONAN "Enable dependency manager" On)
-option(ENABLE_SHARED "Build shared library" Off)
-option(ENABLE_TEST "Build test target" Off)
 
 set(TOOLBOX_EXPORTING 1)
 if (ENABLE_SHARED)
@@ -29,7 +29,6 @@ endif ()
 
 
 include(SystemDetector)
-include(options.cmake)
 
 if (NOT HAVE_REGEX_H)
 	message(STATUS "Trying to use Boost.Regex as your compiler does not support it")
@@ -204,7 +203,7 @@ if (ENABLE_TEST)
 		)
 	endif ()
 
-	add_test(NAME test-all COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/${PROJECT_NAME}-test)
+	add_test(NAME test-all COMMAND ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}-test)
 
 endif ()
 
