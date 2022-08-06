@@ -5,7 +5,7 @@
 
 cmake_minimum_required(VERSION 3.0)
 project(toolbox
-        VERSION 3.2.6
+        VERSION 3.3.0
         LANGUAGES CXX
         DESCRIPTION "Toolbox - C++ helpers, especially for string and bytes handling")
 set(CMAKE_CXX_STANDARD 11)

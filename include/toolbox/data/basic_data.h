@@ -349,9 +349,19 @@ public:
         out.insert(out.begin(), m_data.begin() + from, m_data.begin() + to);
         return out;
     }
+
+    std::vector<T> take_range_n(size_t from, size_t length) const {
+        return take_range(from, from + length);
+    }
+
     basic_data<T> take_range_c(size_t from, size_t to) const {
         return basic_data<T>(take_range(from, to));
     }
+
+    basic_data<T> take_range_cn(size_t from, size_t length) const {
+        return basic_data<T>(take_range_n(from, length));
+    }
+
     virtual basic_data<T>& take_range_m(size_t from, size_t to) {
         auto cp = take_range(from, to);
         clear();

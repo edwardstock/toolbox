@@ -1,3 +1,7 @@
+## 3.3.0
+
+- Added `take_range_n` with arguments (`from`, `length`)
+
 ## 3.2.4
 
 - Fixed `basic_data.push_back(basic_data<T>&&)` behaviour, as it hadn't actually pushed data except first element
