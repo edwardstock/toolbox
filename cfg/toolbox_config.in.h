@@ -17,31 +17,31 @@
 #cmakedefine HAVE_EXCEPTION_H 1
 #cmakedefine HAVE_TERMIOS_H 1
 #cmakedefine HAVE_UNISTD_H 1
+#cmakedefine TOOLBOX_BUILT_AS_STATIC
 
-#cmakedefine TOOLBOX_SHARED
-#cmakedefine TOOLBOX_EXPORTING
-
-#ifdef TOOLBOX_SHARED
-#ifdef TOOLBOX_EXPORTING
+#ifdef TOOLBOX_BUILT_AS_STATIC
+#define TOOLBOX_API
+#define TOOLBOX_NO_EXPORT
+#else
+#ifndef TOOLBOX_API
 #if _MSC_VER
+#ifdef TOOLBOX_EXPORTS
 #define TOOLBOX_API __declspec(dllexport)
-#define TOOLBOX_EXT
 #else
-#define TOOLBOX_API __attribute__((visibility("default")))
-#define TOOLBOX_EXT
-#endif
-#else
-#if _MSC_VER
 #define TOOLBOX_API __declspec(dllimport)
-#define TOOLBOX_EXT extern
-#else
-#define TOOLBOX_API
-#define TOOLBOX_EXT
-#endif
 #endif
 #else
+#ifdef TOOLBOX_EXPORTS
+#define TOOLBOX_API __attribute__((visibility("default")))
+#else
 #define TOOLBOX_API
-#define TOOLBOX_EXT
-#endif // TOOLBOX_SHARED
+#endif
+#endif
+#endif
+
+#ifndef TOOLBOX_NO_EXPORT
+#define TOOLBOX_NO_EXPORT
+#endif
+#endif
 
 #endif // TOOLBOX_CONFIG_H

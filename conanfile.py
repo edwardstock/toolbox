@@ -1,6 +1,7 @@
 import os
 
-from conans import ConanFile, CMake, tools
+from conan import ConanFile
+from conan.tools.cmake import cmake_layout, CMakeToolchain, CMakeDeps, CMake
 
 
 def get_version():
@@ -26,7 +27,7 @@ class ToolboxConan(ConanFile):
     default_options = {
         "shared": False
     }
-    generators = "cmake"
+
     exports = "version.info"
     exports_sources = (
         "cfg/*",
@@ -40,50 +41,46 @@ class ToolboxConan(ConanFile):
         "LICENSE",
         "README.md"
     )
-    build_requires = (
-        "gtest/1.10.0"
-    )
 
-    def source(self):
-        if "CONAN_LOCAL" not in os.environ:
-            git = tools.Git(folder="toolbox")
-            git.clone("https://github.com/edwardstock/toolbox.git", "master")
+    def layout(self):
+        cmake_layout(self)
 
-    def configure(self):
-        if self.settings.compiler == "Visual Studio":
-            del self.settings.compiler.runtime
+    def generate(self):
+        # This generates "conan_toolchain.cmake" in self.generators_folder
+        tc = CMakeToolchain(self)
+        tc.generate()
 
-        if self.settings.compiler == "gcc" and float(self.settings.compiler.version.value) < 6:
-            self.requires.add("boost/1.76.0")
-            print("WARN: adding boost to requirements")
+        # # This generates "foo-config.cmake" and "bar-config.cmake" in self.generators_folder
+        deps = CMakeDeps(self)
+        deps.generate()
+
+    def build_requirements(self):
+        self.test_requires("gtest/1.13.0")
 
     def build(self):
         cmake = CMake(self)
         opts = {
-            'CMAKE_BUILD_TYPE': self.settings.build_type,
-            'ENABLE_SHARED': "Off",
+            'toolbox_BUILD_SHARED_LIBS': "Off",
         }
 
         if self.options.shared:
-            opts['ENABLE_SHARED'] = "On"
+            opts['toolbox_BUILD_SHARED_LIBS'] = "On"
 
-        cmake.configure(defs=opts)
+        cmake.configure(variables=opts)
         cmake.build(target="toolbox")
 
     def package(self):
-        self.copy("*", dst="include", src="include", keep_path=True)
-        dir_types = ['bin', 'lib', 'Debug', 'Release', 'RelWithDebInfo', 'MinSizeRel']
-        file_types = ['lib', 'dll', 'dll.a', 'a', 'so', 'exp', 'pdb', 'ilk', 'dylib']
-
-        for dirname in dir_types:
-            for ftype in file_types:
-                self.copy("*." + ftype, src=dirname, dst="lib", keep_path=False)
+        cmake = CMake(self)
+        cmake.install()
 
     def package_info(self):
+        self.cpp_info.includedirs = ['include']
+        self.cpp_info.bindirs = ["bin"]
+        self.cpp_info.libsdirs = ["lib", "lib/Debug", "lib/Release"]
         self.cpp_info.libs = ["toolbox"]
 
     def test(self):
         cmake = CMake(self)
-        cmake.configure([], {'ENABLE_TEST': 'On'})
-        cmake.build([], None, "toolbox-test")
+        cmake.configure([], {'toolbox_BUILD_TESTS': 'On'})
+        cmake.build(target="toolbox-test")
         self.run("bin/toolbox-test")

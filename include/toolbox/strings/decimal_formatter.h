@@ -34,14 +34,11 @@ public:
     decimal_formatter& set_min_precision(size_t min_precision);
     decimal_formatter& set_max_precision(size_t max_precision);
 
-    [[deprecated("Use set_max_precision(size_t)")]] decimal_formatter& set_max_fractions(size_t max_fractions);
-    [[deprecated("Use set_min_precision(size_t)")]] decimal_formatter& set_min_fractions(size_t min_fractions);
-
     std::string format() const;
     friend std::ostream& operator<<(std::ostream& os, const decimal_formatter& formatter);
 
 private:
-    std::string m_num;
+    std::string m_input;
     size_t m_decimals = 3;
     size_t m_max_precision = 18;
     size_t m_min_precision = 4;

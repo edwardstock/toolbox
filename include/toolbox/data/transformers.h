@@ -30,7 +30,7 @@ template<>
 template<>
 struct basic_data<uint8_t>::converter<std::string> {
     std::string operator()(const basic_data<uint8_t>& source) {
-        return std::string(source.begin(), source.end());
+        return {source.begin(), source.end()};
     }
 };
 using bytes_to_string = basic_data<uint8_t>::converter<std::string>;

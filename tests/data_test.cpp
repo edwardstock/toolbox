@@ -301,7 +301,7 @@ TEST(BytesData, Ranges) {
     ASSERT_EQ(1, slice1.at(0));
     ASSERT_EQ(2, slice1.at(1));
 
-    auto slice2 = d.take_last(2);
+    auto slice2 = d.take_last_c(2);
     ASSERT_EQ(2, slice2.size());
     ASSERT_EQ(3, slice2.at(0));
     ASSERT_EQ(4, slice2.at(1));
@@ -1217,4 +1217,39 @@ TEST(BytesArray, Write) {
     }
     ASSERT_FALSE(t);
     ASSERT_EQ(0xFF, ex.at(3));
+}
+
+#include <cmath>
+
+std::vector<std::string> combine_options(const std::vector<std::string>& build_options, const std::vector<std::string>& build_values) {
+    std::vector<std::string> build_options_tmp;
+    std::vector<std::string> result;
+
+    const size_t opts_cnt = build_options.size();
+    const size_t values_cnt = build_values.size();
+    const size_t tmp_cnt = values_cnt * opts_cnt;
+
+    build_options_tmp.reserve(tmp_cnt);
+    result.reserve(tmp_cnt);
+
+    // Populate build_options_tmp
+    for (size_t value_idx = 0; value_idx < values_cnt; value_idx++) {
+        for (size_t opt_idx = 0; opt_idx < opts_cnt; opt_idx++) {
+            std::stringstream ss;
+            ss << "-o " << build_options[opt_idx] << "=" << build_values[value_idx];
+            build_options_tmp.push_back(ss.str());
+        }
+    }
+
+    // Combine options
+    for (size_t i = 0; i < tmp_cnt; i++) {
+        std::stringstream ss;
+        for (size_t n = 0; n < opts_cnt; n++) {
+            const size_t next_index = (i + n) % tmp_cnt;
+            ss << " " << build_options_tmp[next_index];
+        }
+        result.push_back(ss.str());
+    }
+
+    return result;
 }

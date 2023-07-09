@@ -1,21 +1,9 @@
 # ToolBox++
 
-| Bintray | Windows | Linux & macOS |
-|:--------:|:---------:|:-----------------:|
-|[ ![Download](https://api.bintray.com/packages/edwardstock/conan-public/toolbox%3Aconan-public/images/download.svg) ](https://bintray.com/edwardstock/conan-public/toolbox%3Aconan-public/_latestVersion)|unavailable|[![CircleCI](https://circleci.com/gh/edwardstock/toolbox/tree/master.svg?style=svg)](https://circleci.com/gh/edwardstock/toolbox/tree/master)|
-
-
-
-## Reqs
-* cmake >= 3.0
-* gnu gcc 5+/clang 5+/msvc
-* make
+![build status](https://github.com/edwardstock/toolbox/actions/workflows/build_conan.yml/badge.svg)
 
 ## Usage and features
 
-Namespace for all things is toolbox.
-
-What helpers contained:
 * **toolbox::strings** - strings helpers like bool hasNum = matches_pattern("\[0-9\]", "my194string"")
 * **toolbox::io** - filesystem helpers
 * **toolbox::collections** - collections helpers
@@ -28,32 +16,37 @@ What helpers contained:
 ## Using Conan
 
 Add remote:
-```bash
-conan remote add -f edwardstock https://edwardstock.jfrog.io/artifactory/api/conan/conan
-```
 
 ```bash
-conan install <path/to/your/project> toolbox/3.2.6@edwardstock/latest
+conan remote add edwardstock https://conan.edwardstock.com/artifactory/api/conan/conan-local
 ```
 
-or using `conanfile.txt`
+
+Add to `conanfile.txt`:
+
 ```ini
 [requires]
-toolbox/3.2.6@edwardstock/latest
+toolbox/3.4.0@edwardstock/latest
+
+[options]
+toolbox/*:shared=False # default is False
 
 [generators]
-cmake
+CMakeDeps
+CMakeToolchaincon
 ```
 
 ## Include to your CMake project
+
 * Add submodule or just clone
-  * `git submodule add https://github.com/edwardstock/toolbox.git /path/to/libs/toolbox` 
-  * `git clone https://github.com/edwardstock/toolbox.git /path/to/libs/toolbox`
-  
+    * `git submodule add https://github.com/edwardstock/toolbox.git /path/to/libs/toolbox`
+    * `git clone https://github.com/edwardstock/toolbox.git /path/to/libs/toolbox`
+
 * Edit `CMakeLists.txt`:
+
 ```cmake
 # your executable or library
-add_executable(my_executable) 
+add_executable(my_executable)
 #or if library
 add_library(my_library)
 
@@ -64,14 +57,41 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/path/to/libs/toolbox)
 target_link_libraries(my_[executable|library] toolbox)
 ```
 
+or using [CMake FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html)
+
+```cmake
+include(FetchContent)
+fetchcontent_declare(
+	toolbox
+	GIT_REPOSITORY https://github.com/edwardstock/toolbox.git
+	GIT_TAG 3.4.0
+)
+set(toolbox_BUILD_TESTS OFF)
+set(toolbox_BUILD_SHARED_LIBS OFF)
+fetchcontent_makeavailable(toolbox)
+
+add_executable(my_app main.cpp)
+target_link_libraries(my_app toolbox)
+```
+
 ## Global Install
+
 This library is Header-Only, so build isn't required. But you can install globally:
+
 ```bash
 git clone https://github.com/edwardstock/toolbox.git toolbox && cd toolbox/build
 cmake --build . --target install
 ```
 
+Then include into a project:
+
+```cmake
+find_package(toolbox REQUIRED)
+target_link_libraries(my_[executable|library] toolbox::toolbox)
+```
+
 ## Testing
+
 ```bash
 git clone https://github.com/edwardstock/toolbox.git toolbox && cd toolbox/build
 cmake .. -DCMAKE_BUILD_TYPE=Debug -DENABLE_TEST=On
@@ -80,7 +100,10 @@ cmake --build . --target toolbox-test
 ```
 
 ## Build with CLang on linux
-Probably, if you are compiled clang from the sources, linker may not found `libc++.so` in default lib path. You could manually add it to LD_LIBRARY_PATH or using `sudo -s source llvm_config.sh`.
+
+Probably, if you are compiled clang from the sources, linker may not found `libc++.so` in default lib path. You could
+manually add it to LD_LIBRARY_PATH or using `sudo -s source llvm_config.sh`.
 
 By default, script installs:
+
 * header to: /usr/local/include/toolbox.hpp

@@ -58,11 +58,11 @@ std::vector<std::string> toolbox::strings::split(const std::string& source, cons
 
     std::vector<std::string> result;
     size_t current = 0;
-    while (current != src.npos) {
+    while (current != std::string::npos) {
         current = src.find(delimiter);
-        if (current != src.npos && src.substr(current, delimiter.length()) == delimiter) {
+        if (current != std::string::npos && src.substr(current, delimiter.length()) == delimiter) {
             result.push_back(src.substr(0, current));
-            src = src.substr(current + (delimiter.length()), src.npos);
+            src = src.substr(current + (delimiter.length()), std::string::npos);
         }
     }
     if (src.length() > 0) {
@@ -108,19 +108,19 @@ std::pair<std::string, std::string> toolbox::strings::split_pair(const std::stri
     std::vector<std::string> elements = split(source, delimiter);
 
     if (elements.empty()) {
-        return std::pair<std::string, std::string>(std::string(), std::string());
+        return {std::string(), std::string()};
     }
 
     if (elements.size() == 1) {
-        return std::pair<std::string, std::string>(elements.at(0), std::string());
+        return {elements.at(0), std::string()};
     }
 
-    return std::pair<std::string, std::string>(elements.at(0), elements.at(1));
+    return {elements.at(0), elements.at(1)};
 }
 std::pair<std::string, std::string> toolbox::strings::split_pair(const std::string& source,
                                                                  const std::string& delimiter) {
     if (delimiter.empty()) {
-        return std::pair<std::string, std::string>(std::string(), std::string());
+        return {};
     }
     return split_pair(source, delimiter.c_str()[0]);
 }
@@ -190,32 +190,23 @@ std::string toolbox::strings::substr_replace_ret(const std::string& search, cons
 }
 std::string toolbox::strings::substr_replace_all_ret(const std::string& search, const std::string& replace,
                                                      const std::string& source) {
-    std::string result = substr_replace_ret(search, replace, source);
-    while (result.find(search) != std::string::npos) {
-        result = substr_replace_ret(search, replace, result);
+    std::string result = source;
+    size_t pos = 0;
+    while ((pos = result.find(search, pos)) != std::string::npos) {
+        result.replace(pos, search.length(), replace);
+        pos += replace.length();
     }
-
     return result;
 }
 std::string toolbox::strings::substr_replace_all_ret(const std::vector<std::string>& search,
                                                      const std::vector<std::string>& replace, const std::string& source) {
-    std::vector<std::string> toReplace;
-    if (replace.size() != search.size() && replace.size() == 1) {
-        for (std::size_t i = 0; i < search.size(); i++) {
-            toReplace.push_back(replace[0]);
-        }
-    } else if ((search.size() != replace.size() && replace.size() > 1) || search.empty() || replace.empty()) {
+    if (search.size() != replace.size() && replace.size() > 1) {
         throw std::invalid_argument("search & replace vectors must be equal size and not empty!");
-    } else {
-        toReplace = replace;
     }
-
-    std::string result;
-
+    std::string result = source;
     for (size_t i = 0; i < search.size(); i++) {
-        result = substr_replace_all_ret(search[i], toReplace[i], i == 0 ? source : result);
+        result = substr_replace_all_ret(search[i], replace.size() > 1 ? replace[i] : replace[0], result);
     }
-
     return result;
 }
 
