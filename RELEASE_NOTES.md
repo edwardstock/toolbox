@@ -5,7 +5,6 @@
 - Removed deprecated `set_[min|max]_fractions` methods from `decimal_formatter`
 - A few optimizations
 - Fixed windows DLL building
-- Renamed
 
 ## 3.3.0
 
