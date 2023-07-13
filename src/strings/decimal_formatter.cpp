@@ -18,26 +18,26 @@
 toolbox::strings::decimal_formatter::decimal_formatter(int num) {
     std::stringstream ss;
     ss << num;
-    m_num = ss.str();
+    m_input = ss.str();
 }
 toolbox::strings::decimal_formatter::decimal_formatter(double num) {
     std::stringstream ss;
     ss << num;
-    m_num = ss.str();
+    m_input = ss.str();
 }
 toolbox::strings::decimal_formatter::decimal_formatter(float num) {
     std::stringstream ss;
     ss << num;
-    m_num = ss.str();
+    m_input = ss.str();
 }
 toolbox::strings::decimal_formatter::decimal_formatter(std::string num)
-    : m_num(std::move(num)) {
+    : m_input(std::move(num)) {
 }
 toolbox::strings::decimal_formatter::decimal_formatter(const char* num)
-    : m_num(std::string(num)) {
+    : m_input(std::string(num)) {
 }
 std::string toolbox::strings::decimal_formatter::operator()(const std::string& num) {
-    m_num = num;
+    m_input = num;
     return format();
 }
 toolbox::strings::decimal_formatter& toolbox::strings::decimal_formatter::set_delimiter(const std::string& delimiter) {
@@ -62,14 +62,6 @@ toolbox::strings::decimal_formatter& toolbox::strings::decimal_formatter::set_mi
     m_min_precision = min_precision;
     return *this;
 }
-toolbox::strings::decimal_formatter& toolbox::strings::decimal_formatter::set_max_fractions(size_t max_fractions) {
-    m_max_precision = max_fractions;
-    return *this;
-}
-toolbox::strings::decimal_formatter& toolbox::strings::decimal_formatter::set_min_fractions(size_t min_fractions) {
-    m_min_precision = min_fractions;
-    return *this;
-}
 
 static size_t count_real_precision(const std::string& fraction) {
     size_t n = fraction.size();
@@ -85,10 +77,10 @@ static size_t count_real_precision(const std::string& fraction) {
 }
 
 std::string toolbox::strings::decimal_formatter::format() const {
-    if (m_num.empty()) {
+    if (m_input.empty()) {
         throw std::runtime_error("Empty number passed to decimal formatter");
     }
-    std::pair<std::string, std::string> lr = toolbox::strings::split_pair(m_num, '.');
+    std::pair<std::string, std::string> lr = toolbox::strings::split_pair(m_input, '.');
 
     std::stringstream out;
     std::stack<std::string> parts;
@@ -106,7 +98,7 @@ std::string toolbox::strings::decimal_formatter::format() const {
             }
         }
 
-        parts.push(".");
+        parts.emplace(".");
     }
 
     size_t prev_i;
@@ -123,7 +115,7 @@ std::string toolbox::strings::decimal_formatter::format() const {
 
         parts.push(std::move(part));
         if (i != 0) {
-            parts.push(std::string(m_delimiter));
+            parts.emplace(m_delimiter);
         }
     }
 

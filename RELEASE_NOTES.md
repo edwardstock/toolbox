@@ -1,3 +1,11 @@
+## 3.4.0
+
+- Migrated to conan 2.0
+- Removed versioned library directory, now it's installing directly to `libdir`
+- Removed deprecated `set_[min|max]_fractions` methods from `decimal_formatter`
+- A few optimizations
+- Fixed windows DLL building
+
 ## 3.3.0
 
 - Added `take_range_n` with arguments (`from`, `length`)

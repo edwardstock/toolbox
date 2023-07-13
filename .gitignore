@@ -4,6 +4,7 @@ cmake-build-*
 !.gitkeep
 .idea/
 CMakeCache.txt
+CMakeUserPresets.json
 .directory
 .editorconfig
 *.a
@@ -21,3 +22,5 @@ include/toolbox/toolbox_config.h
 out
 venv
 Dockerfile
+test_package/cmake-build-*
+test_package/build

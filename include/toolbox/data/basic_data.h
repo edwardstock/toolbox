@@ -17,6 +17,7 @@
 #include <functional>
 #include <initializer_list>
 #include <iostream>
+#include <limits>
 #include <map>
 #include <string>
 #include <utility>
@@ -295,10 +296,9 @@ public:
     }
 
     std::vector<T> take_last(size_t n) const {
-        std::vector<T> out;
-        out.insert(out.begin(), m_data.end() - n, m_data.end());
-        return out;
+        return std::vector<T>(m_data.end() - n, m_data.end());
     }
+
     basic_data<T> take_last_c(size_t n) const {
         return basic_data<T>(take_last(n));
     }
@@ -336,18 +336,10 @@ public:
     }
 
     std::vector<T> take_range(size_t from, size_t to) const {
-        if (from > to) {
-            throw std::out_of_range("'from' can't be more than 'to'");
-        } else if (to > size()) {
-            throw std::out_of_range("'to' can't be more than size()");
-        } else if (from > size()) {
-            throw std::out_of_range("'from' can't be more than size()");
+        if (from > to || to > m_data.size()) {
+            throw std::out_of_range("Invalid range");
         }
-
-        std::vector<T> out;
-        out.reserve(to - from);
-        out.insert(out.begin(), m_data.begin() + from, m_data.begin() + to);
-        return out;
+        return std::vector<T>(m_data.begin() + from, m_data.begin() + to);
     }
 
     std::vector<T> take_range_n(size_t from, size_t length) const {
@@ -441,8 +433,9 @@ public:
             return 0;
         }
 
-        size_type minPos = SIZE_MAX;
+        size_type minPos = std::numeric_limits<size_type>::max();
         size_type maxPos = 0;
+
         for (const auto& it : vals) {
             minPos = std::min(minPos, it.first);
             maxPos = std::max(maxPos, it.first);

@@ -52,7 +52,7 @@ std::string toolbox::strings::find_pattern_first(const rxns::regex& pattern, con
     std::string result;
     bool found = rxns::regex_search(source, results, pattern);
     if (!found || results.size() < 2) {
-        return std::string();
+        return {};
     }
 
     return results[1];

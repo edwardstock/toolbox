@@ -3,8 +3,8 @@ include(FindLinuxPlatform)
 include(CMakePackageConfigHelpers)
 
 set(INSTALL_BIN_DIR bin)
-set(INSTALL_LIB_DIR lib/${PROJECT_NAME}-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
-set(INSTALL_CMAKE_DIR ${INSTALL_LIB_DIR}/cmake)
+set(INSTALL_LIB_DIR lib)
+set(INSTALL_CMAKE_DIR ${INSTALL_LIB_DIR}/cmake/${PROJECT_NAME})
 set(INSTALL_INCLUDE_DIR include)
 
 set(target_deps "")
@@ -24,7 +24,7 @@ endif ()
 configure_package_config_file(
 	${CMAKE_CURRENT_SOURCE_DIR}/cfg/${PROJECT_NAME}-config.cmake.in
 	${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
-	INSTALL_DESTINATION lib/${PROJECT_NAME}-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}/cmake
+	INSTALL_DESTINATION ${INSTALL_CMAKE_DIR}
 	PATH_VARS INSTALL_LIB_DIR INSTALL_INCLUDE_DIR INSTALL_CMAKE_DIR
 )
 
@@ -33,7 +33,7 @@ write_basic_package_version_file(
 	VERSION ${PROJECT_VERSION}
 	COMPATIBILITY SameMajorVersion)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cfg/toolbox.pc.in ${CMAKE_CURRENT_BINARY_DIR}/pkgconfig/toolbox.pc @ONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cfg/${PROJECT_NAME}.pc.in ${CMAKE_CURRENT_BINARY_DIR}/pkgconfig/${PROJECT_NAME}.pc @ONLY)
 
 install(
 	FILES
@@ -58,7 +58,7 @@ install(
 
 install(
 	DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/pkgconfig
-	DESTINATION lib/pkgconfig
+	DESTINATION ${INSTALL_LIB_DIR}
 )
 
 install(EXPORT ${PROJECT_NAME}-targets
@@ -68,7 +68,7 @@ install(EXPORT ${PROJECT_NAME}-targets
         )
 
 set(PACKAGE_RELEASE 3)
-set(CPACK_PACKAGE_NAME toolboxpp)
+set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
 set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
 set(CPACK_PACKAGE_VENDOR "Eduard Maximovich")
 set(CPACK_PACKAGE_CONTACT "edward.vstock@gmail.com")

@@ -138,11 +138,11 @@ void bytes_data::push_back(char val) {
 }
 
 void bytes_data::clear() {
-    static volatile std::atomic<uint8_t> s_cleanseCounter{0u};
+    static volatile std::atomic<uint8_t> cleanse_counter{0u};
     auto* p = data();
     size_t const len = (uint8_t*) (data() + size()) - p;
     size_t loop = len;
-    size_t count = s_cleanseCounter;
+    size_t count = cleanse_counter;
     while (loop--) {
         *(p++) = (uint8_t) count;
         count += (17u + ((size_t) p & 0x0Fu));
@@ -152,7 +152,7 @@ void bytes_data::clear() {
         count += (63u + (size_t) p);
     }
 
-    s_cleanseCounter = (uint8_t) count;
+    cleanse_counter = (uint8_t) count;
     memset((uint8_t*) data(), 0, len);
 }
 
