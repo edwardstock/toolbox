@@ -1,6 +1,19 @@
 name: "Setup Conan"
 description: "Upgrade pip, install conan, setup remote and login to artifactory"
 
+inputs:
+  artifactory_api_key:
+    required: true
+    description: "Artifactory API key"
+
+  artifactory_repo:
+    required: true
+    description: "Artifactory repository api url"
+
+  artifactory_user:
+    required: true
+    description: "Artifactory user"
+
 runs:
   using: composite
   steps:
@@ -10,5 +23,5 @@ runs:
         pip install --upgrade pip
         pip install conan
         conan profile detect --force
-        conan remote add edwardstock ${{ env.ARTIFACTORY_REPO_URL }}
-        conan remote login -p ${{ secrets.ARTIFACTORY_API_KEY }} edwardstock ${{ secrets.ARTIFACTORY_API_USER }}
+        conan remote add edwardstock ${{ inputs.artifactory_repo }}
+        conan remote login -p ${{ inputs.artifactory_api_key }} edwardstock ${{ inputs.artifactory_user }}
