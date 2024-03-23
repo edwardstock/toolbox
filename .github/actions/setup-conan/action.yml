@@ -6,6 +6,14 @@ inputs:
     required: true
     description: "Artifactory API key"
 
+  artifactory_repo:
+    required: true
+    description: "Artifactory repository api url"
+
+  artifactory_user:
+    required: true
+    description: "Artifactory user"
+
 runs:
   using: composite
   steps:
@@ -15,5 +23,5 @@ runs:
         pip install --upgrade pip
         pip install conan
         conan profile detect --force
-        conan remote add edwardstock https://conan.edwardstock.com/artifactory/api/conan/conan-local
-        conan remote login -p ${{ inputs.artifactory_api_key }} edwardstock admin
+        conan remote add edwardstock ${{ inputs.artifactory_repo }}
+        conan remote login -p ${{ inputs.artifactory_api_key }} edwardstock ${{ inputs.artifactory_user }}
