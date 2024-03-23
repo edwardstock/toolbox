@@ -24,7 +24,7 @@ jobs:
         uses: ./.github/actions/setup-conan
         with:
           artifactory_api_key: ${{ secrets.ARTIFACTORY_API_KEY }}
-          artifactory_repo: ${{ env.ARTIFACTORY_REPO_URL }}
+          artifactory_repo: ${{ vars.ARTIFACTORY_REPO_URL }}
           artifactory_user: ${{ secrets.ARTIFACTORY_API_USER }}
 
       - name: Run Tests
@@ -49,7 +49,7 @@ jobs:
         uses: ./.github/actions/setup-conan
         with:
           artifactory_api_key: ${{ secrets.ARTIFACTORY_API_KEY }}
-          artifactory_repo: ${{ env.ARTIFACTORY_REPO_URL }}
+          artifactory_repo: ${{ vars.ARTIFACTORY_REPO_URL }}
           artifactory_user: ${{ secrets.ARTIFACTORY_API_USER }}
 
       - name: Run Tests
