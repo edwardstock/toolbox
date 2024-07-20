@@ -40,7 +40,7 @@
   - now `bytes_data` can parse hex string with prefix 0x or 0X
   - `bytes_data` now can parse and interpret correctly hex string with uneven length, for example 0xFFF won't be parsed as 0xFFFF; now it's 0x0FFF
   - added `prefix` argument to `bytes_data::to_hex` function
-  - added `push_back(size_t)` to `bytes_data` to push back `size_t` value as bytes
+  - added template `push_back(T)` to `bytes_data` for any integral type and removed other overloads
   - added `push_back(const std::string&)` to `bytes_data` to push back string as bytes (not hex string)
   - added `push_back(const char*, size_t)` to `bytes_data` to push back string as bytes with defined length
 

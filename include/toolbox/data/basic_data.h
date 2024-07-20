@@ -605,6 +605,12 @@ public:
         return 1;
     }
 
+    /**
+     * @brief Writes value to the end of container if there is enough space,
+     * otherwise allocates new space targetSize = size + sizeof(value)
+     * @param val T value
+     * @return 
+     */
     virtual size_t write_back(T val) {
         return write(size(), val);
     }

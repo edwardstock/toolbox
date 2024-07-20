@@ -125,41 +125,8 @@ void bytes_data::push_back(uint8_t val) {
     m_data.push_back(val);
 }
 
-void bytes_data::push_back(uint16_t val) {
-    m_data.push_back(val >> 8u);
-    m_data.push_back(val & 0xFFu);
-}
-
-void bytes_data::push_back(uint32_t val) {
-    m_data.push_back(val >> 24u);
-    m_data.push_back(val >> 16u);
-    m_data.push_back(val >> 8u);
-    m_data.push_back(val & 0xFFu);
-}
-
-void bytes_data::push_back(uint64_t val) {
-    m_data.push_back(val >> 56u);
-    m_data.push_back(val >> 48u);
-    m_data.push_back(val >> 40u);
-    m_data.push_back(val >> 32u);
-    m_data.push_back(val >> 24u);
-    m_data.push_back(val >> 16u);
-    m_data.push_back(val >> 8u);
-    m_data.push_back(val & 0xFFu);
-}
-
 void bytes_data::push_back(char val) {
     push_back((uint8_t) val);
-}
-
-void bytes_data::push_back(std::size_t val) {
-    // Determine the size of std::size_t
-    const std::size_t size = sizeof(std::size_t);
-
-    // Push back the bytes of val in a platform-independent manner
-    for (size_t i = 0; i < size; ++i) {
-        m_data.push_back((val >> (8 * (size - 1 - i))) & 0xFF);
-    }
 }
 
 void bytes_data::push_back(const std::string& val) {

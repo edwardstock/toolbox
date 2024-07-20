@@ -162,15 +162,15 @@ public:
 
     void push_back(uint8_t val);
     void push_back(char val);
-    void push_back(uint16_t val);
-    void push_back(uint32_t val);
-    void push_back(uint64_t val);
 
-    /**
-     * Writes arbitrary amount of bytes from size_t, depending on what sizeof of the size_t
-     * @param val any size_t value
-     */
-    void push_back(size_type val);
+    template<typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
+    void push_back(T val) {
+        const std::size_t size = sizeof(T);
+
+        for (std::size_t i = 0; i < size; ++i) {
+            m_data.push_back((val >> (8 * (size - 1 - i))) & 0xFF);
+        }
+    }
 
     /**
      * @brief Write string (not a hex string) characters as bytes
