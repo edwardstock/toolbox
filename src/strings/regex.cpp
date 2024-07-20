@@ -9,6 +9,7 @@
 
 #include "toolbox/strings/regex.h"
 
+#include <sys/types.h>
 #include <vector>
 
 #ifdef HAVE_REGEX_H
@@ -25,7 +26,7 @@ bool toolbox::strings::matches_pattern(const std::string& pattern, const std::st
 std::vector<std::vector<std::string>> toolbox::strings::find_all_patterns(
     const rxns::regex& pattern,
     const std::string& source
-    ) {
+) {
     std::vector<std::vector<std::string>> captured_groups;
     std::vector<std::string> captured_subgroups;
     const rxns::sregex_token_iterator end_iterator;
@@ -147,8 +148,8 @@ std::string toolbox::strings::remove_last_pattern(const rxns::regex& pattern, co
     std::smatch match;
     const auto search_start(source.cbegin());
     int64_t next_search_pos = 0;
-    ssize_t last_matched_pos = 0;
-    ssize_t last_matched_len = 0;
+    std::smatch::difference_type last_matched_pos = 0;
+    std::smatch::difference_type last_matched_len = 0;
 
     // reduce searchable area after each match
     while (regex_search(search_start + next_search_pos, source.cend(), match, pattern)) {

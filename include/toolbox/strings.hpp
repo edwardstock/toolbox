@@ -18,6 +18,7 @@
 #include <string>
 #include <utility>
 #include <cstdio>
+#include <cstddef>
 #include <vector>
 #include <type_traits>
 
@@ -334,7 +335,7 @@ TOOLBOX_API std::string substr_clip(
 TOOLBOX_API std::string glue(const std::string& glue, const std::vector<std::string>& strings);
 
 
-TOOLBOX_API auto inline join_transformer = [](const auto& v) -> std::string { return v; };
+auto inline join_transformer = [](const auto& v) -> std::string { return v; };
 /**
  * A bit more advanced function for concatenating strings
  * @param source any iterable type
@@ -352,7 +353,7 @@ TOOLBOX_API auto inline join_transformer = [](const auto& v) -> std::string { re
  * @return joined string
  */
 template<typename Iterable, typename Transformer>
-TOOLBOX_API std::string join(
+std::string join(
     const Iterable& source,
     const std::string& delimiter,
     const std::string& prefix,
@@ -390,7 +391,7 @@ TOOLBOX_API std::string join(
 }
 
 template<typename Iterable>
-TOOLBOX_API std::string join(
+std::string join(
     const Iterable& source,
     const std::string& delimiter,
     const std::string& prefix,
@@ -402,41 +403,41 @@ TOOLBOX_API std::string join(
 }
 
 template<typename Iterable, typename Transformer>
-TOOLBOX_API std::string join(
+std::string join(
     const Iterable& source,
     const std::string& delimiter,
     const std::string& prefix,
     const std::string& suffix,
     const Transformer& transformer
 ) {
-    return join<Iterable, Transformer>(source, delimiter, prefix, suffix, "...", SIZE_T_MAX, transformer);
+    return join<Iterable, Transformer>(source, delimiter, prefix, suffix, "...", SIZE_MAX, transformer);
 }
 
 template<typename Iterable>
-TOOLBOX_API std::string join(
+std::string join(
     const Iterable& source,
     const std::string& delimiter,
     const std::string& prefix,
     const std::string& suffix
 ) {
-    return join<Iterable>(source, delimiter, prefix, suffix, "...", SIZE_T_MAX, join_transformer);
+    return join<Iterable>(source, delimiter, prefix, suffix, "...", SIZE_MAX, join_transformer);
 }
 
 template<typename Iterable, typename Transformer>
-TOOLBOX_API std::string join(
+std::string join(
     const Iterable& source,
     const std::string& delimiter,
     const Transformer& transformer
 ) {
-    return join<Iterable, Transformer>(source, delimiter, "", "", "...", SIZE_T_MAX, transformer);
+    return join<Iterable, Transformer>(source, delimiter, "", "", "...", SIZE_MAX, transformer);
 }
 
 template<typename Iterable>
-TOOLBOX_API std::string join(
+std::string join(
     const Iterable& source,
     const std::string& delimiter = ", "
 ) {
-    return join<Iterable>(source, delimiter, "", "", "...", SIZE_T_MAX, join_transformer);
+    return join<Iterable>(source, delimiter, "", "", "...", SIZE_MAX, join_transformer);
 }
 
 /**
@@ -477,7 +478,7 @@ TOOLBOX_API bool equals_icase(const std::string& s1, const std::string& s2);
 TOOLBOX_API bool starts_with(const std::string& source, const std::string& prefix);
 
 template<typename Iterable>
-TOOLBOX_API bool starts_with_any(const std::string& source, const Iterable& prefixes) {
+bool starts_with_any(const std::string& source, const Iterable& prefixes) {
     return std::any_of(
         prefixes.begin(),
         prefixes.end(),
@@ -496,7 +497,7 @@ TOOLBOX_API bool starts_with_any(const std::string& source, const Iterable& pref
 TOOLBOX_API bool ends_with(const std::string& source, const std::string& suffix);
 
 template<typename Iterable>
-TOOLBOX_API bool ends_with_any(const std::string& source, const Iterable& suffixes) {
+bool ends_with_any(const std::string& source, const Iterable& suffixes) {
     return std::any_of(
         suffixes.begin(),
         suffixes.end(),

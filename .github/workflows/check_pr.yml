@@ -7,6 +7,9 @@ jobs:
   build-and-test-with-conan:
     name: Build and Test with Conan
     runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        gcc: [ 8, 9, 10, 11 ]
     steps:
       - uses: actions/checkout@v3
       - uses: lukka/get-cmake@latest
@@ -14,7 +17,7 @@ jobs:
       - name: Set up GCC
         uses: egor-tensin/setup-gcc@v1
         with:
-          version: 11
+          version: ${{ matrix.gcc }}
           platform: x64
 
       - name: Setup Python
@@ -33,13 +36,16 @@ jobs:
   build-and-test-without-conan:
     name: Build and Test without Conan
     runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        gcc: [ 8, 9, 10, 11 ]
     steps:
       - uses: actions/checkout@v3
       - uses: lukka/get-cmake@latest
       - name: Set up GCC
         uses: egor-tensin/setup-gcc@v1
         with:
-          version: 11
+          version: ${{ matrix.gcc }}
           platform: x64
 
       - name: Setup Python

@@ -8,10 +8,10 @@ namespace toolbox {
 namespace data {
 
 template<typename T>
-class TOOLBOX_API slice;
+class slice;
 
 template<typename T>
-class TOOLBOX_API slice_compatible {
+class slice_compatible {
 public:
     using const_iterator = typename std::vector<T>::const_iterator;
     using const_reverse_iterator = typename std::vector<T>::const_reverse_iterator;
@@ -43,7 +43,7 @@ public:
 };
 
 template<typename T>
-class TOOLBOX_API slice : public slice_compatible<T> {
+class slice : public slice_compatible<T> {
 public:
     using const_iterator = typename slice_compatible<T>::const_iterator;
     using const_reverse_iterator = typename slice_compatible<T>::const_reverse_iterator;
@@ -82,7 +82,7 @@ public:
     }
 
     bool operator!=(const slice& other) const noexcept {
-        return !(*this == other);
+        return *this != other;
     }
 
     bool operator!=(const std::vector<T>& other) const noexcept {
