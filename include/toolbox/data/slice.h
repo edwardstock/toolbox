@@ -2,6 +2,7 @@
 
 #include "toolbox/toolbox_config.h"
 #include <vector>
+#include <stdexcept>
 
 namespace toolbox {
 namespace data {
