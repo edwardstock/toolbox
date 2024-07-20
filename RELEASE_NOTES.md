@@ -2,6 +2,7 @@
 
 - Replaced sprintf with snprintf everywhere
 - A bit cleanup in code style and naming
+- Fixed installation of cmake-related files from \$prefix/lib/cmake/toolbox/*.cmake -> \$prefix/lib/cmake/*.cmake
 - Added regex helpers:
   - `std::string remove_first_pattern(const rxns::regex& pattern, const std::string& source)`
   - `std::string remove_last_pattern(const rxns::regex& pattern, const std::string& source)`
