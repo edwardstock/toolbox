@@ -37,6 +37,7 @@ using match_all_res_t = std::vector<std::vector<std::string>>;
  * @return
  */
 TOOLBOX_API bool matches_pattern(const rxns::regex& pattern, const std::string& source);
+
 /**
  * Match regex pattern.
  * @param pattern Just string. By default: search with flag
@@ -45,45 +46,73 @@ TOOLBOX_API bool matches_pattern(const rxns::regex& pattern, const std::string& 
  * @return
  */
 TOOLBOX_API bool matches_pattern(const std::string& pattern, const std::string& source);
+
 /**
  * Returns all found groups in source with pattern
  * @param rx custom regex object
  * @param s
  * @return vector of vectors of strings
  */
-TOOLBOX_API match_all_res_t find_all_pattern(const rxns::regex& pattern, const std::string& source);
+TOOLBOX_API match_all_res_t find_all_patterns(const rxns::regex& pattern, const std::string& source);
+
 /**
  * Returns all found groups in source with pattern
  * @param pattern
  * @param source
  * @return vector of vectors of strings
  */
-TOOLBOX_API match_all_res_t find_all_pattern(const std::string& pattern, const std::string& source);
+TOOLBOX_API match_all_res_t find_all_patterns(const std::string& pattern, const std::string& source);
+
 /**
  * Take first regex match and return it
+ *
+ * This function attempts to find first group if regex has at least one, otherwise it returns full match
  * @param pattern
  * @param source
  * @return
  */
-TOOLBOX_API std::string find_pattern_first(const rxns::regex& pattern, const std::string& source);
+TOOLBOX_API std::string find_first_pattern(const rxns::regex& pattern, const std::string& source);
+
 /**
- * Take first regex match and return it (with custom regex object)
+ * Take first regex match and return it
+ *
+ * This function attempts to find first group if regex has at least one, otherwise it returns full match
  * @param pattern
  * @param source
  * @return
  */
-TOOLBOX_API std::string find_pattern_first(const std::string& pattern, const std::string& source);
+TOOLBOX_API std::string find_first_pattern(const std::string& pattern, const std::string& source);
+
+/**
+ * Take last regex match and return it.
+ *
+ * This function attempts to find first group if regex has at least one, otherwise it returns full match
+ * @param pattern
+ * @param source
+ * @return empty string if not found or found string.
+ */
+TOOLBOX_API std::string find_last_pattern(const rxns::regex& pattern, const std::string& source);
+
+/**
+ * Take last regex match and return it
+ *
+ * This function attempts to find first group if regex has at least one, otherwise it returns full match
+ * @param pattern
+ * @param source
+ * @return empty string if not found or found string
+ */
+TOOLBOX_API inline  std::string find_last_pattern(const std::string& pattern, const std::string& source);
 
 /**
  * Less boilerplate for std::regex
  * Attention! Don't use this method to check if regex pattern has in string, use
  * {@code hasRegex()} instead, because different compilers compiles different
  * results
- * @param rxPattern
+ * @param pattern
  * @param source
  * @return
  */
-TOOLBOX_API std::vector<std::string> find_pattern(const rxns::regex& rxPattern, const std::string& source);
+TOOLBOX_API std::vector<std::string> find_pattern(const rxns::regex& pattern, const std::string& source);
 
 /**
  * Less boilerplate for std::regex
@@ -105,6 +134,10 @@ TOOLBOX_API bool num_is_integer(const std::string& input);
 /// \param input
 /// \return
 TOOLBOX_API bool num_is_real(const std::string& input);
+
+TOOLBOX_API std::string remove_first_pattern(const rxns::regex& pattern, const std::string& source);
+
+TOOLBOX_API std::string remove_last_pattern(const rxns::regex& pattern, const std::string& source);
 
 } // namespace strings
 } // namespace toolbox

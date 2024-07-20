@@ -14,23 +14,19 @@
 namespace toolbox {
 namespace data {
 
-template<size_t N>
-class bytes_array;
-
 /// \brief Unresizable bytes buffer. If you're trying to write data more than container N, otherwise data will be silently striped
 /// \tparam N container maximum size
-template<size_t N>
+template<bytes_data::size_type N>
 class bytes_array : public bytes_data {
 public:
     /// \brief Default: resize data to N forever
     bytes_array()
-        : bytes_data(N) {
-    }
+        : bytes_data(N) { }
 
     /// \brief Write uint8_t* with len
     /// \param data bytes data, have check for NULL
     /// \param len if len > N, than container will copy only from 0 to N data
-    bytes_array(const uint8_t* data, size_t len)
+    bytes_array(const uint8_t* data, size_type len)
         : bytes_array() {
 
         if (data != nullptr) {
@@ -41,8 +37,7 @@ public:
     /// \brief Be carefully and make sure input data contains >= N elements, otherwise you'll have at least garbage in a data or UB
     /// \param data
     explicit bytes_array(const uint8_t* data)
-        : bytes_array(data, N) {
-    }
+        : bytes_array(data, N) { }
 
     /// \brief converts hex string to bytes.
     /// \param hex String CAN'T have prefixes or odd length, as hex representation - 2 characters is a 1 byte
@@ -59,8 +54,7 @@ public:
     /// \brief converts hex string to bytes.
     /// \param hex
     bytes_array(const char* hex)
-        : bytes_array(std::string(hex)) {
-    }
+        : bytes_array(std::string(hex)) { }
 
     bytes_array(const std::vector<uint8_t>& data)
         : bytes_array() {
@@ -122,7 +116,6 @@ public:
 
     bytes_array(bytes_array<N>&& other) noexcept {
         m_data = std::move(other.m_data);
-        other.clear();
     }
 
     bytes_array<N>& operator=(bytes_array<N> other) {
@@ -149,33 +142,32 @@ public:
     ~bytes_array() override = default;
 
     // leaving it here for compatibility
-    void reserve(size_t) {
-    }
+    void reserve(size_type) { }
 
-    size_t capacity() const {
+    size_type capacity() const {
         return N;
     }
 
     // leaving it here for compatibility
-    void resize(size_t) {
+    void resize(size_type) {
         // do nothing
         // client code still can resize m_data in derived class
     }
 
-    constexpr size_t size() const {
+    size_type size() const override {
         return N;
     }
 
     /// \brief writes only those elements that have position < N
     /// \param vals
     /// \return
-    size_type write_batch(std::map<basic_data::size_type, uint8_t>&& vals) override {
+    size_type write_batch(std::map<size_type, uint8_t>&& vals) override {
         if (vals.empty()) {
             return 0;
         }
 
         size_type n = 0;
-        for (auto&& el : vals) {
+        for (auto&& el: vals) {
             if (el.first < N) {
                 m_data[el.first] = el.second;
             }
@@ -186,132 +178,159 @@ public:
         return n;
     }
 
-    size_t write(size_t pos, uint16_t val) override {
-        if (sizeof(val) + pos > N) {
-            throw std::out_of_range("value cannot be fit to passed position");
-        }
-        return bytes_data::write(pos, val);
-    }
-    size_t write(size_t pos, int32_t val) override {
-        if (sizeof(val) + pos > N) {
-            throw std::out_of_range("value cannot be fit to passed position");
-        }
-        return bytes_data::write(pos, val);
-    }
-    size_t write(size_t pos, uint32_t val) override {
-        if (sizeof(val) + pos > N) {
-            throw std::out_of_range("value cannot be fit to passed position");
-        }
-        return bytes_data::write(pos, val);
-    }
-    size_t write(size_t pos, uint64_t val) override {
-        if (pos > N) {
-            throw std::out_of_range("value cannot be fit to passed position");
-        }
-        if (sizeof(val) + pos > N) {
-            throw std::out_of_range("value cannot be fit to passed position");
-        }
-        return bytes_data::write(pos, val);
-    }
-    size_type write(basic_data::size_type pos, const uint8_t* data, size_t dataLen) override {
-        if (pos > N) {
-            throw std::out_of_range("value cannot be fit to passed position");
-        }
-        return bytes_data::write(pos, data, std::min(N - pos, dataLen));
-    }
-    size_type write(basic_data::size_type pos, const basic_data<uint8_t>& data) override {
-        if (pos > N) {
-            throw std::out_of_range("value cannot be fit to passed position");
-        }
-        return bytes_data::write(pos, data.take_range(0, std::min(N - pos, data.size())));
-    }
-    size_type write(basic_data::size_type pos, basic_data<uint8_t>&& data) override {
-        if (pos > N) {
-            throw std::out_of_range("value cannot be fit to passed position");
-        }
-        return bytes_data::write(pos, data.take_range(0, std::min(N - pos, data.size())));
-    }
-    size_type write(basic_data::size_type pos, const std::vector<uint8_t>& data) override {
-        if (pos > N) {
-            throw std::out_of_range("value cannot be fit to passed position");
-        }
-        return bytes_data::write(pos, data.data(), std::min(N - pos, data.size()));
-    }
-    size_type write(basic_data::size_type pos, std::vector<uint8_t>&& data) override {
-        if (pos > N) {
-            throw std::out_of_range("value cannot be fit to passed position");
-        }
-        return bytes_data::write(pos, data.data(), std::min(N - pos, data.size()));
-    }
-    size_type write(basic_data::size_type pos, uint8_t val) override {
+    size_type write(size_type pos, uint16_t val) override {
         if (sizeof(val) + pos > N) {
             throw std::out_of_range("value cannot be fit to passed position");
         }
         return bytes_data::write(pos, val);
     }
 
+    size_type write(size_type pos, int32_t val) override {
+        if (sizeof(val) + pos > N) {
+            throw std::out_of_range("value cannot be fit to passed position");
+        }
+        return bytes_data::write(pos, val);
+    }
+
+    size_type write(size_type pos, uint32_t val) override {
+        if (sizeof(val) + pos > N) {
+            throw std::out_of_range("value cannot be fit to passed position");
+        }
+        return bytes_data::write(pos, val);
+    }
+
+    size_type write(size_type pos, uint64_t val) override {
+        if (pos > N) {
+            throw std::out_of_range("value cannot be fit to passed position");
+        }
+        if (sizeof(val) + pos > N) {
+            throw std::out_of_range("value cannot be fit to passed position");
+        }
+        return bytes_data::write(pos, val);
+    }
+
+    size_type write(size_type pos, const uint8_t* data, size_t dataLen) override {
+        if (pos > N) {
+            throw std::out_of_range("value cannot be fit to passed position");
+        }
+        return bytes_data::write(pos, data, std::min(N - pos, dataLen));
+    }
+
+    size_type write(size_type pos, const basic_data<uint8_t>& data) override {
+        if (pos > N) {
+            throw std::out_of_range("value cannot be fit to passed position");
+        }
+        return bytes_data::write(pos, data.take_range(0, std::min(N - pos, data.size())));
+    }
+
+    size_type write(size_type pos, basic_data<uint8_t>&& data) override {
+        if (pos > N) {
+            throw std::out_of_range("value cannot be fit to passed position");
+        }
+        return bytes_data::write(pos, data.take_range(0, std::min(N - pos, data.size())));
+    }
+
+    size_type write(size_type pos, const std::vector<uint8_t>& data) override {
+        if (pos > N) {
+            throw std::out_of_range("value cannot be fit to passed position");
+        }
+        return bytes_data::write(pos, data.data(), std::min(N - pos, data.size()));
+    }
+
+    size_type write(size_type pos, std::vector<uint8_t>&& data) override {
+        if (pos > N) {
+            throw std::out_of_range("value cannot be fit to passed position");
+        }
+        return bytes_data::write(pos, data.data(), std::min(N - pos, data.size()));
+    }
+
+    size_type write(size_type pos, uint8_t val) override {
+        if (sizeof(val) + pos > N) {
+            throw std::out_of_range("value cannot be fit to passed position");
+        }
+        return bytes_data::write(pos, val);
+    }
 private:
-    basic_data<uint8_t>& take_first_m(size_t n) override {
+    basic_data<uint8_t>& take_first_m(size_type n) override {
         return basic_data::take_first_m(n);
     }
-    basic_data<uint8_t>& take_last_m(size_t n) override {
+
+    basic_data<uint8_t>& take_last_m(size_type n) override {
         return basic_data::take_last_m(n);
     }
-    basic_data<uint8_t>& take_range_from_m(size_t from) override {
+
+    basic_data<uint8_t>& take_range_from_m(size_type from) override {
         return basic_data::take_range_from_m(from);
     }
-    basic_data<uint8_t>& take_range_to_m(size_t to) override {
+
+    basic_data<uint8_t>& take_range_to_m(size_type to) override {
         return basic_data::take_range_to_m(to);
     }
-    basic_data<uint8_t>& take_range_m(size_t from, size_t to) override {
+
+    basic_data<uint8_t>& take_range_m(size_type from, size_type to) override {
         return basic_data::take_range_m(from, to);
     }
 
     basic_data<uint8_t>& filter(const predicate_func_t& filter) override {
         return basic_data::filter(filter);
     }
+
     void push_back(const std::vector<uint8_t>& data) override {
         basic_data::push_back(data);
     }
+
     void push_back(const uint8_t* data, size_t len) override {
         basic_data::push_back(data, len);
     }
+
     void push_back(const basic_data<uint8_t>& data) override {
         basic_data::push_back(data);
     }
+
     size_t write_back(uint8_t val) override {
         return basic_data::write_back(val);
     }
+
     size_type write_back(const std::vector<uint8_t>& data) override {
         return basic_data::write_back(data);
     }
+
     size_type write_back(std::vector<uint8_t>&& data) override {
         return basic_data::write_back(data);
     }
+
     size_type write_back(const basic_data<uint8_t>& data) override {
         return basic_data::write_back(data);
     }
+
     size_type write_back(basic_data<uint8_t>&& data) override {
         return basic_data::write_back(data);
     }
+
     size_type write_back(const uint8_t* data, size_t len) override {
         return basic_data::write_back(data, len);
     }
+
     void push_back(const_iterator start, const_iterator end) override {
         bytes_data::push_back(start, end);
     }
+
     void push_back(iterator start, iterator end) override {
         bytes_data::push_back(start, end);
     }
+
     void push_back(basic_data&& data) override {
         bytes_data::push_back(data);
     }
+
     size_type write_tail(size_type pos, const uint8_t* data, size_t len) override {
         return basic_data::write_tail(pos, data, len);
     }
+
     size_type write_tail(size_type pos, const basic_data<uint8_t>& data) override {
         return basic_data::write_tail(pos, data);
     }
+
     size_type write_tail(size_type pos, const std::vector<uint8_t>& data) override {
         return basic_data::write_tail(pos, data);
     }

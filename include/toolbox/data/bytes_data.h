@@ -24,9 +24,13 @@
 namespace toolbox {
 namespace data {
 
+
+
 /// \brief Special class to help you handle bytes
 class TOOLBOX_API bytes_data : public basic_data<uint8_t> {
 public:
+    using slice_type = slice<uint8_t>;
+
     static bytes_data from_chars(const std::vector<char>& data);
     static bytes_data from_chars(const char* data, size_t len);
     static bytes_data from_string_raw(const std::string& data);
@@ -38,11 +42,12 @@ public:
     bytes_data(std::initializer_list<uint8_t> ilist);
     bytes_data(std::initializer_list<std::vector<uint8_t>> ilist);
     bytes_data(std::vector<uint8_t> data);
+    bytes_data(const slice_compatible<uint8_t>& data);
     bytes_data(const uint8_t* data, size_t len);
     bytes_data(const char* hexString);
     bytes_data(const std::string& hexString);
 
-    virtual std::string to_hex() const;
+    virtual std::string to_hex(const std::string& prefix = "") const;
     virtual std::string to_string() const;
     void clear();
 
@@ -56,14 +61,14 @@ public:
         return basic_data::write_batch(std::move(vals));
     }
 
-    template<typename _InputIterator>
-    size_type write(iterator position, _InputIterator start, _InputIterator end) {
+    template<typename InputIterator>
+    size_type write(iterator position, InputIterator start, InputIterator end) {
         size_type dist = std::distance(begin(), position);
         return write(dist, start, end);
     }
 
-    template<typename _InputIterator>
-    size_type write(size_type pos, _InputIterator start, _InputIterator end) {
+    template<typename InputIterator>
+    size_type write(size_type pos, InputIterator start, InputIterator end) {
         std::map<size_type, uint8_t> tmp;
         size_type i = pos;
         for (auto it = start; it != end; ++it) {
@@ -81,33 +86,43 @@ public:
     size_type write(basic_data::size_type pos, const uint8_t* data, size_t dataLen) override {
         return basic_data::write(pos, data, dataLen);
     }
+
     size_type write(basic_data::size_type pos, const basic_data<uint8_t>& data) override {
         return basic_data::write(pos, data);
     }
+
     size_type write(basic_data::size_type pos, basic_data<uint8_t>&& data) override {
         return basic_data::write(pos, data);
     }
+
     size_type write(basic_data::size_type pos, const std::vector<uint8_t>& data) override {
         return basic_data::write(pos, data);
     }
+
     size_type write(basic_data::size_type pos, std::vector<uint8_t>&& data) override {
         return basic_data::write(pos, data);
     }
+
     size_type write(basic_data::size_type pos, uint8_t val) override {
         return basic_data::write(pos, val);
     }
+
     size_type write_back(const std::vector<uint8_t>& data) override {
         return basic_data::write_back(data);
     }
+
     size_type write_back(std::vector<uint8_t>&& data) override {
         return basic_data::write_back(data);
     }
+
     size_type write_back(const basic_data<uint8_t>& data) override {
         return basic_data::write_back(data);
     }
+
     size_type write_back(basic_data<uint8_t>&& data) override {
         return basic_data::write_back(data);
     }
+
     size_type write_back(const uint8_t* data, size_t len) override {
         return basic_data::write_back(data, len);
     }
@@ -115,6 +130,7 @@ public:
     size_t write_back(uint8_t val) override {
         return basic_data::write_back(val);
     }
+
     size_t write_back(char val);
     size_t write_back(uint16_t val);
     size_t write_back(uint32_t val);
@@ -123,27 +139,51 @@ public:
     void push_back(const std::vector<uint8_t>& data) override {
         basic_data::push_back(data);
     }
+
     void push_back(const uint8_t* data, size_t len) override {
         basic_data::push_back(data, len);
     }
+
     void push_back(const_iterator start, const_iterator end) override {
         basic_data::push_back(start, end);
     }
+
     void push_back(iterator start, iterator end) override {
         basic_data::push_back(start, end);
     }
+
     void push_back(const basic_data<uint8_t>& data) override {
         basic_data::push_back(data);
     }
+
     void push_back(basic_data&& data) override {
         basic_data::push_back(std::move(data));
     }
 
     void push_back(uint8_t val);
     void push_back(char val);
-    void push_back(uint16_t val);
-    void push_back(uint32_t val);
-    void push_back(uint64_t val);
+
+    template<typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
+    void push_back(T val) {
+        const std::size_t size = sizeof(T);
+
+        for (std::size_t i = 0; i < size; ++i) {
+            m_data.push_back((val >> (8 * (size - 1 - i))) & 0xFF);
+        }
+    }
+
+    /**
+     * @brief Write string (not a hex string) characters as bytes
+     * @param val any string
+     */
+    void push_back(const std::string& val);
+
+    /**
+     * Write string (not a hex string) characters as bytes
+     * @param val any char* string
+     * @param len length of string
+     */
+    void push_back(const char* val, size_t len);
 
     template<typename T>
     T to_num() const {
@@ -191,8 +231,8 @@ public:
         return to_num_any(from, from + sizeof(T));
     }
 
-    /// \brief Be carefully! Reads from zero to maximum 8 bytes (to avoid unsigned
-    /// long long overflow) \return
+    /// \brief Be carefully! Reads from zero to maximum 8 bytes (to avoid unsigned long long overflow)
+    /// \return number from bytes
     uint64_t to_num_any() const;
     uint64_t to_num_any(size_t from, size_t to) const;
 

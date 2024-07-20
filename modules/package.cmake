@@ -4,7 +4,7 @@ include(CMakePackageConfigHelpers)
 
 set(INSTALL_BIN_DIR bin)
 set(INSTALL_LIB_DIR lib)
-set(INSTALL_CMAKE_DIR ${INSTALL_LIB_DIR}/cmake/${PROJECT_NAME})
+set(INSTALL_CMAKE_DIR ${INSTALL_LIB_DIR}/cmake)
 set(INSTALL_INCLUDE_DIR include)
 
 set(target_deps "")

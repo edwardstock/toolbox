@@ -17,16 +17,16 @@
 
 Add remote:
 
+Conan may have issues with my own artifactory server. Please, use manual installation in case of any problems.
 ```bash
-conan remote add edwardstock https://conan.edwardstock.com/artifactory/api/conan/conan-local
+conan remote add edwardstock https://conan.edwardstock.com/artifactory/api/conan/conan
 ```
-
 
 Add to `conanfile.txt`:
 
 ```ini
 [requires]
-toolbox/3.4.0@edwardstock/latest
+toolbox/3.5.0@edwardstock/latest
 
 [options]
 toolbox/*:shared=False # default is False

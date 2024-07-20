@@ -10,6 +10,7 @@
 #define TOOLBOX_BASIC_DATA_H
 
 #include "utils.h"
+#include "slice.h"
 
 #include <algorithm>
 #include <atomic>
@@ -27,7 +28,7 @@ namespace toolbox {
 namespace data {
 
 template<typename T>
-class basic_data {
+class basic_data : public slice_compatible<T> {
 public:
     using iterator = typename std::vector<T>::iterator;
     using const_iterator = typename std::vector<T>::const_iterator;
@@ -43,18 +44,16 @@ public:
     using switch_map_to_func_t = std::function<std::vector<To>(const std::vector<T>&)>;
     using predicate_func_t = std::function<bool(const T&)>;
     template<typename From, typename To>
-    using reduce_func_t = std::function<To(const std::vector<From>&)>;
+    using transform_func_t = std::function<To(const std::vector<From>&)>;
 
     template<typename Out>
     struct converter {
-        Out operator()(const basic_data<T>&) {
-        }
+        Out operator()(const basic_data<T>&) { }
     };
 
     template<typename Out>
     struct converter_vec {
-        Out operator()(const std::vector<T>&) {
-        }
+        Out operator()(const std::vector<T>&) { }
     };
 
     template<typename To>
@@ -66,22 +65,31 @@ public:
     virtual ~basic_data() = default;
     basic_data(const basic_data& other) = default;
     basic_data(basic_data&& other) noexcept = default;
+
     explicit basic_data(size_t size)
-        : m_data(size) {
-    }
+        : m_data(size) { }
+
     basic_data(std::initializer_list<T> ilist) {
         m_data.assign(ilist.begin(), ilist.end());
     }
+
     basic_data(std::initializer_list<std::vector<T>> ilist) {
-        std::for_each(ilist.begin(), ilist.end(),
-                      [this](std::vector<T> v) { m_data.insert(m_data.end(), v.begin(), v.end()); });
+        std::for_each(
+            ilist.begin(),
+            ilist.end(),
+            [this](std::vector<T> v) { m_data.insert(m_data.end(), v.begin(), v.end()); }
+        );
     }
 
     basic_data(std::vector<T> data)
-        : m_data(std::move(data)) {
-    }
+        : m_data(std::move(data)) { }
+
     basic_data(const T* data, size_t len)
-        : m_data(std::vector<T>(data, data + len)) {
+        : m_data(std::vector<T>(data, data + len)) { }
+
+    basic_data(const slice_compatible<T>& slice)
+        : m_data(slice.size()) {
+        std::copy(slice.cbegin(), slice.cend(), m_data.begin());
     }
 
     basic_data& operator=(basic_data other) noexcept {
@@ -122,30 +130,43 @@ public:
         return !(operator==(other));
     }
 
-    /// \brief Make sure that 'other' have at least size() elements, otherwise UB
-    /// is your friend
-    /// \param other
+    /// \brief Make sure that 'other' have at least size() elements, otherwise UB is your friend
+    /// \param other some iterable or array
     /// \return
     bool operator==(const T* other) const noexcept {
         if (!other || !other[0] || !other[m_data.size() - 1]) {
             return false;
         }
 
-        for (size_type i = 0; i < m_data.size(); i++) {
-            if (m_data[i] != other[i]) {
+        for (size_type i = 0; i < m_data.size(); ++i) {
+            if (m_data.at(i) != other[i]) {
                 return false;
             }
         }
 
         return true;
     }
+
+    bool operator==(const slice<T>& other) {
+        if(size() != other.size()) {
+            return false;
+        }
+
+        return std::equal(begin(), end(), other.begin(), other.end());
+    }
+
     bool operator!=(const T* other) const noexcept {
         return !(operator==(other));
+    }
+
+    bool operator!=(const slice_compatible<T>& other) {
+        return !operator==(other);
     }
 
     const std::vector<T>& get() const {
         return m_data;
     }
+
     std::vector<T>& get() {
         return m_data;
     }
@@ -170,7 +191,7 @@ public:
         return m_data.data();
     }
 
-    size_type size() const {
+    size_type size() const override {
         return m_data.size();
     }
 
@@ -202,6 +223,7 @@ public:
         std::transform(begin(), end(), begin(), std::bind(mapper, std::placeholders::_1));
         return *this;
     }
+
     virtual basic_data<T> map_c(const map_func_t& mapper) const {
         basic_data<T> out = m_data;
         out.map(mapper);
@@ -212,7 +234,7 @@ public:
     basic_data<To> map_to(const map_to_func_t<To>& mapper) const {
         basic_data<To> out(m_data.size());
         size_t i = 0;
-        for (const auto& t : m_data) {
+        for (const auto& t: m_data) {
             out[i++] = mapper(t);
         }
         return out;
@@ -238,7 +260,13 @@ public:
     }
 
     template<typename To>
-    To reduce(const reduce_func_t<T, To>& reduce_func) const {
+    [[deprecated("use transform() instead")]]
+    To reduce(const transform_func_t<T, To>& reduce_func) const {
+        return reduce_func(get());
+    }
+
+    template<typename To>
+    To transform(const transform_func_t<T, To>& reduce_func) const {
         return reduce_func(get());
     }
 
@@ -263,31 +291,51 @@ public:
     }
 
     virtual basic_data<T>& filter(const predicate_func_t& filter) {
-        switch_map([&filter](std::vector<T> source) {
-            std::vector<T> out;
-            std::for_each(source.begin(), source.end(), [&filter, &out](T& val) {
-                if (filter(val)) {
-                    out.push_back(val);
-                }
-            });
-            return out;
-        });
+        switch_map(
+            [&filter](std::vector<T> source) {
+                std::vector<T> out;
+                std::for_each(
+                    source.begin(),
+                    source.end(),
+                    [&filter, &out](T& val) {
+                        if (filter(val)) {
+                            out.push_back(val);
+                        }
+                    }
+                );
+                return out;
+            }
+        );
         return *this;
     }
+
     virtual basic_data<T> filter_c(const predicate_func_t& filter) const {
         basic_data<T> d = m_data;
         d.filter(filter);
         return d;
     }
 
+    // ==== TAKE BY RANGE
+
+    /**
+     * Take first N elements and return vector
+     */
     std::vector<T> take_first(size_t n) const {
         std::vector<T> out;
         out.insert(out.begin(), m_data.begin(), m_data.begin() + n);
         return out;
     }
+
+    /**
+     * Take first N elements and make copy of basic_data<T> with the new data
+     */
     basic_data<T> take_first_c(size_t n) const {
         return basic_data<T>(take_first(n));
     }
+
+    /**
+     * Take first N elements and updates current basic_data<T> with the new data
+     */
     virtual basic_data<T>& take_first_m(size_t n) {
         auto cp = take_first(n);
         clear();
@@ -302,6 +350,7 @@ public:
     basic_data<T> take_last_c(size_t n) const {
         return basic_data<T>(take_last(n));
     }
+
     virtual basic_data<T>& take_last_m(size_t n) {
         auto cp = take_last(n);
         clear();
@@ -312,9 +361,11 @@ public:
     std::vector<T> take_range_from(size_t from) const {
         return take_range(from, size());
     }
+
     basic_data<T> take_range_from_c(size_t from) const {
         return basic_data<T>(take_range_from(from));
     }
+
     virtual basic_data<T>& take_range_from_m(size_t from) {
         auto cp = take_range_from(from);
         clear();
@@ -325,9 +376,11 @@ public:
     std::vector<T> take_range_to(size_t to) const {
         return take_range(0, to);
     }
+
     basic_data<T> take_range_to_c(size_t to) const {
         return basic_data<T>(take_range_to(to));
     }
+
     virtual basic_data<T>& take_range_to_m(size_t to) {
         auto cp = take_range_to(to);
         clear();
@@ -361,33 +414,56 @@ public:
         return *this;
     }
 
+    // ==== SLICES
+
+    slice<T> take_slice(size_t start, size_t end) const override {
+        if (end > size()) {
+            throw std::out_of_range("end position is out of range");
+        }
+        if (start > end) {
+            throw std::out_of_range("start position is greater than end");
+        }
+        return slice<T>{cbegin() + start, cbegin() + end};
+    }
+
+    // ==== ITERATORS
+
     const_reverse_iterator crbegin() const {
         return m_data.crbegin();
     }
+
     const_reverse_iterator crend() const {
         return m_data.crend();
     }
+
     reverse_iterator rbegin() {
         return m_data.rbegin();
     }
+
     reverse_iterator rend() {
         return m_data.rend();
     }
-    const_iterator cbegin() const {
+
+    const_iterator cbegin() const override {
         return m_data.cbegin();
     }
-    const_iterator begin() const {
+
+    const_iterator begin() const override {
         return m_data.begin();
     }
+
     iterator begin() {
         return m_data.begin();
     }
-    const_iterator cend() const {
+
+    const_iterator cend() const override {
         return m_data.cend();
     }
-    const_iterator end() const {
+
+    const_iterator end() const override {
         return m_data.end();
     }
+
     iterator end() {
         return m_data.end();
     }
@@ -405,6 +481,7 @@ public:
     virtual void push_back(const_iterator start, const_iterator end) {
         m_data.insert(m_data.end(), start, end);
     }
+
     virtual void push_back(iterator start, iterator end) {
         m_data.insert(m_data.end(), start, end);
     }
@@ -436,7 +513,7 @@ public:
         size_type minPos = std::numeric_limits<size_type>::max();
         size_type maxPos = 0;
 
-        for (const auto& it : vals) {
+        for (const auto& it: vals) {
             minPos = std::min(minPos, it.first);
             maxPos = std::max(maxPos, it.first);
         }
@@ -453,7 +530,7 @@ public:
         }
 
         size_type n = 0;
-        for (auto&& el : vals) {
+        for (auto&& el: vals) {
             m_data[el.first] = std::move(el.second);
             n++;
         }
@@ -462,14 +539,14 @@ public:
         return n;
     }
 
-    template<typename _InputIterator>
-    size_type write(iterator position, _InputIterator start, _InputIterator end) {
+    template<typename InputIterator>
+    size_type write(iterator position, InputIterator start, InputIterator end) {
         size_type dist = std::distance(begin(), position);
         return write(dist, start, end);
     }
 
-    template<typename _InputIterator>
-    size_type write(size_type pos, _InputIterator start, _InputIterator end) {
+    template<typename InputIterator>
+    size_type write(size_type pos, InputIterator start, InputIterator end) {
         std::map<size_type, T> tmp;
         size_type i = pos;
         for (auto it = start; it != end; ++it) {
@@ -498,18 +575,22 @@ public:
     virtual size_type write(size_type pos, const basic_data<T>& data) {
         return write(pos, data.get());
     }
+
     virtual size_type write(size_type pos, basic_data<T>&& data) {
         std::vector<T> tmp;
         tmp.swap(data.get());
         data.clear();
         return write(pos, tmp);
     }
+
     virtual size_type write(size_type pos, const std::vector<T>& data) {
         return write(pos, data.begin(), data.end());
     }
+
     virtual size_type write(size_type pos, std::vector<T>&& data) {
         return write(pos, data.begin(), data.end());
     }
+
     virtual size_type write(size_type pos, T val) {
         if (pos >= size()) {
             size_type alloc;
@@ -524,6 +605,12 @@ public:
         return 1;
     }
 
+    /**
+     * @brief Writes value to the end of container if there is enough space,
+     * otherwise allocates new space targetSize = size + sizeof(value)
+     * @param val T value
+     * @return 
+     */
     virtual size_t write_back(T val) {
         return write(size(), val);
     }
@@ -531,15 +618,19 @@ public:
     virtual size_type write_back(const std::vector<T>& data) {
         return write(size(), data);
     }
+
     virtual size_type write_back(std::vector<T>&& data) {
         return write(size(), data);
     }
+
     virtual size_type write_back(const basic_data<T>& data) {
         return write(size(), data);
     }
+
     virtual size_type write_back(basic_data<T>&& data) {
         return write(size(), std::move(data));
     }
+
     virtual size_type write_back(const T* data, size_t len) {
         return write(size(), data, len);
     }
@@ -548,9 +639,11 @@ public:
         std::vector<T> tmp(data, data + dataLen);
         return write_tail(pos, tmp);
     }
+
     virtual size_type write_tail(size_type pos, const basic_data<T>& data) {
         return write_tail(pos, data.get());
     }
+
     virtual size_type write_tail(size_type pos, const std::vector<T>& data) {
         std::vector<T> tmp(m_data.begin(), m_data.begin() + pos);
         tmp.insert(tmp.begin() + pos, data.begin(), data.end());
@@ -558,7 +651,6 @@ public:
         m_data = std::move(tmp);
         return data.size();
     }
-
 protected:
     std::vector<T> m_data;
 };

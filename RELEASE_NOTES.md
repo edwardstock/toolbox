@@ -1,3 +1,49 @@
+## 3.5.0
+- C++ standard now is 17
+- Replaced sprintf with snprintf everywhere
+- A bit cleanup in code style and naming
+- Fixed installation of cmake-related files from \$prefix/lib/cmake/toolbox/*.cmake -> \$prefix/lib/cmake/*.cmake
+- Added regex helpers:
+  - `std::string remove_first_pattern(const rxns::regex& pattern, const std::string& source)`
+  - `std::string remove_last_pattern(const rxns::regex& pattern, const std::string& source)`
+  - `std::string find_last_pattern(const rxns::regex& pattern, const std::string& source)`
+- Added string helpers:
+  - `bool starts_with(const std::string& source, const std::string& prefix)`
+  - `bool starts_with_any(const std::string& source, const Iterable& prefixes)`
+  - `bool ends_with(const std::string& source, const std::string& suffix)`
+  - `bool ends_with_any(const std::string& source, const Iterable& suffix)`
+  - `std::string remove_prefix(const std::string& source, const std::string& prefix)`
+  - `std::string remove_suffix(const std::string& source, const std::string& suffix)`
+  - `std::string substring_before(const std::string& source, const std::string& delimiter)`
+  - `std::string substring_after(const std::string& source, const std::string& delimiter)`
+  - `std::string remove_substring_before(const std::string& source, const std::string& delimiter)`
+  - `std::string remove_substring_after(const std::string& source, const std::string& delimiter)`
+  - ```
+    std::string join(
+        const Iterable& source,
+        const std::string& delimiter,
+        const std::string& prefix,
+        const std::string& suffix,
+        const std::string& truncated,
+        size_t limit,
+        const Transformer& transformer
+    )
+    ```
+    and multiple overloads
+- Regex: unified function names, don't know why I've not done this before:
+  - `find_all_pattern` -> `find_all_patterns`
+  - `find_pattern_first` -> `find_first_pattern`
+  - added new function `find_last_pattern`
+- Data
+  - added `slice<T>` class to work with slices of data (based on vector's const iterators)
+  - added `basic_data<T>.take_slice*` methods to get slices of data
+  - now `bytes_data` can parse hex string with prefix 0x or 0X
+  - `bytes_data` now can parse and interpret correctly hex string with uneven length, for example 0xFFF won't be parsed as 0xFFFF; now it's 0x0FFF
+  - added `prefix` argument to `bytes_data::to_hex` function
+  - added template `push_back(T)` to `bytes_data` for any integral type and removed other overloads
+  - added `push_back(const std::string&)` to `bytes_data` to push back string as bytes (not hex string)
+  - added `push_back(const char*, size_t)` to `bytes_data` to push back string as bytes with defined length
+
 ## 3.4.0
 
 - Migrated to conan 2.0

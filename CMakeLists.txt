@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.19)
 project(toolbox
-        VERSION 3.4.1
+        VERSION 3.5.0
         LANGUAGES CXX
         DESCRIPTION "Toolbox - C++ helpers, especially for string and bytes handling"
 )
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 cmake_policy(SET CMP0074 NEW)
 cmake_policy(SET CMP0091 NEW)
 
@@ -46,6 +46,7 @@ set(MULTI_HEADERS
     include/toolbox/data/basic_data.h
     include/toolbox/data/bytes_array.h
     include/toolbox/data/transformers.h
+    include/toolbox/data/slice.h
 )
 
 set(MULTI_SOURCES
