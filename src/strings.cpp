@@ -46,9 +46,11 @@ bool toolbox::strings::has_substring_icase(const std::string& substring, const s
 bool toolbox::strings::has_substring(const std::string& substring, const std::string& source) {
     return source.find(substring) != std::string::npos;
 }
+
 bool toolbox::strings::has_substring(char substring, const std::string& source) {
     return source.find(substring) != std::string::npos;
 }
+
 std::vector<std::string> toolbox::strings::split(const std::string& source, const std::string& delimiter) {
     if (delimiter.empty()) {
         return std::vector<std::string>(0);
@@ -71,6 +73,7 @@ std::vector<std::string> toolbox::strings::split(const std::string& source, cons
 
     return result;
 }
+
 std::vector<std::string> toolbox::strings::split(const std::string& source, const char& delimiter) {
     std::stringstream ss;
     ss.str(source);
@@ -82,6 +85,7 @@ std::vector<std::string> toolbox::strings::split(const std::string& source, cons
 
     return elements;
 }
+
 std::vector<std::string> toolbox::strings::split_by_len(const std::string& src, size_t max) {
     std::vector<std::string> out;
     if (src.length() > max) {
@@ -104,6 +108,7 @@ std::vector<std::string> toolbox::strings::split_by_len(const std::string& src, 
 
     return out;
 }
+
 std::pair<std::string, std::string> toolbox::strings::split_pair(const std::string& source, const char& delimiter) {
     std::vector<std::string> elements = split(source, delimiter);
 
@@ -117,8 +122,11 @@ std::pair<std::string, std::string> toolbox::strings::split_pair(const std::stri
 
     return {elements.at(0), elements.at(1)};
 }
-std::pair<std::string, std::string> toolbox::strings::split_pair(const std::string& source,
-                                                                 const std::string& delimiter) {
+
+std::pair<std::string, std::string> toolbox::strings::split_pair(
+    const std::string& source,
+    const std::string& delimiter
+) {
     if (delimiter.empty()) {
         return {};
     }
@@ -133,6 +141,7 @@ std::string toolbox::strings::repeat(const std::string& in, size_t n) {
 
     return ss.str();
 }
+
 std::string toolbox::strings::repeat(char in, size_t n) {
     std::stringstream ss;
     for (size_t i = 0; i < n; i++) {
@@ -147,9 +156,11 @@ std::string toolbox::strings::trim(const std::string& in) {
     trim_ref(out);
     return out;
 }
+
 void toolbox::strings::trim_ref(std::string& in) {
     const std::vector<std::string> search{
-        "\t", "\n", "\r", "\x0B"};
+        "\t", "\n", "\r", "\x0B"
+    };
     const std::vector<std::string> replace{""};
     substr_replace_all(search, replace, in);
 }
@@ -157,11 +168,16 @@ void toolbox::strings::trim_ref(std::string& in) {
 void toolbox::strings::replace(const std::string& search, const std::string& replace, std::string& source) {
     source = substr_replace_ret(search, replace, source);
 }
+
 void toolbox::strings::substr_replace_all(const std::string& search, const std::string& replace, std::string& source) {
     source = substr_replace_all_ret(search, replace, source);
 }
-void toolbox::strings::substr_replace_all(const std::vector<std::string>& search, const std::vector<std::string>& replace,
-                                          std::string& source) {
+
+void toolbox::strings::substr_replace_all(
+    const std::vector<std::string>& search,
+    const std::vector<std::string>& replace,
+    std::string& source
+) {
     source = substr_replace_all_ret(search, replace, source);
 }
 
@@ -169,8 +185,11 @@ void toolbox::strings::substr_replace_all(const std::vector<std::string>& search
     substr_replace_all(search, std::vector<std::string>{replace}, source);
 }
 
-std::string toolbox::strings::substr_replace_ret(const std::string& search, const std::string& replace,
-                                                 const std::string& source) {
+std::string toolbox::strings::substr_replace_ret(
+    const std::string& search,
+    const std::string& replace,
+    const std::string& source
+) {
     if (source.empty() || source.length() < search.length()) {
         return source;
     }
@@ -188,8 +207,12 @@ std::string toolbox::strings::substr_replace_ret(const std::string& search, cons
 
     return ss.str();
 }
-std::string toolbox::strings::substr_replace_all_ret(const std::string& search, const std::string& replace,
-                                                     const std::string& source) {
+
+std::string toolbox::strings::substr_replace_all_ret(
+    const std::string& search,
+    const std::string& replace,
+    const std::string& source
+) {
     std::string result = source;
     size_t pos = 0;
     while ((pos = result.find(search, pos)) != std::string::npos) {
@@ -198,8 +221,12 @@ std::string toolbox::strings::substr_replace_all_ret(const std::string& search, 
     }
     return result;
 }
-std::string toolbox::strings::substr_replace_all_ret(const std::vector<std::string>& search,
-                                                     const std::vector<std::string>& replace, const std::string& source) {
+
+std::string toolbox::strings::substr_replace_all_ret(
+    const std::vector<std::string>& search,
+    const std::vector<std::string>& replace,
+    const std::string& source
+) {
     if (search.size() != replace.size() && replace.size() > 1) {
         throw std::invalid_argument("search & replace vectors must be equal size and not empty!");
     }
@@ -221,11 +248,13 @@ void toolbox::strings::substr_remove(std::string& source, const std::string& rem
         source.erase(i, n);
     }
 }
+
 void toolbox::strings::substr_remove_all(std::string& source, std::vector<std::string> removables) {
-    for (auto& replace : removables) {
+    for (auto& replace: removables) {
         substr_remove(source, replace);
     }
 }
+
 std::string toolbox::strings::substr_inverse(const std::string& source, char whence) {
     strlen_t from;
     std::string out;
@@ -239,8 +268,13 @@ std::string toolbox::strings::substr_inverse(const std::string& source, char whe
 
     return out;
 }
-std::string toolbox::strings::substr_inverse(const std::string& source, const std::string& begin, const std::string& end,
-                                             long offset) {
+
+std::string toolbox::strings::substr_inverse(
+    const std::string& source,
+    const std::string& begin,
+    const std::string& end,
+    long offset
+) {
     strlen_t to, from = source.find(begin);
     if (from == std::string::npos) {
         from = 0;
@@ -253,9 +287,11 @@ std::string toolbox::strings::substr_inverse(const std::string& source, const st
     out.append(source.substr(to, std::string::npos));
     return out;
 }
+
 std::string toolbox::strings::substr_inverse(const std::string& source, char begin, char end, long offset) {
     return substr_inverse(source, std::string(1, begin), std::string(1, end), offset);
 }
+
 std::string toolbox::strings::substr_inverse(const std::string& source, const std::string& begin) {
     strlen_t from = source.find(begin);
     if (from == std::string::npos) {
@@ -263,8 +299,13 @@ std::string toolbox::strings::substr_inverse(const std::string& source, const st
     }
     return source.substr(0, from);
 }
-std::string toolbox::strings::substr_clip(const std::string& source, const std::string& search, size_t width,
-                                          bool icase) {
+
+std::string toolbox::strings::substr_clip(
+    const std::string& source,
+    const std::string& search,
+    size_t width,
+    bool icase
+) {
     size_t pos = icase ? compare(source, search) : source.find(search);
     if (pos == std::string::npos) {
         return source;
@@ -296,29 +337,32 @@ std::string toolbox::strings::substr_clip(const std::string& source, const std::
 
     return source.substr((size_t) begin, width);
 }
-std::string toolbox::strings::glue(const std::string& glue, const std::vector<std::string>& strings) {
-    std::string out;
 
-    size_t size = strings.size();
+std::string toolbox::strings::glue(const std::string& glue, const std::vector<std::string>& strings) {
+    std::stringstream ss;
+
+    const size_t size = strings.size();
     size_t i = 0;
-    for (auto& s : strings) {
+    for (auto& s: strings) {
         if (i == 0 || i == size) {
-            out.append(s);
+            ss << s;
         } else {
-            out.append(glue).append(s);
+            ss << glue << s;
         }
 
         i++;
     }
 
-    return out;
+    return ss.str();
 }
+
 std::string toolbox::strings::to_string(std::ifstream& inputStream) {
     return std::string((std::istreambuf_iterator<char>(inputStream)), std::istreambuf_iterator<char>());
 }
+
 std::string toolbox::strings::to_lower_case(const std::string& s) {
     std::stringstream tmp;
-    for (char i : s) {
+    for (char i: s) {
         tmp << static_cast<char>(__CHAR_TO_LOWER(i));
     }
 
@@ -327,7 +371,7 @@ std::string toolbox::strings::to_lower_case(const std::string& s) {
 
 std::string toolbox::strings::to_upper_case(const std::string& s) {
     std::stringstream tmp;
-    for (char i : s) {
+    for (char i: s) {
         tmp << static_cast<char>(__CHAR_TO_UPPER(i));
     }
 
@@ -338,6 +382,92 @@ bool toolbox::strings::equals_icase(const std::string& s1, const std::string& s2
     if (s1.length() != s2.length())
         return false;
 
-    return std::equal(s1.begin(), s1.end(), s2.begin(),
-                      [](unsigned char a, unsigned char b) { return __CHAR_TO_LOWER(a) == __CHAR_TO_LOWER(b); });
+    return std::equal(
+        s1.begin(),
+        s1.end(),
+        s2.begin(),
+        [](unsigned char a, unsigned char b) {
+            return __CHAR_TO_LOWER(a) == __CHAR_TO_LOWER(b);
+        }
+    );
+}
+
+bool toolbox::strings::starts_with(const std::string& source, const std::string& prefix) {
+    if (prefix.length() > source.length())
+        return false;
+    return source.compare(0, prefix.length(), prefix) == 0;
+}
+
+bool toolbox::strings::ends_with(const std::string& source, const std::string& suffix) {
+    if (suffix.length() > source.length())
+        return false;
+    return source.compare(source.length() - suffix.length(), suffix.length(), suffix) == 0;
+}
+
+std::string toolbox::strings::remove_prefix(const std::string& source, const std::string& prefix) {
+    if (prefix.length() > source.length())
+        return source;
+
+    if (starts_with(source, prefix)) {
+        return source.substr(prefix.length(), std::string::npos);
+    }
+
+    return source;
+}
+
+std::string toolbox::strings::substring_after(const std::string& source, const std::string& delimiter) {
+    if (delimiter.length() > source.length())
+        return source;
+
+    auto prefix_pos = source.find(delimiter);
+    if (prefix_pos == std::string::npos) {
+        return source;
+    }
+
+    return source.substr(prefix_pos + delimiter.length(), std::string::npos);
+}
+
+std::string toolbox::strings::remove_substring_before(const std::string& source, const std::string& delimiter) {
+    if (delimiter.length() > source.length())
+        return source;
+
+    auto prefix_pos = source.find(delimiter);
+    if (prefix_pos == std::string::npos) {
+        return source;
+    }
+
+    return source.substr(prefix_pos + delimiter.length(), std::string::npos);
+
+}
+
+std::string toolbox::strings::remove_substring_after(const std::string& source, const std::string& delimiter) {
+    if (delimiter.length() > source.length())
+        return source;
+
+    auto prefix_pos = source.find(delimiter);
+    if (prefix_pos == std::string::npos) {
+        return source;
+    }
+
+    return source.substr(0, prefix_pos);
+}
+
+std::string toolbox::strings::substring_before(const std::string& source, const std::string& delimiter) {
+    if (delimiter.length() > source.length())
+        return source;
+
+    auto suffix_pos = source.rfind(delimiter);
+    if (suffix_pos == std::string::npos) {
+        return source;
+    }
+
+    return source.substr(0, suffix_pos);
+}
+
+std::string toolbox::strings::remove_suffix(const std::string& source, const std::string& suffix) {
+    if (ends_with(source, suffix)) {
+        return source.substr(0, source.length() - suffix.length());
+    }
+
+    return source;
 }

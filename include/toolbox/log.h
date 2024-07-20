@@ -16,6 +16,7 @@
 #include <mutex>
 #include <queue>
 #include <string>
+#include <cstdio>
 #include <unordered_map>
 
 namespace toolbox {
@@ -130,7 +131,7 @@ public:
 #define L_DEBUG_F(tag, message, ...)                                 \
     {                                                                \
         char __tmp_buff[512];                                        \
-        sprintf(__tmp_buff, message, __VA_ARGS__);                   \
+        std::snprintf(__tmp_buff, 512, message, __VA_ARGS__);                   \
         toolbox::tlog::get().d(__FILE__, __LINE__, tag, __tmp_buff); \
     }
 
@@ -138,7 +139,7 @@ public:
 #define L_INFO_F(tag, message, ...)                                  \
     {                                                                \
         char __tmp_buff[512];                                        \
-        sprintf(__tmp_buff, message, __VA_ARGS__);                   \
+        std::snprintf(__tmp_buff, 512, message, __VA_ARGS__);                   \
         toolbox::tlog::get().i(__FILE__, __LINE__, tag, __tmp_buff); \
     }
 
@@ -146,21 +147,21 @@ public:
 #define L_WARN_F(tag, message, ...)                                  \
     {                                                                \
         char __tmp_buff[512];                                        \
-        sprintf(__tmp_buff, message, __VA_ARGS__);                   \
+        std::snprintf(__tmp_buff, 512, message, __VA_ARGS__);                   \
         toolbox::tlog::get().w(__FILE__, __LINE__, tag, __tmp_buff); \
     }
 #define L_ERR(tag, message) toolbox::tlog::get().e(__FILE__, __LINE__, tag, message);
 #define L_ERR_F(tag, message, ...)                                   \
     {                                                                \
         char __tmp_buff[512];                                        \
-        sprintf(__tmp_buff, message, __VA_ARGS__);                   \
+        std::snprintf(__tmp_buff, 512, message, __VA_ARGS__);                   \
         toolbox::tlog::get().e(__FILE__, __LINE__, tag, __tmp_buff); \
     }
 #define L_CRIT(tag, message) toolbox::tlog::get().crit(__FILE__, __LINE__, tag, message);
 #define L_CRIT_F(tag, message, ...)                                     \
     {                                                                   \
         char __tmp_buff[512];                                           \
-        sprintf(__tmp_buff, message, __VA_ARGS__);                      \
+        std::snprintf(__tmp_buff, 512, message, __VA_ARGS__);                      \
         toolbox::tlog::get().crit(__FILE__, __LINE__, tag, __tmp_buff); \
     }
 

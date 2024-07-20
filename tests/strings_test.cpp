@@ -50,7 +50,7 @@ TEST(Strings, RegexFindAllPatternEnvironmentVariables) {
 
     ASSERT_TRUE(matches_pattern(pattern, source));
 
-    auto res_all = find_all_pattern(pattern, source);
+    auto res_all = find_all_patterns(pattern, source);
 
     ASSERT_EQ(2, res_all.size());
     ASSERT_STREQ("$HOME", res_all[0][0].c_str());
@@ -67,17 +67,18 @@ TEST(Strings, RegexMatchesPattern) {
 }
 
 TEST(Strings, RegexMatchAll) {
-    auto result = find_all_pattern(R"((\[[a-z]+\]))", "[abc]\n\n[def]gagag[ghi]rg45w5[jkl]");
+    auto result = find_all_patterns(R"((\[[a-z]+\]))", "[abc]\n\n[def]gagag[ghi]rg45w5[jkl]");
     std::vector<std::string> mustBeFounded{
         "[abc]",
         "[def]",
         "[ghi]",
-        "[jkl]"};
+        "[jkl]"
+    };
     size_t found = 0;
-    for (auto& matches : result) {
+    for (auto& matches: result) {
         ASSERT_EQ(2UL, matches.size());
         const std::string match = matches[1];
-        for (auto &f: mustBeFounded) {
+        for (auto& f: mustBeFounded) {
             if (f == match) {
                 found++;
                 break;
@@ -87,12 +88,12 @@ TEST(Strings, RegexMatchAll) {
 
     ASSERT_EQ(mustBeFounded.size(), found);
 
-    auto result2 = find_all_pattern(rxns::regex(R"((\[[a-z]+\]))"), "[abc]\n\n[def]gagag[ghi]rg45w5[jkl]");
+    auto result2 = find_all_patterns(rxns::regex(R"((\[[a-z]+\]))"), "[abc]\n\n[def]gagag[ghi]rg45w5[jkl]");
     size_t found2 = 0;
-    for (auto &matches: result2) {
+    for (auto& matches: result2) {
         ASSERT_EQ(2UL, matches.size());
         const std::string match = matches[1];
-        for (auto &f: mustBeFounded) {
+        for (auto& f: mustBeFounded) {
             if (f == match) {
                 found2++;
                 break;
@@ -103,13 +104,13 @@ TEST(Strings, RegexMatchAll) {
     ASSERT_EQ(mustBeFounded.size(), found2);
 }
 
-TEST(Strings, RegexFindPatternFirst) {
-    auto result1 = find_pattern_first(R"((\[[a-z]+\]))", "[abc]\n\n[def]gagag[ghi]rg45w5[jkl]");
+TEST(Strings, RegexFindFirstPattern) {
+    auto result1 = find_first_pattern(R"((\[[a-z]+\]))", "[abc]\n\n[def]gagag[ghi]rg45w5[jkl]");
     std::string mustBeFounded = "[abc]";
 
     ASSERT_STREQ(result1.c_str(), mustBeFounded.c_str());
 
-    auto result2 = find_pattern_first(rxns::regex(R"((\[[a-z]+\]))"), "[abc]\n\n[def]gagag[ghi]rg45w5[jkl]");
+    auto result2 = find_first_pattern(rxns::regex(R"((\[[a-z]+\]))"), "[abc]\n\n[def]gagag[ghi]rg45w5[jkl]");
 
     ASSERT_STREQ(result2.c_str(), mustBeFounded.c_str());
 }
@@ -177,8 +178,8 @@ TEST(Strings, Split) {
     auto result1 = split("abc/def/ghi/jkl", '/');
     ASSERT_EQ(4UL, result1.size());
     size_t found1 = 0;
-    for (auto &result: result1) {
-        for (auto &m: mustBeInList) {
+    for (auto& result: result1) {
+        for (auto& m: mustBeInList) {
             if (result == m) {
                 found1++;
                 break;
@@ -191,8 +192,8 @@ TEST(Strings, Split) {
     auto result2 = split("abc/def/ghi/jkl", "/");
     ASSERT_EQ(4UL, result2.size());
     size_t found2 = 0;
-    for (auto &result: result2) {
-        for (auto &m: mustBeInList) {
+    for (auto& result: result2) {
+        for (auto& m: mustBeInList) {
             if (result == m) {
                 found2++;
                 break;
@@ -209,8 +210,8 @@ TEST(Strings, Split) {
     ASSERT_EQ(result3.size(), mustBeInList3.size());
 
     size_t found3 = 0;
-    for (auto& t : result3) {
-        for (auto& m : mustBeInList3) {
+    for (auto& t: result3) {
+        for (auto& m: mustBeInList3) {
             if (m == t) {
                 found3++;
                 break;
@@ -405,7 +406,143 @@ TEST(Strings, SplitByLen) {
 
 TEST(Strings, Format) {
     std::string expected = "hello 225 world with dog";
-    std::string res1 = toolbox::strings::format("hello %llu world with %s", 225, "dog");
+    std::string res1 = format("hello %llu world with %s", 225, "dog");
 
     ASSERT_STREQ(expected.c_str(), res1.c_str());
+}
+
+TEST(Strings, DetectPrefixSuffix) {
+    ASSERT_TRUE(starts_with("0xFFAABBCC", "0x"));
+    ASSERT_FALSE(starts_with("FFAABBCC", "0x"));
+    ASSERT_FALSE(starts_with("DD0xFFAABBCC", "0x"));
+
+    ASSERT_TRUE(ends_with("file.mp4", ".mp4"));
+    ASSERT_TRUE(ends_with("file.mp4", "mp4"));
+    ASSERT_TRUE(ends_with("file.mp4", "p4"));
+    ASSERT_TRUE(ends_with("file.mp4", "4"));
+    ASSERT_FALSE(ends_with("file.mp4", "file"));
+    // case-sensitive
+    ASSERT_FALSE(ends_with("file.MP4", ".mp4"));
+    ASSERT_FALSE(ends_with("file.mp4?timestamp=123", ".mp4"));
+
+    ASSERT_FALSE(ends_with("", "mp4"));
+    ASSERT_FALSE(ends_with("123", "456"));
+
+    ASSERT_TRUE(starts_with_any("123", std::vector<std::string>{"1","2","3"}));
+    ASSERT_FALSE(starts_with_any("123", std::vector<std::string>{"4","5","6"}));
+    ASSERT_TRUE(ends_with_any("123", std::vector<std::string>{"3","4","5"}));
+    ASSERT_FALSE(ends_with_any("123", std::vector<std::string>{"1","2","4"}));
+}
+
+TEST(Strings, RemovePrefix) {
+    std::string expected = "google.com";
+    std::string source = "https://domain.google.com";
+    ASSERT_STREQ(expected.c_str(), remove_prefix(source, "https://domain.").c_str());
+    ASSERT_STRNE(expected.c_str(), remove_prefix(source, "domain.").c_str());
+}
+
+TEST(Strings, SubstringAfter) {
+    std::string expected = "google.com";
+    std::string source = "https://domain.google.com";
+    ASSERT_STREQ(expected.c_str(), substring_after(source, "https://domain.").c_str());
+    ASSERT_STREQ(expected.c_str(), substring_after(source, "domain.").c_str());
+}
+
+TEST(Strings, RemoveSuffix) {
+    std::string expected = "google.com";
+    std::string source = "google.com?timestamp=123";
+    ASSERT_STREQ(expected.c_str(), remove_suffix(source, "?timestamp=123").c_str());
+    ASSERT_STRNE(expected.c_str(), remove_suffix(source, "?timestamp=").c_str());
+    ASSERT_STRNE(expected.c_str(), remove_suffix(source, "?timestamp").c_str());
+    ASSERT_STRNE(expected.c_str(), remove_suffix(source, "?").c_str());
+}
+
+TEST(Strings, SubstringBefore) {
+    std::string expected = "google.com";
+    std::string source = "google.com?timestamp=123";
+    ASSERT_STREQ(expected.c_str(), substring_before(source, "?timestamp=123").c_str());
+    ASSERT_STREQ(expected.c_str(), substring_before(source, "?timestamp=").c_str());
+    ASSERT_STREQ(expected.c_str(), substring_before(source, "?timestamp").c_str());
+    ASSERT_STREQ(expected.c_str(), substring_before(source, "?").c_str());
+}
+
+TEST(Strings, RegexRemoveFirstOccurrence) {
+    std::string source = "address[3][]";
+
+    auto pattern = rxns::regex(R"(\[\d*\])");
+    ASSERT_TRUE(matches_pattern(pattern, source));
+    auto r1 = remove_first_pattern(pattern, source);
+    ASSERT_STREQ("address[]", r1.c_str());
+    ASSERT_TRUE(matches_pattern(pattern, r1));
+    auto r2 = remove_first_pattern(pattern, r1);
+    ASSERT_STREQ("address", r2.c_str());
+    ASSERT_FALSE(matches_pattern(pattern, r2));
+
+}
+
+TEST(Strings, RegexRemoveLastPattern) {
+    std::string source = "address[3][]";
+
+    auto pattern = rxns::regex(R"(\[\d*\])");
+    ASSERT_TRUE(matches_pattern(pattern, source));
+    auto r1 = remove_last_pattern(pattern, source);
+    ASSERT_STREQ("address[3]", r1.c_str());
+    ASSERT_TRUE(matches_pattern(pattern, r1));
+    auto r2 = remove_last_pattern(pattern, r1);
+    ASSERT_STREQ("address", r2.c_str());
+    ASSERT_FALSE(matches_pattern(pattern, r2));
+}
+
+TEST(Regex, FindLastPattern) {
+    std::string source = "address[3][]";
+    auto pattern = rxns::regex(R"(\[\d*\])");
+    auto last_pattern = find_last_pattern(pattern, source);
+    ASSERT_STREQ("[]", last_pattern.c_str());
+    source = remove_last_pattern(pattern, source);
+
+    // find digit within brackets
+    last_pattern = find_last_pattern(rxns::regex(R"(\[(\d*)\])"), source);
+    ASSERT_STREQ("3", last_pattern.c_str());
+}
+
+TEST(Strings, Join1) {
+    std::vector<std::string> sample{"uint64_t data", "struct some", "std::string name"};
+    std::string res = join(sample, "\n");
+    ASSERT_STREQ(
+        R"(uint64_t data
+struct some
+std::string name)",
+        res.c_str()
+    );
+}
+
+TEST(Strings, Join2) {
+    struct something {
+        std::string name;
+    };
+
+    std::vector<something> sample {
+        { "Checking" },
+        { "test" },
+        { "dependency" },
+        { "dependency" },
+        { "graph" },
+    };
+
+    auto res = join(sample, ",", "[", "]", [](const something& item) {
+        return item.name;
+    });
+    ASSERT_STREQ("[Checking,test,dependency,dependency,graph]", res.c_str());
+}
+
+TEST(Strings, Join3WithTruncated) {
+    std::vector<std::string> some {"hello", "world"};
+    auto res = join(some, ", ", "[", "]", "...", 1);
+    ASSERT_STREQ("[hello, ...]", res.c_str());
+}
+
+TEST(Strings, Join4WithEmptyInput) {
+    std::vector<std::string> some {};
+    auto res = join(some, ", ", "[", "]", "...", 1);
+    ASSERT_STREQ("[]", res.c_str());
 }

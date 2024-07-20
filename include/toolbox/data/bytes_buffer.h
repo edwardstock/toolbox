@@ -25,6 +25,7 @@ public:
     bytes_buffer(std::initializer_list<uint8_t> ilist);
     bytes_buffer(std::initializer_list<std::vector<uint8_t>> ilist);
     bytes_buffer(std::vector<uint8_t> data);
+    bytes_buffer(const slice<uint8_t> data);
     bytes_buffer(const uint8_t* data, size_t len);
     bytes_buffer(const char* hexString);
     bytes_buffer(const std::string& hexString);

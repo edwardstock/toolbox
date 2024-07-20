@@ -13,11 +13,24 @@
 #include <sstream>
 
 std::vector<uint8_t> toolbox::data::hex_to_bytes(const std::string& hex) {
-    std::vector<uint8_t> bytes;
+    std::string processed_hex = hex;
+    // Check for hex prefix and remove it
+    if (processed_hex.size() >= 2 && processed_hex[0] == '0' && (processed_hex[1] == 'x' || processed_hex[1] == 'X')) {
+        processed_hex = processed_hex.substr(2);
+    }
 
-    for (size_t i = 0; i < hex.length(); i += 2) {
-        std::string byteString = hex.substr(i, 2);
-        auto byte = (uint8_t) strtol(byteString.c_str(), nullptr, 16);
+    // ensure the processed hex string has an even length
+    if (processed_hex.size() % 2 != 0) {
+        processed_hex = "0" + processed_hex; // Prepend '0' to make length even
+    }
+
+    std::vector<uint8_t> bytes;
+    bytes.reserve(processed_hex.length() / 2);
+
+    for (size_t i = 0; i < processed_hex.length(); i += 2) {
+        std::string byte_string = processed_hex.substr(i, 2);
+        char* end;
+        auto byte = static_cast<uint8_t>(std::strtol(byte_string.c_str(), &end, 16));
         bytes.push_back(byte);
     }
 
@@ -28,7 +41,7 @@ std::string toolbox::data::bytes_to_hex(const uint8_t* data, size_t len) {
     std::stringstream ss;
     ss << std::hex;
     for (size_t i = 0; i < len; ++i) {
-        ss << std::setw(2) << std::setfill('0') << (int) data[i];
+        ss << std::setw(2) << std::setfill('0') << static_cast<int>(data[i]);
     }
 
     return ss.str();

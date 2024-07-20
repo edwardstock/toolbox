@@ -8,6 +8,8 @@
 #include <toolbox/data.hpp>
 #include <toolbox/data/literals.h>
 #include <toolbox/data/transformers.h>
+#include <exception>
+#include <stdexcept>
 
 using namespace toolbox::data;
 using namespace toolbox::data::literals;
@@ -126,6 +128,36 @@ TEST(BytesData, Write) {
     for (size_t i = 0; i < d1.size(); i++) {
         ASSERT_EQ(d1.at(i), d3.at(i));
     }
+}
+
+TEST(BytesData, PushBackSizeT) {
+    const auto sizet_size = sizeof(size_t);
+    bytes_data d;
+    size_t value = 13131;
+    d.push_back(value);
+
+    ASSERT_EQ(sizet_size, d.size());
+    ASSERT_EQ(value, d.to_num_any());
+}
+
+TEST(BytesData, PushBackString) {
+    bytes_data d;
+    d.push_back("17");
+
+    ASSERT_EQ(2, d.size());
+    ASSERT_EQ('1', d[0]);
+    ASSERT_EQ('7', d[1]);
+    ASSERT_STREQ("17", d.to_string().c_str());
+}
+
+TEST(BytesData, PushBackCString) {
+    bytes_data d;
+    d.push_back("17", 2);
+
+    ASSERT_EQ(2, d.size());
+    ASSERT_EQ('1', d[0]);
+    ASSERT_EQ('7', d[1]);
+    ASSERT_STREQ("17", d.to_string().c_str());
 }
 
 TEST(BytesData, Resize) {
@@ -392,7 +424,6 @@ TEST(Buffer, PopFrontTo) {
     ASSERT_EQ(0x80u, exData.at(9));
     ASSERT_EQ(0x0u, exData.at(exData.size() - 1));
 
-    size_t seq = 1;
     size_t rlen = 64;
     size_t left = 256;
     size_t written = 0;
@@ -405,7 +436,6 @@ TEST(Buffer, PopFrontTo) {
         left -= rlen;
         ASSERT_EQ(left, buffer.size());
         ASSERT_EQ(74, exData.size());
-        seq++;
     }
 
     ASSERT_EQ(256, written);
@@ -616,7 +646,7 @@ TEST(BytesData, Map) {
     ASSERT_EQ((uint8_t) 0x01, d.at(0));
     ASSERT_EQ((uint8_t) 0x02, d.at(d.size() - 1));
 
-    d.map([](uint8_t val) { return (uint8_t)(val * 2); });
+    d.map([](uint8_t val) { return (uint8_t) (val * 2); });
 
     ASSERT_EQ(4, d.size());
     ASSERT_EQ((uint8_t) 0x02, d.at(0));
@@ -671,13 +701,15 @@ TEST(BytesData, SwitchMap) {
     ASSERT_EQ((uint8_t) 0x01, d.at(0));
     ASSERT_EQ((uint8_t) 0x02, d.at(d.size() - 1));
 
-    d.switch_map([](std::vector<uint8_t> old) {
-        std::vector<uint8_t> out;
-        out.resize(old.size());
-        std::transform(old.begin(), old.end(), out.begin(), [](uint8_t val) { return val * 4; });
+    d.switch_map(
+        [](std::vector<uint8_t> old) {
+            std::vector<uint8_t> out;
+            out.resize(old.size());
+            std::transform(old.begin(), old.end(), out.begin(), [](uint8_t val) { return val * 4; });
 
-        return out;
-    });
+            return out;
+        }
+    );
 
     ASSERT_EQ(4, d.size());
     ASSERT_EQ((uint8_t) 0x04, d.at(0));
@@ -691,13 +723,15 @@ TEST(BytesData, SwitchMapReduce) {
     ASSERT_EQ((uint8_t) 0x01, d.at(0));
     ASSERT_EQ((uint8_t) 0x02, d.at(d.size() - 1));
 
-    d.switch_map([](std::vector<uint8_t> old) {
-        std::vector<uint8_t> out;
-        out.resize(old.size() - 2);
-        std::transform(old.begin(), old.begin() + 2, out.begin(), [](uint8_t val) { return val * 4; });
+    d.switch_map(
+        [](std::vector<uint8_t> old) {
+            std::vector<uint8_t> out;
+            out.resize(old.size() - 2);
+            std::transform(old.begin(), old.begin() + 2, out.begin(), [](uint8_t val) { return val * 4; });
 
-        return out;
-    });
+            return out;
+        }
+    );
 
     ASSERT_EQ(2, d.size());
     ASSERT_EQ((uint8_t) 0x04, d.at(0));
@@ -711,14 +745,21 @@ TEST(BytesData, SwitchMapCopy) {
     ASSERT_EQ((uint8_t) 0x01, d.at(0));
     ASSERT_EQ((uint8_t) 0x02, d.at(3));
 
-    auto res = d.switch_map_c([](std::vector<uint8_t> old) {
-        std::vector<uint8_t> out(old.size());
-        std::transform(old.begin(), old.end(), out.begin(), [](uint8_t val) {
-            return (uint8_t)(val * 2);
-        });
+    auto res = d.switch_map_c(
+        [](std::vector<uint8_t> old) {
+            std::vector<uint8_t> out(old.size());
+            std::transform(
+                old.begin(),
+                old.end(),
+                out.begin(),
+                [](uint8_t val) {
+                    return (uint8_t) (val * 2);
+                }
+            );
 
-        return out;
-    });
+            return out;
+        }
+    );
 
     ASSERT_EQ(4, res.size());
     ASSERT_EQ((uint8_t) 0x02, res.at(0));
@@ -735,9 +776,11 @@ TEST(BytesData, SwitchMapCopy) {
 
 TEST(BytesData, MapToStrings) {
     bytes_data d = bytes_data::from_string_raw("hello map to");
-    auto string_d = d.map_to<char>([](uint8_t val) {
-        return (char) val;
-    });
+    auto string_d = d.map_to<char>(
+        [](uint8_t val) {
+            return (char) val;
+        }
+    );
     ASSERT_EQ(d.size(), string_d.size());
     std::string res = std::string(string_d.data(), string_d.data() + string_d.size());
 
@@ -748,7 +791,8 @@ TEST(BytesData, MapToStrings) {
 TEST(BytesData, InitializerVectors) {
     bytes_data d = {
         {0x0, 0x0, 0x0, 'a'},
-        {0x1, 0x1, 0x1, 'b'}};
+        {0x1, 0x1, 0x1, 'b'}
+    };
 
     ASSERT_EQ(8, d.size());
     ASSERT_EQ(0x0, d.at(0));
@@ -1046,6 +1090,28 @@ TEST(BytesData, CopySwapCtor) {
     ASSERT_NE(target, some_data);
 }
 
+TEST(BytesData, MoveConstructor) {
+    bytes_data a(2);
+    a.write(0, (uint8_t) 0xDE);
+    a.write(1, (uint8_t) 0xAD);
+
+    bytes_data b(std::move(a));
+    ASSERT_EQ(2, b.size());
+    ASSERT_EQ((uint8_t) 0xDE, b.at(0));
+    ASSERT_EQ((uint8_t)0xAD, b.at(1));
+}
+
+TEST(BytesData, MoveAssignment) {
+    bytes_data a(2);
+    a.write(0, (uint8_t) 0xDE);
+    a.write(1, (uint8_t) 0xAD);
+
+    bytes_data b = std::move(a);
+    ASSERT_EQ(2, b.size());
+    ASSERT_EQ((uint8_t) 0xDE, b.at(0));
+    ASSERT_EQ((uint8_t)0xAD, b.at(1));
+}
+
 TEST(BytesArray, OutOfRangeError) {
     bytes_array<32> d;
 
@@ -1219,37 +1285,110 @@ TEST(BytesArray, Write) {
     ASSERT_EQ(0xFF, ex.at(3));
 }
 
-#include <cmath>
+TEST(BytesArray, CopyAssignment) {
+    bytes_array<2> a;
+    a.write(0, (uint8_t) 0xDE);
+    a.write(1, (uint8_t) 0xAD);
 
-std::vector<std::string> combine_options(const std::vector<std::string>& build_options, const std::vector<std::string>& build_values) {
-    std::vector<std::string> build_options_tmp;
-    std::vector<std::string> result;
+    bytes_array<2> b = a;
+    ASSERT_EQ(2, b.size());
+}
 
-    const size_t opts_cnt = build_options.size();
-    const size_t values_cnt = build_values.size();
-    const size_t tmp_cnt = values_cnt * opts_cnt;
+TEST(BytesArray, CopyConstruct) {
+    bytes_array<2> a;
+    a.write(0, (uint8_t) 0xDE);
+    a.write(1, (uint8_t) 0xAD);
 
-    build_options_tmp.reserve(tmp_cnt);
-    result.reserve(tmp_cnt);
+    bytes_array<2> b(a);
+    ASSERT_EQ(2, b.size());
+}
 
-    // Populate build_options_tmp
-    for (size_t value_idx = 0; value_idx < values_cnt; value_idx++) {
-        for (size_t opt_idx = 0; opt_idx < opts_cnt; opt_idx++) {
-            std::stringstream ss;
-            ss << "-o " << build_options[opt_idx] << "=" << build_values[value_idx];
-            build_options_tmp.push_back(ss.str());
-        }
-    }
+TEST(BytesArray, MoveAssignment) {
+    bytes_array<2> a;
+    a.write(0, (uint8_t) 0xDE);
+    a.write(1, (uint8_t) 0xAD);
 
-    // Combine options
-    for (size_t i = 0; i < tmp_cnt; i++) {
-        std::stringstream ss;
-        for (size_t n = 0; n < opts_cnt; n++) {
-            const size_t next_index = (i + n) % tmp_cnt;
-            ss << " " << build_options_tmp[next_index];
-        }
-        result.push_back(ss.str());
-    }
+    bytes_array<2> b;
+    b = std::move(a);
+    ASSERT_EQ(2, b.size());
+}
 
-    return result;
+TEST(BytesArray, MoveConstructor) {
+    bytes_array<2> a;
+    a.write(0, (uint8_t) 0xDE);
+    a.write(1, (uint8_t) 0xAD);
+
+    const bytes_array<2> b(std::move(a));
+    ASSERT_EQ(2, b.size());
+}
+
+TEST(BytesToSlice, TakeSlice) {
+    bytes_data data(
+        "fe239392"
+        "0000000000000000000000000000000000000000000000000000000000000020"
+        "0000000000000000000000000000000000000000000000000000000000000001"
+        "0000000000000000000000000000000000000000000000000000000000000005"
+    );
+
+    bytes_data::slice_type method_id = data.take_slice_n(0, 4);
+    ASSERT_EQ(bytes_data("fe239392"), method_id);
+    ASSERT_EQ(bytes_data("fe23"), method_id.take_slice_first(2));
+    ASSERT_EQ(bytes_data("9392"), method_id.take_slice_last(2));
+
+    auto main_data = data.take_slice_from(4);
+    auto c_main_data = main_data;
+    ASSERT_EQ(main_data, c_main_data);
+
+    size_t read_offset = 0;
+    auto offset = main_data.take_slice_n(read_offset, 32);
+    ASSERT_EQ(bytes_data("0000000000000000000000000000000000000000000000000000000000000020"), offset);
+    read_offset += offset.size();
+
+    auto length = main_data.take_slice_n(read_offset, 32);
+    ASSERT_EQ(bytes_data("0000000000000000000000000000000000000000000000000000000000000001"), length);
+    read_offset += length.size();
+
+    auto value = main_data.take_slice_n(read_offset, 32);
+    ASSERT_EQ(bytes_data("0000000000000000000000000000000000000000000000000000000000000005"), value);
+
+    bytes_data result = value;
+    ASSERT_EQ(bytes_data("0000000000000000000000000000000000000000000000000000000000000005"), result);
+
+    auto empty_slice = data.take_slice_n(0, 0);
+    ASSERT_EQ(bytes_data(), empty_slice);
+
+    ASSERT_THROW(empty_slice.at(0), std::out_of_range);
+    ASSERT_THROW(data.take_slice(-1, 2048), std::out_of_range);
+    ASSERT_THROW(data.take_slice(-1, 5), std::out_of_range);
+    ASSERT_THROW(data.take_slice(1024, 5), std::out_of_range);
+    ASSERT_NO_THROW(data.take_slice(0, 0));
+    ASSERT_NO_THROW(data.take_slice(5, 5));
+    ASSERT_NE(1, data.take_slice(5, 5).size());
+    ASSERT_EQ(5, data.take_slice_n(5, 5).size());
+    ASSERT_EQ(0, data.take_slice_n(5, 0).size());
+    ASSERT_EQ(1, data.take_slice_n(5, 1).size());
+    ASSERT_EQ(1, data.take_slice(5, 6).size());
+    ASSERT_EQ(data.size(), data.take_slice(0, data.size()).size());
+    std::vector<uint8_t> empty;
+    ASSERT_EQ(bytes_data(), slice<uint8_t>(empty.begin(), empty.end()));
+}
+
+TEST(BytesData, ReadHexWithAndWithoutPrefix) {
+    bytes_data a("0xFFAAFF");
+    bytes_data b("0XFFAAFF");
+    bytes_data c("FFAAFF");
+    bytes_data d("ffaaFF");
+
+    ASSERT_EQ(a, b);
+    ASSERT_EQ(b, c);
+    ASSERT_EQ(c, d);
+    ASSERT_EQ(d, a);
+}
+
+TEST(BytesData, ReadIncompleteHex) {
+    bytes_data a("F");
+    ASSERT_EQ(15, a.to_num_any());
+
+    bytes_data b("FFF");
+    ASSERT_EQ(4095, (uint16_t)b);
 }
