@@ -1,5 +1,5 @@
 ## 3.5.0
-
+- C++ standard now is 17
 - Replaced sprintf with snprintf everywhere
 - A bit cleanup in code style and naming
 - Fixed installation of cmake-related files from \$prefix/lib/cmake/toolbox/*.cmake -> \$prefix/lib/cmake/*.cmake
