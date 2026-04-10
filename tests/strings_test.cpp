@@ -546,3 +546,32 @@ TEST(Strings, Join4WithEmptyInput) {
     auto res = join(some, ", ", "[", "]", "...", 1);
     ASSERT_STREQ("[]", res.c_str());
 }
+
+TEST(Strings, FormatTruncation) {
+    // Buffer of 10 chars, output is longer — should auto-resize
+    std::string res = format(10, "hello %s number %d!", "world", 42);
+    ASSERT_STREQ("hello world number 42!", res.c_str());
+}
+
+TEST(Strings, FormatMultipleTypes) {
+    std::string res = format("name=%s age=%d pi=%.2f", "Bob", 30, 3.14159);
+    ASSERT_STREQ("name=Bob age=30 pi=3.14", res.c_str());
+}
+
+TEST(Strings, RemoveSubstringBefore) {
+    std::string source = "https://subdomain.google.com?param=1";
+    // removes everything up to and including delimiter, returns what's after
+    ASSERT_STREQ("param=1", remove_substring_before(source, "?").c_str());
+    ASSERT_STREQ("google.com?param=1", remove_substring_before(source, "subdomain.").c_str());
+    // delimiter not found — return original
+    ASSERT_STREQ(source.c_str(), remove_substring_before(source, "NOTFOUND").c_str());
+}
+
+TEST(Strings, RemoveSubstringAfter) {
+    std::string source = "https://subdomain.google.com?param=1";
+    // removes delimiter and everything after it, returns what's before
+    ASSERT_STREQ("https://subdomain.google.com", remove_substring_after(source, "?").c_str());
+    ASSERT_STREQ("https://subdomain.", remove_substring_after(source, "google").c_str());
+    // delimiter not found — return original
+    ASSERT_STREQ(source.c_str(), remove_substring_after(source, "NOTFOUND").c_str());
+}

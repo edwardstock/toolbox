@@ -1,0 +1,70 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": { "major": 3, "minor": 21, "patch": 0 },
+    "configurePresets": [
+        {
+            "name": "base",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+            }
+        },
+        {
+            "name": "debug",
+            "displayName": "Debug (static)",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "toolbox_BUILD_TESTS": "ON",
+                "toolbox_BUILD_SHARED_LIBS": "OFF"
+            }
+        },
+        {
+            "name": "release",
+            "displayName": "Release (static)",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "toolbox_BUILD_SHARED_LIBS": "OFF"
+            }
+        },
+        {
+            "name": "debug-shared",
+            "displayName": "Debug (shared)",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "toolbox_BUILD_TESTS": "ON",
+                "toolbox_BUILD_SHARED_LIBS": "ON"
+            }
+        },
+        {
+            "name": "release-shared",
+            "displayName": "Release (shared)",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "toolbox_BUILD_SHARED_LIBS": "ON"
+            }
+        }
+    ],
+    "buildPresets": [
+        { "name": "debug",          "configurePreset": "debug" },
+        { "name": "release",        "configurePreset": "release" },
+        { "name": "debug-shared",   "configurePreset": "debug-shared" },
+        { "name": "release-shared", "configurePreset": "release-shared" }
+    ],
+    "testPresets": [
+        {
+            "name": "debug",
+            "configurePreset": "debug",
+            "output": { "outputOnFailure": true }
+        },
+        {
+            "name": "debug-shared",
+            "configurePreset": "debug-shared",
+            "output": { "outputOnFailure": true }
+        }
+    ]
+}

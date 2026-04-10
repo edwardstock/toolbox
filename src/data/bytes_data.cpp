@@ -158,6 +158,7 @@ void bytes_data::clear() {
 
     cleanse_counter = (uint8_t) count;
     memset((uint8_t *) data(), 0, len);
+    m_data.clear();
 }
 
 uint64_t bytes_data::to_num_any() const {
@@ -175,7 +176,7 @@ uint64_t bytes_data::to_num_any(size_t from, size_t to) const {
     size_t len = data.size();
     uint64_t out = 0x0ULL;
     for (uint8_t i = 0, p = len - 1; i < len; i++, p--) {
-        out |= data[i] << (8u * p);
+        out |= static_cast<uint64_t>(data[i]) << (8u * p);
     }
 
     return out;
@@ -208,9 +209,9 @@ std::ostream& toolbox::data::operator<<(std::ostream& os, const bytes_data& data
 
 std::istream& toolbox::data::operator>>(std::istream& input, bytes_data& data) {
     size_t block_read = 256;
-    data.resize(256);
-    data.reserve(4096);
     data.clear();
+    data.resize(block_read);
+    data.reserve(4096);
 
     input.read((char *) data.data(), block_read);
     size_t read_len = input.gcount();

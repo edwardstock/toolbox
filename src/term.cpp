@@ -105,17 +105,20 @@ bool toolbox::term::confirm(std::istream& in, std::ostream& out, const std::stri
     do {
         out << message;
         out << " (yes|no) [" << yesNo << "]: ";
-        std::getline(in, res);
+        if (!std::getline(in, res)) {
+            // EOF or stream error - fall back to default
+            return defValue;
+        }
 
-    } while (!res.empty() && !toolbox::strings::equals_icase(res, "yes") &&
-             !toolbox::strings::equals_icase(res, "no") && !toolbox::strings::equals_icase(res, "y") &&
-             !toolbox::strings::equals_icase(res, "n"));
+    } while (!res.empty() && !strings::equals_icase(res, "yes") &&
+             !strings::equals_icase(res, "no") && !strings::equals_icase(res, "y") &&
+             !strings::equals_icase(res, "n"));
 
     if (res.empty()) {
         return defValue;
     }
 
-    return toolbox::strings::equals_icase(res, "yes") || toolbox::strings::equals_icase(res, "y");
+    return strings::equals_icase(res, "yes") || strings::equals_icase(res, "y");
 }
 bool toolbox::term::confirm(const std::string& message, bool defValue) {
     return confirm(std::cin, std::cout, message, defValue);
@@ -131,7 +134,10 @@ std::string toolbox::term::prompt(std::istream& in, std::ostream& out, const std
             out << ": ";
         }
 
-        std::getline(in, res);
+        if (!std::getline(in, res)) {
+            // EOF or stream error — fall back to default
+            return defValue;
+        }
 
     } while ((required && res.empty()));
 

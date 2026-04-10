@@ -8,6 +8,7 @@
 #include <toolbox/data.hpp>
 #include <toolbox/data/literals.h>
 #include <toolbox/data/transformers.h>
+#include <toolbox/data/base64.h>
 #include <exception>
 #include <stdexcept>
 
@@ -124,9 +125,9 @@ TEST(BytesData, Write) {
     d1.clear();
     d1.resize(0);
     d1.write(0, std::move(d3));
-    ASSERT_EQ(d1.size(), d3.size());
+    ASSERT_EQ(d1.size(), d4.size());
     for (size_t i = 0; i < d1.size(); i++) {
-        ASSERT_EQ(d1.at(i), d3.at(i));
+        ASSERT_EQ(d1.at(i), d4.at(i));
     }
 }
 
@@ -593,10 +594,9 @@ TEST(BytesData, ToNumAny) {
     d.clear();
     d.write(0, (uint8_t) 250);
     auto r4 = d.to_num_any_size<uint32_t>(0);
-    ASSERT_NE((uint32_t) 250, r4);
-    // r4 case works, only if data container has only 1 byte size, but there already 8,
-    // so, if we would try to convert 0-4 indexes to uint32_t, we'll get little-endian encoding, toolbox does not
-    // support little endian. If you need to convert between values, set 2 types explicitly, like below
+    // After clear(), container has only 1 byte. to_num_any_size<uint32_t>
+    // handles undersized data with zero-extension, correctly returning 250.
+    ASSERT_EQ((uint32_t) 250, r4);
 
     auto r7 = d.to_num_any_size<uint8_t, uint32_t>(0);
     ASSERT_EQ((uint32_t) 250, r7);
@@ -1391,4 +1391,329 @@ TEST(BytesData, ReadIncompleteHex) {
 
     bytes_data b("FFF");
     ASSERT_EQ(4095, (uint16_t)b);
+}
+
+TEST(Base64, EncodeDecodeString) {
+    std::string raw = "hello world";
+    std::string encoded = toolbox::data::base64_encode(raw);
+    ASSERT_STREQ("aGVsbG8gd29ybGQ=", encoded.c_str());
+
+    std::string decoded = toolbox::data::base64_decode(encoded);
+    ASSERT_STREQ(raw.c_str(), decoded.c_str());
+}
+
+TEST(Base64, EncodeDecodeEmpty) {
+    std::string encoded = toolbox::data::base64_encode("");
+    ASSERT_STREQ("", encoded.c_str());
+
+    std::string decoded = toolbox::data::base64_decode("");
+    ASSERT_STREQ("", decoded.c_str());
+}
+
+TEST(Base64, EncodeDecodeBinary) {
+    std::vector<uint8_t> raw = {0x00, 0xFF, 0x80, 0x01};
+    auto encoded = toolbox::data::base64_encode_bytes(raw);
+    auto decoded = toolbox::data::base64_decode_bytes(encoded);
+    ASSERT_EQ(raw, decoded);
+}
+
+TEST(BytesData, EqualityWithZeroBytes) {
+    // Validates fix: operator==(const T*) used to fail when data starts with 0x00
+    bytes_data d = {0x00, 0x01, 0x02};
+    uint8_t raw[] = {0x00, 0x01, 0x02};
+    ASSERT_TRUE(d == raw);
+
+    uint8_t raw2[] = {0x00, 0x01, 0x03};
+    ASSERT_FALSE(d == raw2);
+
+    // Data ending with 0x00
+    bytes_data d2 = {0x01, 0x02, 0x00};
+    uint8_t raw3[] = {0x01, 0x02, 0x00};
+    ASSERT_TRUE(d2 == raw3);
+}
+
+TEST(BytesData, EqualityShortCircuit) {
+    // Validates fix: operator==(const basic_data&) used && instead of ||
+    // If only first element differs, should still return false
+    bytes_data a = {0x01, 0x02, 0x03};
+    bytes_data b = {0xFF, 0x02, 0x03};  // first differs, last same
+    ASSERT_FALSE(a == b);
+
+    bytes_data c = {0x01, 0x02, 0xFF};  // first same, last differs
+    ASSERT_FALSE(a == c);
+}
+
+// ===== Tests for fixed bugs =====
+
+TEST(BytesData, WriteSingleBeyondSize) {
+    // Previously UB: write(pos, val) with pos >> size() resized to size()+1 instead of pos+1
+    bytes_data d;
+    d.write(10, (uint8_t) 0xAB);
+    ASSERT_EQ(11, d.size());
+    ASSERT_EQ(0xAB, d.at(10));
+    // positions 0-9 should be zero-initialized by resize
+    for (size_t i = 0; i < 10; i++) {
+        ASSERT_EQ(0, d.at(i));
+    }
+
+    // Also test gap write on non-empty container
+    bytes_data d2;
+    d2.write(0, (uint8_t) 0x01);
+    ASSERT_EQ(1, d2.size());
+    d2.write(50, (uint8_t) 0xFF);
+    ASSERT_EQ(51, d2.size());
+    ASSERT_EQ(0x01, d2.at(0));
+    ASSERT_EQ(0xFF, d2.at(50));
+    for (size_t i = 1; i < 50; i++) {
+        ASSERT_EQ(0, d2.at(i));
+    }
+}
+
+TEST(BytesData, WriteBatchSparsePositions) {
+    // Previously UB: write_batch with sparse positions calculated alloc as minPos+vals.size()
+    // instead of maxPos+1, causing out-of-bounds write
+    bytes_data d;
+    std::map<size_t, uint8_t> sparse = {{0, 0xAA}, {50, 0xBB}, {100, 0xCC}};
+    d.write_batch(std::move(sparse));
+    ASSERT_EQ(101, d.size());
+    ASSERT_EQ(0xAA, d.at(0));
+    ASSERT_EQ(0xBB, d.at(50));
+    ASSERT_EQ(0xCC, d.at(100));
+    // gaps should be zero-initialized
+    ASSERT_EQ(0, d.at(1));
+    ASSERT_EQ(0, d.at(99));
+
+    // Also test sparse write_batch on non-empty container
+    bytes_data d2(5);
+    std::fill(d2.begin(), d2.end(), (uint8_t) 0x11);
+    std::map<size_t, uint8_t> sparse2 = {{3, 0xAA}, {10, 0xBB}};
+    d2.write_batch(std::move(sparse2));
+    ASSERT_EQ(11, d2.size());
+    ASSERT_EQ(0x11, d2.at(0));  // original data preserved
+    ASSERT_EQ(0xAA, d2.at(3));  // overwritten
+    ASSERT_EQ(0xBB, d2.at(10)); // new position
+}
+
+TEST(BytesData, ClearResetsSize) {
+    // Previously: bytes_data::clear() secure-erased memory but did NOT call m_data.clear(),
+    // leaving size unchanged. All callers had to do clear(); resize(0);
+    bytes_data d;
+    d.write_back((uint8_t) 0xFF);
+    d.write_back((uint8_t) 0xFE);
+    d.write_back((uint8_t) 0xFD);
+    ASSERT_EQ(3, d.size());
+
+    d.clear();
+    ASSERT_EQ(0, d.size());
+    ASSERT_TRUE(d.empty());
+}
+
+TEST(BytesArray, ClearKeepsSize) {
+    // bytes_array::clear() must zero data but keep fixed size N
+    bytes_array<8> d;
+    d.write(0, (uint8_t) 0xFF);
+    d.write(1, (uint8_t) 0xFE);
+    d.write(7, (uint8_t) 0xAB);
+    ASSERT_EQ(8, d.size());
+
+    d.clear();
+    ASSERT_EQ(8, d.size());
+    for (size_t i = 0; i < 8; i++) {
+        ASSERT_EQ(0, d.at(i));
+    }
+
+    // Verify writable after clear
+    d.write(0, (uint8_t) 0x42);
+    ASSERT_EQ(0x42, d.at(0));
+    ASSERT_EQ(8, d.size());
+}
+
+TEST(BytesData, ToNumAnyLargeShift) {
+    // Previously UB: data[i] (uint8_t) shifted by >=32 bits promoted to int,
+    // causing undefined behavior. Fixed by casting to uint64_t before shift.
+    bytes_data d;
+    d.write(0, (uint64_t) 0x0102030405060708ULL);
+    ASSERT_EQ(8, d.size());
+
+    uint64_t result = d.to_num_any(0, 8);
+    ASSERT_EQ(0x0102030405060708ULL, result);
+
+    // Specifically test that high bytes (shift >= 32) are correct
+    ASSERT_EQ(0x01, d.at(0));  // shifted by 56
+    ASSERT_EQ(0x08, d.at(7));  // shifted by 0
+
+    uint64_t full = d.to_num_any();
+    ASSERT_EQ(0x0102030405060708ULL, full);
+}
+
+TEST(BytesData, ToNumAnySizeLargeShift) {
+    // Same shift UB fix for to_num_any_size<T>
+    bytes_data d;
+    d.write(0, (uint64_t) 0xDEADBEEFCAFEBABEULL);
+    ASSERT_EQ(8, d.size());
+
+    auto result = d.to_num_any_size<uint64_t>(0, 8);
+    ASSERT_EQ(0xDEADBEEFCAFEBABEULL, result);
+
+    // Test with explicit from/to types
+    auto result2 = d.to_num_any_size<uint64_t, uint64_t>(0);
+    ASSERT_EQ(0xDEADBEEFCAFEBABEULL, result2);
+}
+
+// ===== basic_data<std::string> — non-trivial type (previously would UB via memcpy) =====
+
+using string_data = toolbox::data::basic_data<std::string>;
+
+TEST(BasicDataString, ConstructDefault) {
+    string_data d;
+    ASSERT_TRUE(d.empty());
+    ASSERT_EQ(0, d.size());
+}
+
+TEST(BasicDataString, ConstructFromVector) {
+    std::vector<std::string> v = {"hello", "world", "foo"};
+    string_data d(v);
+    ASSERT_EQ(3, d.size());
+    ASSERT_EQ("hello", d.at(0));
+    ASSERT_EQ("world", d.at(1));
+    ASSERT_EQ("foo", d.at(2));
+}
+
+TEST(BasicDataString, ConstructFromPointerAndLen) {
+    std::string arr[] = {"aaa", "bbb", "ccc"};
+    string_data d(arr, 3);
+    ASSERT_EQ(3, d.size());
+    ASSERT_EQ("aaa", d[0]);
+    ASSERT_EQ("bbb", d[1]);
+    ASSERT_EQ("ccc", d[2]);
+}
+
+TEST(BasicDataString, InitializerList) {
+    string_data d = {"alpha", "beta", "gamma"};
+    ASSERT_EQ(3, d.size());
+    ASSERT_EQ("alpha", d[0]);
+    ASSERT_EQ("gamma", d[2]);
+}
+
+TEST(BasicDataString, PushBackPointerLen) {
+    // This was the primary memcpy UB site
+    std::string arr[] = {"one", "two", "three"};
+    string_data d;
+    d.push_back(arr, 3);
+    ASSERT_EQ(3, d.size());
+    ASSERT_EQ("one", d[0]);
+    ASSERT_EQ("two", d[1]);
+    ASSERT_EQ("three", d[2]);
+
+    // push_back more
+    std::string arr2[] = {"four"};
+    d.push_back(arr2, 1);
+    ASSERT_EQ(4, d.size());
+    ASSERT_EQ("four", d[3]);
+}
+
+TEST(BasicDataString, PushBackVector) {
+    string_data d;
+    std::vector<std::string> v = {"x", "y"};
+    d.push_back(v);
+    ASSERT_EQ(2, d.size());
+    ASSERT_EQ("x", d[0]);
+    ASSERT_EQ("y", d[1]);
+}
+
+TEST(BasicDataString, WritePointerLen) {
+    // This was the second memcpy UB site
+    string_data d(5); // 5 empty strings
+    ASSERT_EQ(5, d.size());
+
+    std::string arr[] = {"AA", "BB", "CC"};
+    d.write(1, arr, 3);
+    ASSERT_EQ(5, d.size());
+    ASSERT_EQ("", d[0]);
+    ASSERT_EQ("AA", d[1]);
+    ASSERT_EQ("BB", d[2]);
+    ASSERT_EQ("CC", d[3]);
+    ASSERT_EQ("", d[4]);
+}
+
+TEST(BasicDataString, WritePointerLenBeyondSize) {
+    string_data d;
+    std::string arr[] = {"hello", "world"};
+    d.write(3, arr, 2);
+    ASSERT_EQ(5, d.size());
+    ASSERT_EQ("", d[0]);
+    ASSERT_EQ("", d[2]);
+    ASSERT_EQ("hello", d[3]);
+    ASSERT_EQ("world", d[4]);
+}
+
+TEST(BasicDataString, WriteSingleValue) {
+    string_data d;
+    d.write(0, std::string("first"));
+    ASSERT_EQ(1, d.size());
+    ASSERT_EQ("first", d[0]);
+
+    d.write(5, std::string("sixth"));
+    ASSERT_EQ(6, d.size());
+    ASSERT_EQ("sixth", d[5]);
+    ASSERT_EQ("", d[3]); // gap filled with default
+}
+
+TEST(BasicDataString, WriteBack) {
+    string_data d;
+    d.write_back(std::string("a"));
+    d.write_back(std::string("b"));
+    d.write_back(std::string("c"));
+    ASSERT_EQ(3, d.size());
+    ASSERT_EQ("a", d[0]);
+    ASSERT_EQ("b", d[1]);
+    ASSERT_EQ("c", d[2]);
+}
+
+TEST(BasicDataString, TakeRangeAndSlice) {
+    string_data d = {"a", "b", "c", "d", "e"};
+
+    auto first2 = d.take_first(2);
+    ASSERT_EQ(2, first2.size());
+    ASSERT_EQ("a", first2[0]);
+    ASSERT_EQ("b", first2[1]);
+
+    auto last2 = d.take_last(2);
+    ASSERT_EQ(2, last2.size());
+    ASSERT_EQ("d", last2[0]);
+    ASSERT_EQ("e", last2[1]);
+
+    auto range = d.take_range(1, 4);
+    ASSERT_EQ(3, range.size());
+    ASSERT_EQ("b", range[0]);
+    ASSERT_EQ("d", range[2]);
+}
+
+TEST(BasicDataString, MapAndFilter) {
+    string_data d = {"hello", "", "world", ""};
+
+    // filter out empty strings
+    d.filter([](const std::string& s) { return !s.empty(); });
+    ASSERT_EQ(2, d.size());
+    ASSERT_EQ("hello", d[0]);
+    ASSERT_EQ("world", d[1]);
+
+    // map: uppercase first char
+    d.map([](const std::string& s) {
+        std::string r = s;
+        if (!r.empty()) r[0] = std::toupper(r[0]);
+        return r;
+    });
+    ASSERT_EQ("Hello", d[0]);
+    ASSERT_EQ("World", d[1]);
+}
+
+TEST(BasicDataString, ClearAndCopy) {
+    string_data d = {"a", "b", "c"};
+    string_data copy = d;
+    ASSERT_EQ(d, copy);
+
+    d.clear();
+    ASSERT_TRUE(d.empty());
+    ASSERT_EQ(3, copy.size()); // copy unaffected
 }

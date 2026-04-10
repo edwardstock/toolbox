@@ -54,7 +54,7 @@ TEST(Collections, UnorderedMapToKeys) {
 }
 
 TEST(Collections, MultimapToKeys) {
-    std::unordered_map<int, int> m{
+    std::multimap<int, int> m{
         {1, 2},
         {3, 4},
         {5, 6}

@@ -1,3 +1,6 @@
+/// @file slice.h
+/// @brief Non-owning read-only view (slice) over a contiguous sequence of elements.
+
 #pragma once
 
 #include "toolbox/toolbox_config.h"
@@ -10,6 +13,8 @@ namespace data {
 template<typename T>
 class slice;
 
+/// Base class that provides the slice API (take_slice, take_slice_n, etc.)
+/// for any container that exposes const iterators and size().
 template<typename T>
 class slice_compatible {
 public:
@@ -18,6 +23,8 @@ public:
     using size_type = typename std::vector<T>::size_type;
 
     virtual ~slice_compatible() = default;
+
+    /// Create a slice over the half-open range [start, end).
     virtual slice<T> take_slice(size_type start, size_type end) const = 0;
     virtual size_type size() const = 0;
     virtual const_iterator cbegin() const = 0;
@@ -25,23 +32,31 @@ public:
     virtual const_iterator begin() const = 0;
     virtual const_iterator end() const = 0;
 
+    /// Create a slice starting at @p start with the given @p length.
     slice<T> take_slice_n(size_type start, size_type length) const {
         return take_slice(start, start + length);
     }
 
+    /// Create a slice from @p start to the end of the sequence.
     slice<T> take_slice_from(size_type start) const {
         return take_slice(start, size());
     }
 
+    /// Create a slice containing the first @p end elements.
     slice<T> take_slice_first(size_type end) const {
         return take_slice(0, end);
     }
 
+    /// Create a slice containing the last @p end elements.
     slice<T> take_slice_last(size_type end) const {
         return take_slice(size() - end, size());
     }
 };
 
+/// Non-owning, read-only view over a contiguous range of elements.
+///
+/// A slice does not copy any data; it stores a pair of const iterators into
+/// the parent container.  The parent must outlive the slice.
 template<typename T>
 class slice : public slice_compatible<T> {
 public:
@@ -54,13 +69,17 @@ public:
         const const_iterator& end
     ) : m_start(start)
       , m_end(end)
-      , m_debug(start, end) { }
+#ifndef NDEBUG
+      , m_debug(start, end)
+#endif
+    { }
 
     slice(const slice& other) = default;
     slice(slice&& other) = default;
 
     slice& operator=(const slice& other) = default;
 
+    /// Return the elements as a std::vector.
     std::vector<T> get() const {
         return std::vector<T>(cbegin(), cend());
     }
@@ -82,7 +101,7 @@ public:
     }
 
     bool operator!=(const slice& other) const noexcept {
-        return *this != other;
+        return !(*this == other);
     }
 
     bool operator!=(const std::vector<T>& other) const noexcept {
@@ -147,7 +166,9 @@ private:
     const_iterator m_start;
     const_iterator m_end;
 
+#ifndef NDEBUG
     std::vector<T> m_debug;
+#endif
 };
 
 } // namespace data
