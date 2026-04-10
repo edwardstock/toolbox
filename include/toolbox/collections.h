@@ -1,11 +1,5 @@
-/*!
- * toolbox.
- * collections.h
- *
- * \date 11/30/2019
- * \author Eduard Maximovich (edward.vstock@gmail.com)
- * \link   https://github.com/edwardstock
- */
+/// @file collections.h
+/// @brief Helpers for working with standard associative containers.
 
 #ifndef TOOLBOXPP_COLLECTIONS_H
 #define TOOLBOXPP_COLLECTIONS_H
@@ -17,6 +11,8 @@
 namespace toolbox {
 namespace collections {
 
+/// Type trait that evaluates to true for std::map, std::unordered_map,
+/// std::multimap, and std::unordered_multimap.
 template<typename T>
 struct is_map {
     static const bool value = false;
@@ -38,6 +34,10 @@ struct is_map<std::multimap<K, V>> {
     static const bool value = true;
 };
 
+/// Extract all keys from a map-like container into a vector.
+/// @tparam map_type any type satisfying is_map (std::map, std::unordered_map, etc.)
+/// @param map source container
+/// @return vector containing copies of all keys
 template<typename map_type, typename key_type = typename map_type::key_type>
 std::vector<key_type> map_keys_to_vector(const map_type& map) {
     static_assert(is_map<map_type>::value, "Only map can be passed");
@@ -51,6 +51,10 @@ std::vector<key_type> map_keys_to_vector(const map_type& map) {
     return v;
 }
 
+/// Extract all values from a map-like container into a vector.
+/// @tparam map_type any type satisfying is_map (std::map, std::unordered_map, etc.)
+/// @param map source container
+/// @return vector containing copies of all values
 template<typename map_type, typename value_type = typename map_type::value_type::second_type>
 std::vector<value_type> map_vals_to_vector(const map_type& map) {
     static_assert(is_map<map_type>::value, "Only map can be passed");

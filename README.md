@@ -1,109 +1,87 @@
 # ToolBox++
 
-![build status](https://github.com/edwardstock/toolbox/actions/workflows/build_conan.yml/badge.svg)
+![build status](https://github.com/edwardstock/toolbox/actions/workflows/build.yml/badge.svg)
 
-## Usage and features
+## Features
 
-* **toolbox::strings** - strings helpers like bool hasNum = matches_pattern("\[0-9\]", "my194string"")
-* **toolbox::io** - filesystem helpers
-* **toolbox::collections** - collections helpers
-* **toolbox::data** - bytes buffer helpers
-* **toolbox::term** - confirm or prompt for your CLI app
-* **toolbox::tlog** - simple thread-safe logger
-* **toolbox::time_profiler** - simple time-based profiler
+* **toolbox::strings** — string helpers: `matches_pattern("[0-9]", "my194string")`
+* **toolbox::io** — filesystem helpers
+* **toolbox::collections** — collection helpers
+* **toolbox::data** — bytes buffer helpers
+* **toolbox::term** — confirm / prompt for CLI apps
+* **toolbox::tlog** — simple thread-safe logger
+* **toolbox::time_profiler** — simple time-based profiler
 
-# Add to project
-## Using Conan
+## Adding to your project
 
-Add remote:
-
-Conan may have issues with my own artifactory server. Please, use manual installation in case of any problems.
-```bash
-conan remote add edwardstock https://conan.edwardstock.com/artifactory/api/conan/conan
-```
-
-Add to `conanfile.txt`:
-
-```ini
-[requires]
-toolbox/3.5.0@edwardstock/latest
-
-[options]
-toolbox/*:shared=False # default is False
-
-[generators]
-CMakeDeps
-CMakeToolchaincon
-```
-
-## Include to your CMake project
-
-* Add submodule or just clone
-    * `git submodule add https://github.com/edwardstock/toolbox.git /path/to/libs/toolbox`
-    * `git clone https://github.com/edwardstock/toolbox.git /path/to/libs/toolbox`
-
-* Edit `CMakeLists.txt`:
-
-```cmake
-# your executable or library
-add_executable(my_executable)
-#or if library
-add_library(my_library)
-
-# include module
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/path/to/libs/toolbox)
-
-# link with your project
-target_link_libraries(my_[executable|library] toolbox)
-```
-
-or using [CMake FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html)
+### FetchContent (recommended)
 
 ```cmake
 include(FetchContent)
-fetchcontent_declare(
-	toolbox
-	GIT_REPOSITORY https://github.com/edwardstock/toolbox.git
-	GIT_TAG 3.4.0
+FetchContent_Declare(
+    toolbox
+    GIT_REPOSITORY https://github.com/edwardstock/toolbox.git
+    GIT_TAG        3.5.1
 )
-set(toolbox_BUILD_TESTS OFF)
-set(toolbox_BUILD_SHARED_LIBS OFF)
-fetchcontent_makeavailable(toolbox)
+# Optional overrides (both default to OFF / static):
+# set(toolbox_BUILD_SHARED_LIBS ON  CACHE BOOL "" FORCE)
+# set(toolbox_BUILD_TESTS       OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(toolbox)
 
 add_executable(my_app main.cpp)
-target_link_libraries(my_app toolbox)
+target_link_libraries(my_app PRIVATE toolbox::toolbox)
 ```
 
-## Global Install
-
-This library is Header-Only, so build isn't required. But you can install globally:
+### add_subdirectory / git submodule
 
 ```bash
-git clone https://github.com/edwardstock/toolbox.git toolbox && cd toolbox/build
-cmake --build . --target install
+git submodule add https://github.com/edwardstock/toolbox.git libs/toolbox
 ```
 
-Then include into a project:
+```cmake
+add_subdirectory(libs/toolbox)
+target_link_libraries(my_app PRIVATE toolbox::toolbox)
+```
+
+### find_package (after global install)
 
 ```cmake
 find_package(toolbox REQUIRED)
-target_link_libraries(my_[executable|library] toolbox::toolbox)
+target_link_libraries(my_app PRIVATE toolbox::toolbox)
 ```
 
-## Testing
+## Global install
 
 ```bash
-git clone https://github.com/edwardstock/toolbox.git toolbox && cd toolbox/build
-cmake .. -DCMAKE_BUILD_TYPE=Debug -DENABLE_TEST=On
-cmake --build . --target toolbox-test
-./toolbox-test
+git clone https://github.com/edwardstock/toolbox.git && cd toolbox
+cmake --preset release
+cmake --build --preset release
+cmake --install build/release
 ```
 
-## Build with CLang on linux
+Or to a custom prefix:
 
-Probably, if you are compiled clang from the sources, linker may not found `libc++.so` in default lib path. You could
-manually add it to LD_LIBRARY_PATH or using `sudo -s source llvm_config.sh`.
+```bash
+cmake --preset release -DCMAKE_INSTALL_PREFIX=/usr/local
+cmake --build --preset release
+cmake --install build/release
+```
 
-By default, script installs:
+## Build & test
 
-* header to: /usr/local/include/toolbox.hpp
+```bash
+cmake --preset debug          # configures into build/debug, enables tests
+cmake --build --preset debug
+ctest --preset debug
+```
+
+Available presets: `debug`, `release`, `debug-shared`, `release-shared`.
+
+## Build with Clang on Linux
+
+If you compiled Clang from source, the linker may not find `libc++.so` in the
+default library path. You can add it manually to `LD_LIBRARY_PATH` or run:
+
+```bash
+sudo -s source llvm_config.sh
+```

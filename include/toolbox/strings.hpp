@@ -1,16 +1,10 @@
-/*!
- * toolbox.
- * strings.hpp
- *
- * \date 11/30/2019
- * \author Eduard Maximovich (edward.vstock@gmail.com)
- * \link   https://github.com/edwardstock
- */
+/// @file strings.hpp
+/// @brief String manipulation utilities: split, join, replace, trim, format, etc.
 
 #ifndef TOOLBOXPP_STRINGS_H
 #define TOOLBOXPP_STRINGS_H
 
-#include "toolbox_config.h"
+#include "toolbox/toolbox_config.h"
 
 #include <algorithm>
 #include <locale>
@@ -19,14 +13,17 @@
 #include <utility>
 #include <cstdio>
 #include <cstddef>
+#include <cstdint>
 #include <vector>
 #include <type_traits>
 
 namespace toolbox {
 namespace strings {
 
+/// String length type alias for std::string::size_type.
 using strlen_t = std::string::size_type;
 
+/// Functor that compares characters in a case-insensitive manner using the given locale.
 template<typename tb_char_t>
 struct string_equaling {
     explicit string_equaling(const std::locale& locale)
@@ -39,6 +36,8 @@ private:
     const std::locale& _locale;
 };
 
+/// Perform a case-insensitive search for str2 inside str1.
+/// @return position of the first match, or std::string::npos if not found
 template<typename T>
 size_t compare(const T& str1, const T& str2, const std::locale& loc = std::locale()) {
     typename T::const_iterator it =
@@ -49,246 +48,206 @@ size_t compare(const T& str1, const T& str2, const std::locale& loc = std::local
     return std::string::npos; // not found
 }
 
-/**
- *
- * @param source
- * @param substring
- * @return
- */
+/// Check whether the source string contains the substring (case-insensitive).
+/// @param substring text to search for
+/// @param source text to search in
+/// @return true if the substring is found
 TOOLBOX_API bool has_substring_icase(const std::string& substring, const std::string& source);
 
-/**
- * Search substring in string
- * @param source
- * @param substring
- * @return
- */
+/// Check whether the source string contains the substring (case-sensitive).
+/// @param substring text to search for
+/// @param source text to search in
+/// @return true if the substring is found
 TOOLBOX_API bool has_substring(const std::string& substring, const std::string& source);
 
-/**
- * Search character in string
- * @param source
- * @param substring
- * @return
- */
+/// Check whether the source string contains the given character.
+/// @param substring character to search for
+/// @param source text to search in
+/// @return true if the character is found
 TOOLBOX_API bool has_substring(char substring, const std::string& source);
 
-/**
- * Splits string by char delimiter to vector list
- * @param source
- * @param delimiter
- * @return
- */
+/// Split a string by a string delimiter.
+/// @param source text to split
+/// @param delimiter separator string
+/// @return vector of substrings (empty entries are preserved)
 TOOLBOX_API std::vector<std::string> split(const std::string& source, const std::string& delimiter);
 
-/**
- * Splits string by delimiter to vector list
- * @param source
- * @param delimiter
- * @return
- */
+/// Split a string by a single-character delimiter.
+/// @param source text to split
+/// @param delimiter separator character
+/// @return vector of substrings (empty entries are preserved)
 TOOLBOX_API std::vector<std::string> split(const std::string& source, const char& delimiter);
 
-/*!
- * \brief Split given string by max length.
- * Example:
- *      <code>std::vector<std::string>{"ab", "c"}</code>
- * \param src source string
- * \param max max length
- * \return separated string to vector. If src length less than
- * maximum, vector will contain 1 element with src
- */
+/// Split a string into chunks of at most @p max characters.
+/// @param src source string
+/// @param max maximum length of each chunk
+/// @return vector of chunks; if src.size() <= max, the vector contains one element
 TOOLBOX_API std::vector<std::string> split_by_len(const std::string& src, size_t max);
 
-/**
- * Split string by char delimiter into pair
- * @param source
- * @param delimiter
- * @return returns pair of 2 empty string if delimiter not found
- */
+/// Split a string into exactly two parts at the first occurrence of the delimiter.
+/// @param source text to split
+/// @param delimiter separator character
+/// @return pair of two strings; both empty if the delimiter is not found
 TOOLBOX_API std::pair<std::string, std::string> split_pair(const std::string& source, const char& delimiter);
 
+/// Split a string into exactly two parts at the first occurrence of the delimiter.
+/// @param source text to split
+/// @param delimiter separator string
+/// @return pair of two strings; both empty if the delimiter is not found
 TOOLBOX_API std::pair<std::string, std::string> split_pair(const std::string& source, const std::string& delimiter);
 
-/**
- * \brief Repeat input string N times
- * \param in input string
- * \param n number of times to repeat
- * \return repeated string
- */
+/// Repeat the input string @p n times.
+/// @param in input string
+/// @param n repetition count
+/// @return concatenated result
 TOOLBOX_API std::string repeat(const std::string& in, size_t n = 1);
 
-/*!
- * \brief Repeat input char N times
- * \param in input char
- * \param n number of times to repeat
- * \return repeated string
- */
+/// Repeat the input character @p n times.
+/// @param in input character
+/// @param n repetition count
+/// @return resulting string
 TOOLBOX_API std::string repeat(char in, size_t n = 1);
 
-/*!
- * \brief Remove from string symbols: \t\n\r\x0B
- * \param in any string
- * \return string without special symbols
- */
+/// Remove leading and trailing whitespace (spaces, tabs, newlines, etc.).
+/// @param in input string
+/// @return trimmed copy
 TOOLBOX_API std::string trim(const std::string& in);
 
-/**
- * \brief Remove \t\n\r\x0B from the given string
- * \param in any string reference
- */
+/// Remove leading and trailing whitespace from the string in place.
+/// @param in string to trim (modified in place)
 TOOLBOX_API void trim_ref(std::string& in);
 
-/**
- * Replace first [search] occurrence with [replace] string in [source] string
- * Mutates original string
- * @param search
- * @param replace
- * @param source Mutable
- * @return
- */
+/// Replace the first occurrence of @p search with @p replace in @p source.
+/// Modifies @p source in place.
+/// @param search substring to find
+/// @param replace replacement text
+/// @param source string to modify
 TOOLBOX_API void replace(
     const std::string& search,
     const std::string& replace,
     std::string& source
 );
 
-/**
- * Replace all [search] occurrences with [replace] string in [source] string.
- * Mutates original string
- * @param search
- * @param replace
- * @param source Mutable
- */
+/// Replace all occurrences of @p search with @p replace in @p source.
+/// Modifies @p source in place.
+/// @param search substring to find
+/// @param replace replacement text
+/// @param source string to modify
 TOOLBOX_API void substr_replace_all(
     const std::string& search,
     const std::string& replace,
     std::string& source
 );
 
-/*!
- * Replace all the given [search] strings (vector) with [replace] strings (another vector)
- * Mutates original string
- * @param search Search vector
- * @param replace Replace vector
- * @param source mutable string
- */
+/// Replace all occurrences of each search string with the corresponding replace string.
+/// Modifies @p source in place.  Both vectors must have the same size.
+/// @param search substrings to find
+/// @param replace replacement texts
+/// @param source string to modify
 TOOLBOX_API void substr_replace_all(
     const std::vector<std::string>& search,
     const std::vector<std::string>& replace,
     std::string& source
 );
 
-/**
- * Replace all the given [search] strings (vector) with [replace] string in [source] string.
- * Mutates original string
- * @param search Search vector
- * @param replace Replace string
- * @param source source value to be updated
- */
+/// Replace all occurrences of every search string with a single replace string.
+/// Modifies @p source in place.
+/// @param search substrings to find
+/// @param replace common replacement text
+/// @param source string to modify
 TOOLBOX_API void substr_replace_all(
     const std::vector<std::string>& search,
     const std::string& replace,
     std::string& source
 );
 
-/**
- * Replaces first [search] occurrence with [replace] string in [source] string
- * @param search
- * @param replace
- * @param source Immutable
- * @return same string if nothing to replace, or copy of the [source] with replaced values
- */
+/// Replace the first occurrence of @p search with @p replace and return a copy.
+/// @param search substring to find
+/// @param replace replacement text
+/// @param source original string (not modified)
+/// @return modified copy, or the same string if @p search is not found
 TOOLBOX_API std::string substr_replace_ret(
     const std::string& search,
     const std::string& replace,
     const std::string& source
 );
 
-/**
- * Replace all [search] occurrences with [replace] string in [source] string
- * @param search
- * @param replace
- * @param source
- * @return same string if nothing to replace, or copy of the [source] with replaced values
- */
+/// Replace all occurrences of @p search with @p replace and return a copy.
+/// @param search substring to find
+/// @param replace replacement text
+/// @param source original string (not modified)
+/// @return modified copy, or the same string if @p search is not found
 TOOLBOX_API std::string substr_replace_all_ret(
     const std::string& search,
     const std::string& replace,
     const std::string& source
 );
 
-/**
- * Replace all the given [search] strings (vector) with [replace] strings (another vector)
- * and return copy of the [source]
- * Example:
- * <code>
- *  substr_replace_all_ret(
- *      {"before1","before2"},
- *      {"after1","after2"},
- *      "Source string with before1 and before2"
- *  )
- *  </code>
- * @param search
- * @param replace
- * @param source
- * @return same string if nothing to replace, or copy of the [source] with replaced values
- */
+/// Replace all occurrences of each search string with the corresponding replace
+/// string and return a copy.
+///
+/// Example:
+/// @code
+/// substr_replace_all_ret(
+///     {"before1", "before2"},
+///     {"after1",  "after2"},
+///     "Source string with before1 and before2"
+/// );
+/// @endcode
+/// @param search substrings to find
+/// @param replace replacement texts (same size as search)
+/// @param source original string (not modified)
+/// @return modified copy, or the same string if nothing matched
 TOOLBOX_API std::string substr_replace_all_ret(
     const std::vector<std::string>& search,
     const std::vector<std::string>& replace,
     const std::string& source
 );
 
-/**
- * Replace all the given [search] strings (vector> with [replace] string and return copy of the [source]
- * Example:
- * substringReplaceAll({"before1","before2"}, "after", "Source string with before1 and before2")
- *
- * @param search
- * @param replace
- * @param source
- * @return
- */
+/// Replace all occurrences of every search string with a single replace string
+/// and return a copy.
+/// @param search substrings to find
+/// @param replace common replacement text
+/// @param source original string (not modified)
+/// @return modified copy, or the same string if nothing matched
 TOOLBOX_API std::string substr_replace_all_ret(
     const std::vector<std::string>& search,
     const std::string& replace,
     const std::string& source
 );
 
-/**
- * Find "removable" string in "source" and remove it
- * @param source Mutable value!
- * @param removable
- */
+/// Remove the first occurrence of @p removable from @p source.
+/// Modifies @p source in place.
+/// @param source string to modify
+/// @param removable substring to remove
 TOOLBOX_API void substr_remove(std::string& source, const std::string& removable);
 
-/**
- * Find all "removables" strings in "source" and remove it
- * @param source
- * @param removables
- */
+/// Remove all occurrences of every string in @p removables from @p source.
+/// Modifies @p source in place.
+/// @param source string to modify
+/// @param removables substrings to remove
 TOOLBOX_API void substr_remove_all(std::string& source, std::vector<std::string> removables);
 
-/**
- * Getting substring from specified character
- * @param source
- * @param whence Whence start to cut. You can inverse character to cut from the
- end of "source"
- * Example:
- *  from start:
- *      string s = "abcdef";
-                Strings::substr_inverse(s, 'c');
-                result: "ab"
-
-        from end:
-                string s = "abcdef";
-                Strings::substr_inverse(s, ~'c');
-                result: "def"
- * @return
- */
+/// Return the substring before the given character.
+/// If the character is bitwise-inverted (~'c'), the substring after it is
+/// returned instead.
+///
+/// Example:
+/// @code
+/// substr_inverse("abcdef", 'c');   // "ab"
+/// substr_inverse("abcdef", ~'c');  // "def"
+/// @endcode
+/// @param source input string
+/// @param whence pivot character (invert with ~ to cut from the end)
+/// @return extracted substring
 TOOLBOX_API std::string substr_inverse(const std::string& source, char whence);
 
+/// Return the substring between @p begin and @p end delimiters.
+/// @param source input string
+/// @param begin opening delimiter string
+/// @param end closing delimiter string
+/// @param offset starting search offset
+/// @return extracted substring
 TOOLBOX_API std::string substr_inverse(
     const std::string& source,
     const std::string& begin,
@@ -296,29 +255,32 @@ TOOLBOX_API std::string substr_inverse(
     long offset = 0
 );
 
+/// Return the substring between @p begin and @p end delimiter characters.
+/// @param source input string
+/// @param begin opening delimiter character
+/// @param end closing delimiter character
+/// @param offset starting search offset
+/// @return extracted substring
 TOOLBOX_API std::string substr_inverse(const std::string& source, char begin, char end, long offset = 0);
 
+/// Return the substring starting from the @p begin delimiter to the end.
+/// @param source input string
+/// @param begin opening delimiter string
+/// @return extracted substring
 TOOLBOX_API std::string substr_inverse(const std::string& source, const std::string& begin);
 
-/**
- * How works:
- * source: "aaa bbb ccc"
- * search: "bbb"
- * width: 7
- * 1. find position of "search" in "source" = 5
- * 2. find center of "search": centerOfSearch = 5 + (search.length() / 2) = 5 +
- * 1 = 6
- * 3. find center of "width": centerOfWidth = 7 / 2 = 3
- * 4. now we can calculate start index of "source" to get "width" chars of
- * "source": begin: centerOfSearch - centerOfWidth = 6 - 3 = 3
- * 5. Result:
- *  "aa[begin+width]a bbb c[end]cc"
- * @param source
- * @param search
- * @param width
- * @param icase case sensetivity
- * @return
- */
+/// Clip a region of @p width characters around the first occurrence of @p search.
+///
+/// The search term is centered within the clipped window.
+///
+/// Example for source="aaa bbb ccc", search="bbb", width=7:
+///   result = "a bbb c"
+///
+/// @param source input string
+/// @param search term to center on
+/// @param width desired output width
+/// @param icase true for case-insensitive search
+/// @return clipped substring, or empty string if @p search is not found
 TOOLBOX_API std::string substr_clip(
     const std::string& source,
     const std::string& search,
@@ -326,32 +288,28 @@ TOOLBOX_API std::string substr_clip(
     bool icase = false
 );
 
-/**
- * Concatenates strings by glue
- * @param glue
- * @param strings
- * @return
- */
+/// Concatenate strings with a glue separator.
+/// @param glue separator inserted between elements
+/// @param strings elements to join
+/// @return joined string
 TOOLBOX_API std::string glue(const std::string& glue, const std::vector<std::string>& strings);
 
 
+/// Default transformer used by join() overloads: identity for string-like types.
 auto inline join_transformer = [](const auto& v) -> std::string { return v; };
-/**
- * A bit more advanced function for concatenating strings
- * @param source any iterable type
- * @param prefix prefix for the result string
- * @param suffix suffix for the result string
- * @param delimiter delimiter between strings
- * @param truncated truncated string if limit reached. Limit for maximum items, not for total string length.
- * With limit 1 for example, string will look like: "prefix + first + delimiter + truncated + suffix"
- * <code>
- * std::vector<std::string> some {"hello", "world"}
- * join(some, ", ", "[", "]", "...", 1)
- * // result is: [hello, ...]]
- * </code>
- * @param transformer function to transform each element of the source into a type that has support for ostream
- * @return joined string
- */
+
+/// Join elements of an iterable container into a single string.
+///
+/// @tparam Iterable container type (must have begin()/end() and value_type)
+/// @tparam Transformer callable that converts each element to std::string
+/// @param source container to iterate
+/// @param delimiter separator between elements
+/// @param prefix prepended before the first element
+/// @param suffix appended after the last element
+/// @param truncated text appended when the limit is reached
+/// @param limit maximum number of elements to include (not string length)
+/// @param transformer function applied to each element before appending
+/// @return joined string
 template<typename Iterable, typename Transformer>
 std::string join(
     const Iterable& source,
@@ -440,43 +398,38 @@ std::string join(
     return join<Iterable>(source, delimiter, "", "", "...", SIZE_MAX, join_transformer);
 }
 
-/**
- * Input file stream to string
- * @param inputStream
- * @return
- */
+/// Read the entire contents of an input file stream into a string.
+/// @param inputStream open file stream
+/// @return file contents as a string
 TOOLBOX_API std::string to_string(std::ifstream& inputStream);
 
-/**
- * String to lower case
- * @param s
- * @return
- */
+/// Convert all characters to lower case (classic "C" locale).
+/// @param s input string
+/// @return lower-cased copy
 TOOLBOX_API std::string to_lower_case(const std::string& s);
 
-/**
- * String to upper case
- * @param s
- * @return
- */
+/// Convert all characters to upper case (classic "C" locale).
+/// @param s input string
+/// @return upper-cased copy
 TOOLBOX_API std::string to_upper_case(const std::string& s);
 
-/**
- *
- * @param s1
- * @param s2
- * @return
- */
+/// Compare two strings for equality, ignoring case.
+/// @param s1 first string
+/// @param s2 second string
+/// @return true if the strings are equal (case-insensitive)
 TOOLBOX_API bool equals_icase(const std::string& s1, const std::string& s2);
 
-/**
- * Check if string starts with prefix
- * @param source
- * @param prefix
- * @return
- */
+/// Check whether @p source starts with @p prefix.
+/// @param source string to inspect
+/// @param prefix expected prefix
+/// @return true if @p source begins with @p prefix
 TOOLBOX_API bool starts_with(const std::string& source, const std::string& prefix);
 
+/// Check whether @p source starts with any of the given prefixes.
+/// @tparam Iterable container of strings
+/// @param source string to inspect
+/// @param prefixes candidate prefixes
+/// @return true if at least one prefix matches
 template<typename Iterable>
 bool starts_with_any(const std::string& source, const Iterable& prefixes) {
     return std::any_of(
@@ -488,14 +441,17 @@ bool starts_with_any(const std::string& source, const Iterable& prefixes) {
     );
 }
 
-/**
- * Check if string ends with suffix
- * @param source
- * @param suffix
- * @return
- */
+/// Check whether @p source ends with @p suffix.
+/// @param source string to inspect
+/// @param suffix expected suffix
+/// @return true if @p source ends with @p suffix
 TOOLBOX_API bool ends_with(const std::string& source, const std::string& suffix);
 
+/// Check whether @p source ends with any of the given suffixes.
+/// @tparam Iterable container of strings
+/// @param source string to inspect
+/// @param suffixes candidate suffixes
+/// @return true if at least one suffix matches
 template<typename Iterable>
 bool ends_with_any(const std::string& source, const Iterable& suffixes) {
     return std::any_of(
@@ -507,62 +463,55 @@ bool ends_with_any(const std::string& source, const Iterable& suffixes) {
     );
 }
 
-/**
- * Remove prefix from string
- * @param source
- * @param prefix
- * @return
- */
+/// Remove @p prefix from the beginning of @p source and return a copy.
+/// Returns @p source unchanged if the prefix is not present.
+/// @param source input string
+/// @param prefix prefix to strip
+/// @return string without the prefix
 TOOLBOX_API std::string remove_prefix(const std::string& source, const std::string& prefix);
 
-/**
- * Remove right part of the string until `right_inclusive` ends
- * Example:
- * source = https://subdomain.google.com?param=1&another=2
- * right_inclusive = "?"
- * result = https://subdomain.google.com
- */
+/// Return the part of @p source before the first occurrence of @p delimiter.
+///
+/// Example: substring_before("host?q=1", "?") returns "host".
+/// @param source input string
+/// @param delimiter boundary string
+/// @return substring before the delimiter, or the full string if not found
 TOOLBOX_API std::string substring_before(const std::string& source, const std::string& delimiter);
 
-/**
- * Remove left part of the string until `left_inclusive` ends
- * Example:
- * source = https://subdomain.google.com
- * left_inclusive = "." // remove everying until we wound first "." and return everything after it
- * result = google.com
- */
+/// Return the part of @p source after the first occurrence of @p delimiter.
+///
+/// Example: substring_after("sub.google.com", ".") returns "google.com".
+/// @param source input string
+/// @param delimiter boundary string
+/// @return substring after the delimiter, or the full string if not found
 TOOLBOX_API std::string substring_after(const std::string& source, const std::string& delimiter);
 
-/**
- * Remove substring before delimiter
- * @param source
- * @param delimiter
- * @return same string if nothing to remove, or copy of the [source] with removed values
- */
+/// Remove everything before (and including) the first occurrence of @p delimiter.
+/// @param source input string
+/// @param delimiter boundary string
+/// @return remaining substring, or the full string if delimiter is not found
 TOOLBOX_API std::string remove_substring_before(const std::string& source, const std::string& delimiter);
 
-/**
- * Remove substring after delimiter
- * @param source
- * @param delimiter
- * @return same string if nothing to remove, or copy of the [source] with removed values
- */
+/// Remove everything after (and including) the first occurrence of @p delimiter.
+/// @param source input string
+/// @param delimiter boundary string
+/// @return remaining substring, or the full string if delimiter is not found
 TOOLBOX_API std::string remove_substring_after(const std::string& source, const std::string& delimiter);
 
-/**
- * Remove suffix from string
- * @param source
- * @param suffix
- * @return
- */
+/// Remove @p suffix from the end of @p source and return a copy.
+/// Returns @p source unchanged if the suffix is not present.
+/// @param source input string
+/// @param suffix suffix to strip
+/// @return string without the suffix
 TOOLBOX_API std::string remove_suffix(const std::string& source, const std::string& suffix);
 
-/// \brief Alternative format, ability to pass dynamic buffer size
-/// \tparam Args Args any type
-/// \param buf_size size of result buffer
-/// \param fmt
-/// \param args
-/// \return
+/// Format a string using printf-style syntax with a caller-specified buffer size.
+/// If the output exceeds @p buf_size, the buffer is automatically resized.
+/// @tparam Args argument types
+/// @param buf_size initial buffer size in bytes
+/// @param fmt printf-style format string
+/// @param args format arguments
+/// @return formatted string
 template<typename... Args>
 std::string format(size_t buf_size, const std::string& fmt, Args... args) {
     std::vector<char> tmp(buf_size);
@@ -578,14 +527,12 @@ std::string format(size_t buf_size, const std::string& fmt, Args... args) {
     return {tmp.data(), tmp.data() + required};
 }
 
-/**
- * Works like sprintf but with std::string and returns std::string
- * @tparam buf_size - ensure that buffer size enough for output result, default: buff size is 255
- * @tparam Args any type
- * @param fmt format string
- * @param args
- * @return
- */
+/// Format a string using printf-style syntax.
+/// @tparam buf_size initial buffer size in bytes (default: 255)
+/// @tparam Args argument types
+/// @param fmt printf-style format string
+/// @param args format arguments
+/// @return formatted string
 template<size_t buf_size = 255, typename... Args>
 std::string format(const std::string& fmt, Args... args) {
     return format(buf_size, fmt, args...);

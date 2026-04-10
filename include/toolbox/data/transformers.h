@@ -1,11 +1,6 @@
-/*!
- * toolbox.
- * transformers.h
- *
- * \date 2019
- * \author Eduard Maximovich (edward.vstock@gmail.com)
- * \link   https://github.com/edwardstock
- */
+/// @file transformers.h
+/// @brief Converter specializations and base64 helpers for byte containers.
+
 #ifndef TOOLBOX_TRANSFORMERS_H
 #define TOOLBOX_TRANSFORMERS_H
 
@@ -18,14 +13,17 @@
 namespace toolbox {
 namespace data {
 
-static std::vector<uint8_t> to_base_64(const std::vector<uint8_t>& source) {
+/// Encode a byte vector to base64.
+inline std::vector<uint8_t> to_base_64(const std::vector<uint8_t>& source) {
     return base64_encode_bytes(source);
 }
 
-static std::vector<uint8_t> from_base_64(const std::vector<uint8_t>& source) {
+/// Decode a base64-encoded byte vector.
+inline std::vector<uint8_t> from_base_64(const std::vector<uint8_t>& source) {
     return base64_decode_bytes(source);
 }
 
+/// Converter: bytes -> std::string (raw copy, not hex).
 template<>
 template<>
 struct basic_data<uint8_t>::converter<std::string> {
@@ -35,6 +33,7 @@ struct basic_data<uint8_t>::converter<std::string> {
 };
 using bytes_to_string = basic_data<uint8_t>::converter<std::string>;
 
+/// Converter: bytes -> basic_data<char>.
 template<>
 template<>
 struct basic_data<uint8_t>::converter<basic_data<char>> {

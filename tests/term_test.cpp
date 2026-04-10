@@ -39,8 +39,14 @@ TEST(Term, ConfirmAnwserYes) {
 }
 
 TEST(Term, ConfirmAnwserNotAYesAndNotANo) {
-    // i have no idea, how to test it
-    ASSERT_TRUE(true);
+    // Input "pizza" is not yes/no. confirm() re-prompts.
+    // When stream hits EOF with no valid answer, it falls back to defValue.
+    std::istringstream input("pizza");
+    std::ostringstream output;
+
+    bool result = confirm(input, output, "Wanna pizza?", true);
+    // Should fall back to defValue=true since no valid answer before EOF
+    ASSERT_TRUE(result);
 }
 
 TEST(Term, PromptPizzaContains) {

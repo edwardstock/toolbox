@@ -1,11 +1,6 @@
-/*!
- * toolbox.
- * bytes_data.h
- *
- * \date 2019
- * \author Eduard Maximovich (edward.vstock@gmail.com)
- * \link   https://github.com/edwardstock
- */
+
+/// @file bytes_data.h
+/// @brief Byte container with hex encoding, numeric conversions, and stream I/O.
 
 #ifndef TOOLBOXPP_BYTES_DATA_H
 #define TOOLBOXPP_BYTES_DATA_H
@@ -24,15 +19,19 @@
 namespace toolbox {
 namespace data {
 
-
-
-/// \brief Special class to help you handle bytes
+/// Byte container built on top of basic_data<uint8_t>.
+///
+/// Adds hex string construction/output, numeric read/write helpers for
+/// multi-byte integers, and stream operators.
 class TOOLBOX_API bytes_data : public basic_data<uint8_t> {
 public:
     using slice_type = slice<uint8_t>;
 
+    /// Construct from a vector of signed chars.
     static bytes_data from_chars(const std::vector<char>& data);
+    /// Construct from a raw signed char pointer and length.
     static bytes_data from_chars(const char* data, size_t len);
+    /// Construct from a raw string (each character becomes a byte, not hex).
     static bytes_data from_string_raw(const std::string& data);
 
     bytes_data();
@@ -44,12 +43,28 @@ public:
     bytes_data(std::vector<uint8_t> data);
     bytes_data(const slice_compatible<uint8_t>& data);
     bytes_data(const uint8_t* data, size_t len);
+
+    /// Construct from a hex string (e.g. "deadbeef").
     bytes_data(const char* hexString);
+    /// Construct from a hex string (e.g. "deadbeef").
     bytes_data(const std::string& hexString);
 
-    virtual std::string to_hex(const std::string& prefix = "") const;
-    virtual std::string to_string() const;
-    void clear();
+    /// Convert the contents to a hex string (no prefix).
+    /// @return hex representation
+    [[nodiscard]] std::string to_hex() const {
+        return to_hex("");
+    }
+
+    /// Convert the contents to a hex string with the given prefix.
+    /// @param prefix string prepended to the output (e.g. "0x")
+    /// @return hex representation
+    [[nodiscard]] virtual std::string to_hex(const std::string& prefix) const;
+
+    /// Convert the raw bytes to a string (each byte becomes a character).
+    [[nodiscard]] virtual std::string to_string() const;
+
+    /// Erase all stored bytes and set size to zero.
+    void clear() override;
 
     explicit operator uint8_t() const;
     explicit operator char() const;
@@ -172,17 +187,13 @@ public:
         }
     }
 
-    /**
-     * @brief Write string (not a hex string) characters as bytes
-     * @param val any string
-     */
+    /// Write a raw string as bytes (each character becomes one byte, not hex).
+    /// @param val string to write
     void push_back(const std::string& val);
 
-    /**
-     * Write string (not a hex string) characters as bytes
-     * @param val any char* string
-     * @param len length of string
-     */
+    /// Write raw characters as bytes.
+    /// @param val character array
+    /// @param len number of characters to write
     void push_back(const char* val, size_t len);
 
     template<typename T>
@@ -212,14 +223,12 @@ public:
 
             for (size_t i = 0; i < len; i++) {
                 if (i < data.size()) {
-                    out |= data[i] << (8u * i);
-                } else {
-                    out |= 0x00u << (8u * i);
+                    out |= static_cast<T>(data[i]) << (8u * i);
                 }
             }
         } else {
             for (size_t i = 0, p = (len - 1); i < len; i++, p--) {
-                out |= data[i] << (8u * p);
+                out |= static_cast<T>(data[i]) << (8u * p);
             }
         }
 
@@ -227,14 +236,14 @@ public:
     }
 
     template<typename T>
-    uint64_t to_num_any(size_t from) const {
+    [[nodiscard]] uint64_t to_num_any(size_t from) const {
         return to_num_any(from, from + sizeof(T));
     }
 
-    /// \brief Be carefully! Reads from zero to maximum 8 bytes (to avoid unsigned long long overflow)
-    /// \return number from bytes
-    uint64_t to_num_any() const;
-    uint64_t to_num_any(size_t from, size_t to) const;
+    /// Be careful: reads from zero to a maximum of 8 bytes to avoid overflow.
+    /// @return integer value decoded from stored bytes
+    [[nodiscard]] uint64_t to_num_any() const;
+    [[nodiscard]] uint64_t to_num_any(size_t from, size_t to) const;
 
     template<typename T>
     T to_num(size_t from, size_t to) const {
@@ -263,16 +272,11 @@ public:
         return to_num<T>(readFrom, readFrom + sizeof(T));
     }
 
-    /// \brief Convert all data to char* and write it to output stream
-    /// \param os output stream
-    /// \param data current container
-    /// \return output stream chain
+    /// Write all data to the output stream as raw characters.
     TOOLBOX_API friend std::ostream& operator<<(std::ostream& os, const bytes_data& data);
 
-    /// \brief This operator override ALL existing data, so use it only on empty container
-    /// Use only raw char* for input data, all "hex" string or something like, will be interpreted as raw char*
-    /// \param is input stream
-    /// \param data current container
+    /// Read raw characters from the input stream and replace all existing data.
+    /// Hex strings are NOT decoded; they are stored as raw characters.
     /// \return input stream chain
     TOOLBOX_API friend std::istream& operator>>(std::istream& is, bytes_data& data);
 };

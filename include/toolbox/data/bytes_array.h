@@ -1,11 +1,8 @@
-/*!
- * toolbox.
- * fixed_bytes_data.h
- *
- * \date 2019
- * \author Eduard Maximovich (edward.vstock@gmail.com)
- * \link   https://github.com/edwardstock
- */
+
+/// @file bytes_array.h
+/// @brief Fixed-size byte container. Write operations that exceed capacity N
+///        are silently truncated rather than resizing.
+
 #ifndef TOOLBOX_BYTES_ARRAY_H
 #define TOOLBOX_BYTES_ARRAY_H
 
@@ -14,18 +11,23 @@
 namespace toolbox {
 namespace data {
 
-/// \brief Unresizable bytes buffer. If you're trying to write data more than container N, otherwise data will be silently striped
-/// \tparam N container maximum size
+/// Fixed-size byte container of exactly N bytes.
+///
+/// Unlike bytes_data, this container never grows or shrinks.  Write operations
+/// that would exceed capacity N are silently clamped, and push_back / resize
+/// are disabled (no-ops or moved to private).
+///
+/// @tparam N compile-time container size in bytes
 template<bytes_data::size_type N>
 class bytes_array : public bytes_data {
 public:
-    /// \brief Default: resize data to N forever
+    /// Default constructor: allocates exactly N zero-initialized bytes.
     bytes_array()
         : bytes_data(N) { }
 
-    /// \brief Write uint8_t* with len
-    /// \param data bytes data, have check for NULL
-    /// \param len if len > N, than container will copy only from 0 to N data
+    /// Construct from a raw byte pointer and length.
+    /// @param data source bytes (NULL-safe)
+    /// @param len number of bytes; clamped to N if larger
     bytes_array(const uint8_t* data, size_type len)
         : bytes_array() {
 
@@ -34,13 +36,14 @@ public:
         }
     }
 
-    /// \brief Be carefully and make sure input data contains >= N elements, otherwise you'll have at least garbage in a data or UB
-    /// \param data
+    /// Construct from a raw byte pointer, reading exactly N bytes.
+    /// Caller must ensure at least N bytes are available; otherwise UB.
+    /// @param data source bytes
     explicit bytes_array(const uint8_t* data)
         : bytes_array(data, N) { }
 
-    /// \brief converts hex string to bytes.
-    /// \param hex String CAN'T have prefixes or odd length, as hex representation - 2 characters is a 1 byte
+    /// Construct from a hex string (no "0x" prefix, even length, max N*2 chars).
+    /// @param hex hex-encoded string
     bytes_array(const std::string& hex)
         : bytes_array() {
         if (hex.length() % 2 == 0 && hex.length() <= N * 2) {
@@ -51,8 +54,8 @@ public:
         }
     }
 
-    /// \brief converts hex string to bytes.
-    /// \param hex
+    /// Construct from a C-style hex string.
+    /// @param hex hex-encoded string
     bytes_array(const char* hex)
         : bytes_array(std::string(hex)) { }
 
@@ -141,6 +144,11 @@ public:
 
     ~bytes_array() override = default;
 
+    /// Zero-fill all bytes but keep size N (fixed-size container).
+    void clear() override {
+        std::fill(m_data.begin(), m_data.end(), static_cast<uint8_t>(0));
+    }
+
     // leaving it here for compatibility
     void reserve(size_type) { }
 
@@ -158,9 +166,9 @@ public:
         return N;
     }
 
-    /// \brief writes only those elements that have position < N
-    /// \param vals
-    /// \return
+    /// Write only those elements whose position is less than N.
+    /// @param vals map of position -> value
+    /// @return number of values processed
     size_type write_batch(std::map<size_type, uint8_t>&& vals) override {
         if (vals.empty()) {
             return 0;

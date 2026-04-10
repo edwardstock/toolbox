@@ -18,7 +18,6 @@ main.cpp
 .vscode
 *.junk
 CMakeSettings.json
-include/toolbox/toolbox_config.h
 out
 venv
 Dockerfile

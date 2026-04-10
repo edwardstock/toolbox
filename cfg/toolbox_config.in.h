@@ -1,11 +1,5 @@
-/*!
- * toolbox.
- * toolbox_config.h
- *
- * \date 11/30/2019
- * \author Eduard Maximovich (edward.vstock@gmail.com)
- * \link   https://github.com/edwardstock
- */
+/// @file toolbox_config.h
+/// @brief Auto-generated build configuration (platform checks and export macros).
 
 #ifndef TOOLBOX_CONFIG_H
 #define TOOLBOX_CONFIG_H

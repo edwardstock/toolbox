@@ -1,11 +1,6 @@
-/*!
- * toolbox.
- * log.h
- *
- * \date 11/30/2019
- * \author Eduard Maximovich (edward.vstock@gmail.com)
- * \link   https://github.com/edwardstock
- */
+
+/// @file log.h
+/// @brief Thread-safe singleton logger with severity levels and macro shortcuts.
 
 #ifndef TOOLBOXPP_LOG_H
 #define TOOLBOXPP_LOG_H
@@ -21,6 +16,7 @@
 
 namespace toolbox {
 
+/// Bitmask type for log severity levels.
 using level_t = uint16_t;
 constexpr const static level_t LEVEL_DEBUG = (1u << 0u);
 constexpr const static level_t LEVEL_WARNING = (1u << 1u);
@@ -29,10 +25,16 @@ constexpr const static level_t LEVEL_ERROR = (1u << 3u);
 constexpr const static level_t LEVEL_CRITICAL = (1u << 4u);
 constexpr const static level_t LEVEL_ALL = LEVEL_DEBUG | LEVEL_WARNING | LEVEL_INFO | LEVEL_ERROR | LEVEL_CRITICAL;
 
+/// Verbosity presets: VERBOSITY_0 shows only errors/critical,
+/// VERBOSITY_1 adds info, VERBOSITY_2 shows everything.
 constexpr const static level_t VERBOSITY_0 = LEVEL_CRITICAL | LEVEL_ERROR;
 constexpr const static level_t VERBOSITY_1 = VERBOSITY_0 | LEVEL_INFO;
 constexpr const static level_t VERBOSITY_2 = LEVEL_ALL;
 
+/// Thread-safe singleton logger.
+///
+/// Messages are written to configurable output streams (stdout/stderr by default) and can optionally be buffered.
+/// Use the L_DEBUG, L_INFO, L_WARN, L_ERR, L_CRIT macros for convenience.
 class TOOLBOX_API tlog {
 public:
     tlog(const tlog& copy) = delete;
@@ -68,29 +70,43 @@ private:
     bool can_log(level_t level);
 
 public:
+    /// Return the global logger instance.
     static tlog& get() {
         static tlog logger;
         return logger;
     }
 
+    /// Set the output stream for info/debug/warning messages (default: std::cout).
     void set_out_stream(std::ostream* out);
+    /// Set the output stream for error/critical messages (default: std::cerr).
     void set_err_stream(std::ostream* out);
+    /// Set allowed severity levels as a bitmask (e.g. LEVEL_DEBUG | LEVEL_INFO).
     void set_level(level_t level);
+    /// Set allowed severity level by name ("debug", "info", "warning", "error", "critical").
     void set_level(const std::string& level_s);
+    /// Set a verbosity preset (VERBOSITY_0, VERBOSITY_1, VERBOSITY_2).
     void set_verbosity(level_t verbosity);
+    /// Enable or disable the datetime prefix on each log line.
     void set_datetime_enable(bool enabled);
 
-    /**
-     * @param limit 0 means infinite
-     */
+    /// Set the maximum number of buffered messages per level.
+    /// @param limit 0 means unlimited
     void set_buffer_limit(std::size_t limit);
+    /// Clear all buffered messages.
     void clear();
+    /// Flush all buffered messages to their respective output streams.
     void flush();
 
+    /// @name Generic log methods
+    /// @{
     void log(level_t level, const char* tag, const char* message);
     void log(level_t level, const std::string& tag, const std::string& message);
     void log(level_t level, const char* file, int line, const char* tag, const char* message);
     void log(level_t level, const std::string& file, int line, const std::string& tag, const std::string& message);
+    /// @}
+
+    /// @name Shorthand log methods by severity
+    /// @{
 
     // ERROR
     void e(const char* file, int line, const char* tag, const char* message);
@@ -121,9 +137,14 @@ public:
     void d(const std::string& file, int line, const std::string& tag, const std::string& message);
     void d(const std::string& tag, const std::string& message);
     void d(const char* tag, const char* message);
+    /// @}
 };
 
 } // namespace toolbox
+
+/// @name Logging macros
+/// Each macro captures __FILE__ and __LINE__ automatically.
+/// @{
 
 #define L_LEVEL(level) toolbox::tlog::get().set_level(level)
 

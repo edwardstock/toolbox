@@ -1,11 +1,8 @@
-/*!
- * toolbox.
- * basic_data.h
- *
- * \date 2019
- * \author Eduard Maximovich (edward.vstock@gmail.com)
- * \link   https://github.com/edwardstock
- */
+
+/// @file basic_data.h
+/// @brief Generic resizable byte container with functional-style operations
+///        (map, filter, transform) and random-access write methods.
+
 #ifndef TOOLBOX_BASIC_DATA_H
 #define TOOLBOX_BASIC_DATA_H
 
@@ -27,6 +24,12 @@
 namespace toolbox {
 namespace data {
 
+/// Resizable container of elements of type T, backed by std::vector.
+///
+/// Provides STL-compatible iterators, random-access reads/writes, slicing,
+/// and functional helpers (map, filter, transform, convert).
+///
+/// @tparam T element type (typically uint8_t for byte containers)
 template<typename T>
 class basic_data : public slice_compatible<T> {
 public:
@@ -48,12 +51,12 @@ public:
 
     template<typename Out>
     struct converter {
-        Out operator()(const basic_data<T>&) { }
+        Out operator()(const basic_data<T>&) { return Out{}; }
     };
 
     template<typename Out>
     struct converter_vec {
-        Out operator()(const std::vector<T>&) { }
+        Out operator()(const std::vector<T>&) { return Out{}; }
     };
 
     template<typename To>
@@ -101,11 +104,11 @@ public:
     }
 
     const T& operator[](size_type n) const noexcept {
-        return at(n);
+        return m_data[n];
     }
 
     T& operator[](size_type n) noexcept {
-        return at(n);
+        return m_data[n];
     }
 
     operator bool() const noexcept {
@@ -119,7 +122,7 @@ public:
         if (m_data.size() != other.m_data.size()) {
             return false;
         }
-        if ((m_data.at(0) != other.m_data.at(0)) && (m_data.at(size() - 1) != other.m_data.at(other.size() - 1))) {
+        if ((m_data.at(0) != other.m_data.at(0)) || (m_data.at(size() - 1) != other.m_data.at(other.size() - 1))) {
             return false;
         }
 
@@ -130,11 +133,11 @@ public:
         return !(operator==(other));
     }
 
-    /// \brief Make sure that 'other' have at least size() elements, otherwise UB is your friend
-    /// \param other some iterable or array
-    /// \return
+    /// Compare against a raw pointer.
+    /// The caller must ensure that @p other points to at least size() elements,
+    /// otherwise the behavior is undefined.
     bool operator==(const T* other) const noexcept {
-        if (!other || !other[0] || !other[m_data.size() - 1]) {
+        if (!other) {
             return false;
         }
 
@@ -163,10 +166,12 @@ public:
         return !operator==(other);
     }
 
+    /// Return a const reference to the underlying vector.
     const std::vector<T>& get() const {
         return m_data;
     }
 
+    /// Return a mutable reference to the underlying vector.
     std::vector<T>& get() {
         return m_data;
     }
@@ -195,6 +200,7 @@ public:
         return m_data.size();
     }
 
+    /// Return the total size in bytes (sizeof(T) * size()).
     constexpr size_type size_data() const {
         return sizeof(T) * size();
     }
@@ -203,7 +209,7 @@ public:
         m_data.resize(sz);
     }
 
-    bool empty() const {
+    [[nodiscard]] bool empty() const {
         return m_data.empty();
     }
 
@@ -215,7 +221,7 @@ public:
         return m_data.capacity();
     }
 
-    void clear() {
+    virtual void clear() {
         m_data.clear();
     }
 
@@ -317,25 +323,19 @@ public:
 
     // ==== TAKE BY RANGE
 
-    /**
-     * Take first N elements and return vector
-     */
+    /// Take the first @p n elements and return them as a vector.
     std::vector<T> take_first(size_t n) const {
         std::vector<T> out;
         out.insert(out.begin(), m_data.begin(), m_data.begin() + n);
         return out;
     }
 
-    /**
-     * Take first N elements and make copy of basic_data<T> with the new data
-     */
+    /// Take the first @p n elements and return a new basic_data copy.
     basic_data<T> take_first_c(size_t n) const {
         return basic_data<T>(take_first(n));
     }
 
-    /**
-     * Take first N elements and updates current basic_data<T> with the new data
-     */
+    /// Take the first @p n elements, replacing the current contents in place.
     virtual basic_data<T>& take_first_m(size_t n) {
         auto cp = take_first(n);
         clear();
@@ -473,9 +473,7 @@ public:
     }
 
     virtual void push_back(const T* data, size_t len) {
-        size_t alloc_size = sizeof(T) * len;
-        m_data.resize(size() + alloc_size);
-        memcpy(m_data.data() + size() - alloc_size, data, alloc_size);
+        m_data.insert(m_data.end(), data, data + len);
     }
 
     virtual void push_back(const_iterator start, const_iterator end) {
@@ -495,38 +493,22 @@ public:
         data.clear();
     }
 
-    /// \brief batch reduces allocations
-    /// \param vals map of positions -> values
-    /// \example write_bach(std::map<size_t, std::vector<uint8_t>> {
-    ///     {0, 0x00},
-    ///     {1, 0x01},
-    ///     {3, 0x03},
-    ///     {2, 0x02},
-    /// })
-    /// If some position will not set, it will be initialized by default, so don't forget to set all positions before using
-    /// \return written values count
+    /// Write values at specific positions in a single batch to reduce allocations.
+    /// Positions not covered by @p vals keep their default value.
+    /// @param vals map of position -> value
+    /// @return number of values written
     virtual size_type write_batch(std::map<size_type, T>&& vals) {
         if (vals.empty()) {
             return 0;
         }
 
-        size_type minPos = std::numeric_limits<size_type>::max();
         size_type maxPos = 0;
-
         for (const auto& it: vals) {
-            minPos = std::min(minPos, it.first);
             maxPos = std::max(maxPos, it.first);
         }
 
         if (maxPos >= size()) {
-            size_type alloc;
-            if (size() != 0) {
-                alloc = minPos + vals.size() - size();
-                alloc += size();
-            } else {
-                alloc = vals.size();
-            }
-            m_data.resize(alloc);
+            m_data.resize(maxPos + 1);
         }
 
         size_type n = 0;
@@ -557,21 +539,18 @@ public:
     }
 
     virtual size_type write(size_type pos, const T* data, size_t length) {
-        size_t len = sizeof(T) * length;
-        if (pos + len >= size()) {
-            size_t alloc = size() + (pos + len - size());
-            m_data.resize(alloc);
+        if (pos + length > size()) {
+            m_data.resize(pos + length);
         }
 
-        memcpy(m_data.data() + pos, data, len);
+        std::copy(data, data + length, m_data.begin() + pos);
         return length;
     }
 
-    /// \brief Write method overwrite existing data, and if input data.size() >
-    /// buffer.size(), it resize current buffer
-    /// \param pos
-    /// \param data
-    /// \return
+    /// Write data at @p pos, resizing the buffer if necessary.
+    /// @param pos starting write position
+    /// @param data source container
+    /// @return number of elements written
     virtual size_type write(size_type pos, const basic_data<T>& data) {
         return write(pos, data.get());
     }
@@ -593,24 +572,15 @@ public:
 
     virtual size_type write(size_type pos, T val) {
         if (pos >= size()) {
-            size_type alloc;
-            if (size() != 0) {
-                alloc = size() + 1;
-            } else {
-                alloc = 1;
-            }
-            m_data.resize(alloc);
+            m_data.resize(pos + 1);
         }
         m_data[pos] = val;
         return 1;
     }
 
-    /**
-     * @brief Writes value to the end of container if there is enough space,
-     * otherwise allocates new space targetSize = size + sizeof(value)
-     * @param val T value
-     * @return 
-     */
+    /// Append a single value to the end of the container, resizing if needed.
+    /// @param val value to write
+    /// @return number of elements written (always 1)
     virtual size_t write_back(T val) {
         return write(size(), val);
     }

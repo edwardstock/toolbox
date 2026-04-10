@@ -1,6 +1,5 @@
-//
-// Created by Edward on 30.11.2019.
-//
+/// @file data.hpp
+/// @brief Convenience header that includes all byte-container types.
 
 #ifndef TOOLBOXPP_DATA_HPP
 #define TOOLBOXPP_DATA_HPP
