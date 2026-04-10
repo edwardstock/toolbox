@@ -1,4 +1,3 @@
-include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
 # ── pkg-config ────────────────────────────────────────────────────────────────

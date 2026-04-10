@@ -26,6 +26,7 @@ option(toolbox_BUILD_TESTS "Build toolbox test suite" OFF)
 
 # ── Module path ───────────────────────────────────────────────────────────────
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules")
+include(GNUInstallDirs)
 include(compilers_flags)
 include(SystemDetector)
 
@@ -90,7 +91,7 @@ if(toolbox_BUILD_SHARED_LIBS)
         set_target_properties(${PROJECT_NAME} PROPERTIES
             OUTPUT_NAME "${PROJECT_NAME}.${PROJECT_VERSION_MAJOR}"
         )
-        # Post-build: also write toolbox.3.5.0.dll and the plain toolbox.dll alias
+        # Post-build: also write toolbox.x.x.x.dll and the plain toolbox.dll alias
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                     "$<TARGET_FILE:${PROJECT_NAME}>"

@@ -142,9 +142,13 @@ void bytes_data::push_back(const char* val, size_t len) {
 }
 
 void bytes_data::clear() {
+    if (empty()) {
+        m_data.clear();
+        return;
+    }
     static volatile std::atomic<uint8_t> cleanse_counter{0u};
     auto* p = data();
-    size_t const len = (uint8_t *) (data() + size()) - p;
+    size_t const len = size();
     size_t loop = len;
     size_t count = cleanse_counter;
     while (loop--) {
