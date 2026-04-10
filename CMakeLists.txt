@@ -24,11 +24,9 @@ option(toolbox_BUILD_SHARED_LIBS
        ${BUILD_SHARED_LIBS})
 option(toolbox_BUILD_TESTS "Build toolbox test suite" OFF)
 
-# ── Module path ───────────────────────────────────────────────────────────────
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules")
 include(GNUInstallDirs)
-include(compilers_flags)
-include(SystemDetector)
+include("${CMAKE_CURRENT_SOURCE_DIR}/modules/compilers_flags.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/modules/SystemDetector.cmake")
 
 # ── Generated config header ───────────────────────────────────────────────────
 if(NOT toolbox_BUILD_SHARED_LIBS)
@@ -193,4 +191,4 @@ if(toolbox_BUILD_TESTS)
 endif()
 
 # ── Install & packaging ───────────────────────────────────────────────────────
-include(package)
+include("${CMAKE_CURRENT_SOURCE_DIR}/modules/package.cmake")
