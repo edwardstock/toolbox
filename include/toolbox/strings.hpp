@@ -13,6 +13,7 @@
 #include <utility>
 #include <cstdio>
 #include <cstddef>
+#include <cstdint>
 #include <vector>
 #include <type_traits>
 
